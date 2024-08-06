@@ -5,6 +5,7 @@ import shogi
 class TestShogiPosition(unittest.TestCase):
   def test_init_default(self):
     p = shogi.Position()
+    p.sfen()
 
 if __name__ == '__main__':
   unittest.main()
