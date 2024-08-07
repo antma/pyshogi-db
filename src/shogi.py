@@ -13,10 +13,23 @@ GOLD = 5
 BISHOP = 6
 ROOK = 7
 KING = 8
-
+PROMOTED = 8
+UNPROMOTED_PIECES = set([GOLD, KING])
 ASCII_PIECES = 'plnsgbrk'
 
+def _piece_to_string(piece: int) -> str:
+  p = abs(piece)
+  b = True
+  if p > PROMOTED:
+    p -= PROMOTED
+    b = False
+  s = ASCII_PIECES[p - 1]
+  if piece > 0:
+    s = s.upper()
+  return s if b else '+' + s
+
 class Position:
+  '''shogi position'''
   def _set_cell(self, row, col, piece):
     if not -KING <= piece <= KING:
       log.raise_value_error(f'Position._set_cell(): illegal piece {piece}')
@@ -39,8 +52,11 @@ class Position:
     d = dict(map(lambda t: (t[1], t[0] + 1), enumerate(ASCII_PIECES)))
     for row, t in enumerate(a[0].split('/')):
       col = 9
+      promoted = False
       for c in t:
         if c.isdigit():
+          if promoted:
+            log.raise_value_error(f"Position.__init__(sfen: {sfen}) free cell can't be promoted")
           for _ in range(int(c)):
             col -= 1
             self._set_cell(row, col, FREE)
@@ -49,13 +65,29 @@ class Position:
           piece = d.get(c)
           if piece is None:
             log.raise_value_error(f"Position.__init__(sfen: {sfen}) unknown piece '{c}'")
+          if promoted:
+            if piece in UNPROMOTED_PIECES:
+              log.raise_value_error(f"Position.__init__(sfen: {sfen}) promoted gold or king is illegal")
+            piece += PROMOTED
+            promoted = False
           self._set_cell(row, col, -piece)
         elif c.isupper():
           col -= 1
           piece = d.get(c.lower())
           if piece is None:
             log.raise_value_error(f'Position.__init__(sfen: {sfen}) unknown piece {c}')
+          if promoted:
+            if piece in UNPROMOTED_PIECES:
+              log.raise_value_error(f"Position.__init__(sfen: {sfen}) promoted gold or king is illegal")
+            piece += PROMOTED
+            promoted = False
           self._set_cell(row, col, piece)
+        elif c == '+':
+          if promoted:
+            log.raise_value_error(f"Position.__init__(sfen: {sfen}) double plus")
+          promoted = True
+        else:
+          log.raise_value_error(f"Position.__init__(sfen: {sfen}) illegal character '{c}' in the board representation part")
       if col != 0:
         log.raise_value_error(f'Position.__init__(sfen: {sfen}) not enough data in row #{row+1}')
     if a[2] != '-':
@@ -81,10 +113,7 @@ class Position:
           if t > 0:
             s += chr(48 + t)
             t = 0
-          if c > 0:
-            s += ASCII_PIECES[c - 1].upper()
-          else:
-            s += ASCII_PIECES[-(1 + c)]
+          s += _piece_to_string(c)
       if t > 0:
         s += chr(48 + t)
     s += ' '
