@@ -4,41 +4,19 @@
 import logging
 import log
 
-FREE = 0
-PAWN = 1
-LANCE = 2
-KNIGHT = 3
-SILVER = 4
-GOLD = 5
-BISHOP = 6
-ROOK = 7
-KING = 8
-PROMOTED = 8
-UNPROMOTED_PIECES = set([GOLD, KING])
-ASCII_PIECES = 'plnsgbrk'
-
-def _piece_to_string(piece: int) -> str:
-  p = abs(piece)
-  b = True
-  if p > PROMOTED:
-    p -= PROMOTED
-    b = False
-  s = ASCII_PIECES[p - 1]
-  if piece > 0:
-    s = s.upper()
-  return s if b else '+' + s
+from . import piece
 
 class Position:
   '''shogi position'''
-  def _set_cell(self, row, col, piece):
-    if not -KING <= piece <= KING:
-      log.raise_value_error(f'Position._set_cell(): illegal piece {piece}')
+  def _set_cell(self, row, col, p):
+    if not piece.is_legal(p):
+      log.raise_value_error(f'Position._set_cell(): illegal piece {p}')
     if (0 <= row < 9) and (0 <= col < 9):
-      self.board[9 * row + col] = piece
+      self.board[9 * row + col] = p
     else:
       log.raise_value_error(f'Position._set_cell(): illegal cell ({row+1}, {col+1})')
   def __init__(self, sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"):
-    self.board = [FREE] * 81
+    self.board = [piece.FREE] * 81
     self.sente_pieces = [0] * 6
     self.gote_pieces = [0] * 6
     a = list(sfen.split(' '))
@@ -49,7 +27,7 @@ class Position:
       self.side_to_move = -1
     else:
       log.raise_value_error(f"Position.__init__(sfen: {sfen}) unknown side to move")
-    d = dict(map(lambda t: (t[1], t[0] + 1), enumerate(ASCII_PIECES)))
+    d = dict(map(lambda t: (t[1], t[0] + 1), enumerate(piece.ASCII_PIECES)))
     for row, t in enumerate(a[0].split('/')):
       col = 9
       promoted = False
@@ -59,29 +37,25 @@ class Position:
             log.raise_value_error(f"Position.__init__(sfen: {sfen}) free cell can't be promoted")
           for _ in range(int(c)):
             col -= 1
-            self._set_cell(row, col, FREE)
+            self._set_cell(row, col, piece.FREE)
         elif c.islower():
           col -= 1
-          piece = d.get(c)
-          if piece is None:
+          p = d.get(c)
+          if p is None:
             log.raise_value_error(f"Position.__init__(sfen: {sfen}) unknown piece '{c}'")
           if promoted:
-            if piece in UNPROMOTED_PIECES:
-              log.raise_value_error(f"Position.__init__(sfen: {sfen}) promoted gold or king is illegal")
-            piece += PROMOTED
+            p = piece.promote(p)
             promoted = False
-          self._set_cell(row, col, -piece)
+          self._set_cell(row, col, -p)
         elif c.isupper():
           col -= 1
-          piece = d.get(c.lower())
-          if piece is None:
+          p = d.get(c.lower())
+          if p is None:
             log.raise_value_error(f'Position.__init__(sfen: {sfen}) unknown piece {c}')
           if promoted:
-            if piece in UNPROMOTED_PIECES:
-              log.raise_value_error(f"Position.__init__(sfen: {sfen}) promoted gold or king is illegal")
-            piece += PROMOTED
+            p = piece.promote(p)
             promoted = False
-          self._set_cell(row, col, piece)
+          self._set_cell(row, col, p)
         elif c == '+':
           if promoted:
             log.raise_value_error(f"Position.__init__(sfen: {sfen}) double plus")
@@ -113,17 +87,17 @@ class Position:
           if t > 0:
             s += chr(48 + t)
             t = 0
-          s += _piece_to_string(c)
+          s += piece.to_string(c)
       if t > 0:
         s += chr(48 + t)
     s += ' '
     s += 'b' if self.side_to_move > 0 else 'w'
     s += ' '
     w = ''
-    for c, t in zip(ASCII_PIECES, self.sente_pieces):
+    for c, t in zip(piece.ASCII_PIECES, self.sente_pieces):
       if t > 0:
         w += c.upper() * t
-    for c, t in zip(ASCII_PIECES, self.gote_pieces):
+    for c, t in zip(piece.ASCII_PIECES, self.gote_pieces):
       if t > 0:
         w += c * t
     if w == '':
