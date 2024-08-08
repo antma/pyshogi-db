@@ -41,3 +41,10 @@ def promote(piece: int) -> int:
   if a > KING:
     log.raise_value_error("piece is already promoted")
   return (piece + PROMOTED) if piece > 0 else (piece - PROMOTED)
+
+def unpromote(piece: int) -> int:
+  if piece > KING:
+    return piece - PROMOTED
+  if piece < -KING:
+    return piece + PROMOTED
+  return piece

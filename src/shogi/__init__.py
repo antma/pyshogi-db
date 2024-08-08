@@ -1,10 +1,15 @@
 # -*- coding: UTF8 -*-
 ''' shogi rules (move generation, etc.) '''
 
+from typing import Optional
 import logging
 import log
 
+from . import kifu
 from . import piece
+from . import move
+
+SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
 class Position:
   '''shogi position'''
@@ -15,7 +20,7 @@ class Position:
       self.board[9 * row + col] = p
     else:
       log.raise_value_error(f'Position._set_cell(): illegal cell ({row+1}, {col+1})')
-  def __init__(self, sfen = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"):
+  def __init__(self, sfen = SFEN_INITIAL):
     self.board = [piece.FREE] * 81
     self.sente_pieces = [0] * 6
     self.gote_pieces = [0] * 6
@@ -74,12 +79,12 @@ class Position:
           log.raise_value_error(f'Position.__init__(sfen: {sfen}) piece in hand should be alphabetic')
   def sfen(self, moveno = True) -> str:
     s = ''
-    for row in range(8):
-      u = 8 * row
+    for row in range(9):
+      u = 9 * row
       t = 0
       if row > 0:
         s += '/'
-      for i in range(u + 7, u - 1, -1):
+      for i in range(u + 8, u - 1, -1):
         c = self.board[i]
         if c == 0:
           t += 1
@@ -107,3 +112,54 @@ class Position:
     if moveno:
       s += ' ' + str(self.moveno)
     return s
+  def _validate_move(self, m: move.Move):
+    if self.side_to_move * m.to_piece <= 0:
+      raise ValueError("position side_to_move field isn't matched to move to_piece field'")
+    if m.is_drop():
+      if self.board[m.to_cell] != piece.FREE:
+        raise ValueError('drop piece on occupied cell')
+      c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces 
+      if c[abs(m.to_piece) - 1] <= 0:
+        raise ValueError('dropping piece which not in the player hand')
+    else:
+      if self.side_to_move * m.from_piece <= 0:
+        raise ValueError("position side_to_move field isn't matched to move from_piece field'")
+      taken_piece = self.board[m.to_cell]
+      if taken_piece * self.side_to_move > 0:
+        raise ValueError("player takes his piece'")
+
+  def do_move(self, m: move.Move) -> Optional[move.UndoMove]:
+    try:
+      self._validate_move(m)
+    except ValueError as err:
+      log.raise_value_error(f'Position.do_move(m = {m}): {err}. SFEN = "{self.sfen()}"')
+    #if self.side_to_move * m.to_piece <= 0:
+    #  log.raise_value_error("Position.do_move(): position side_to_move field isn't matched to move to_piece field'")
+    if m.is_drop():
+      #if self.board[m.to_cell] != piece.FREE:
+      #  log.raise_value_error('Position.do_move(): drop piece on occupied cell')
+      self.board[m.to_cell] = m.to_piece
+      c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces 
+      #if c[m.to_piece - 1] <= 0:
+      #  log.raise_value_error('Position.do_move(): dropping piece which not in the player hand')
+      c[abs(m.to_piece) - 1] -= 1
+      u = None
+    else:
+      #if self.side_to_move * m.from_piece <= 0:
+      #  log.raise_value_error("Position.do_move(): position side_to_move field isn't matched to move from_piece field'")
+      taken_piece = self.board[m.to_cell]
+      if taken_piece == piece.FREE:
+        u = None
+      else:
+        #if taken_piece * self.side_to_move > 0:
+        #  log.raise_value_error("Position.do_move(): player takes his piece'")
+        u = move.UndoMove(taken_piece)
+        c = self.sente_pieces if taken_piece > 0 else self.gote_pieces 
+        a = abs(taken_piece)
+        if a != piece.KING:
+          c[piece.unpromote(a) - 1] += 1
+      self.board[m.from_cell] = piece.FREE
+      self.board[m.to_cell] = m.to_piece
+    self.side_to_move *= -1
+    self.moveno += 1
+    return u
