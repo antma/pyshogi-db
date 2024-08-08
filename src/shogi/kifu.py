@@ -1,14 +1,34 @@
 # -*- coding: UTF8 -*-
 
+import datetime
 import logging
+import re
+from typing import (Optional, Tuple)
 
-from typing import Optional
 from . import move
 from . import piece
+import log
 
 _KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
 _KIFU_COLS = '１２３４５６７８９'
 _KIFU_ROWS = '一二三四五六七八九'
+_HEADER_MOVES_SEPARATOR = '手数----指手---------消費時間--'
+_RESULT_D = {
+  '中断': ('Aborted', 'Game was aborted.'),
+  '投了': ('Resignation', 'The player whose turn it was, is the one who resigned. Time that it took the player to resign can also be noted.'),
+  '千日手': ('Repetition', 'Four-fold repetition.'),
+  '詰み': ('Checkmate', 'Checkmate or stalemate. The player whose turn it was, is the one who is checkmated.'),
+  '切れ負け': ('Time', 'Losing on time. The player whose turn it was, is the one who ran out of time. Some sites use "Time-up" instead.'),
+  '反則勝ち': ('IllegalPrecedingMove', 'Indicates that the immediately preceding move was illegal.'),
+  '反則負け': ('IllegalMove', 'Indicates that the player whose turn this was supposed to be somehow lost by illegality.'),
+  '入玉勝ち': ('EnteringKing', 'Indicates that the player whose it was, declared win by entering king.')
+}
+
+class GameResult:
+  def __init__(self, result, description):
+    logging.debug('GameResult.__init__(): result = %s, description = %s', result, description)
+    self.result = result
+    self.description = description
 
 def _create_kifu_dict(s, offset = 0):
   return dict(map(lambda t: (t[1], t[0] + offset), filter(lambda t: t[1] != '?', enumerate(s))))
@@ -93,8 +113,108 @@ def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Opt
       logging.debug('from row is not in [1..9]')
       return None
     to_piece = piece.promote(p) if promoted else p
-    logging.debug('row = %s, col = %s', row, col)
+    #logging.debug('row = %s, col = %s', row, col)
     return move.Move(side_to_move * p, 9 * row + col, side_to_move * to_piece, to_cell)
   except StopIteration:
     logging.debug("not enough data")
     return None
+
+def _parse_key_value(s: str, sep: str) -> Optional[Tuple[str, str]]:
+  i = s.find(sep)
+  if i < 0:
+    return None
+  return (s[:i], s[i+1:])
+
+def _parse_player_name(d: dict, s: str, key: str):
+  if s.endswith(')'):
+    i = s.rfind('(')
+    if i >= 0:
+      t = s[i+1:len(s)-1]
+      if (len(t) > 0) and t.isdigit():
+        d[key] = s[:i]
+        d[key + '_rating'] = int(t)
+        return
+  d[key] = s
+
+class Game:
+  def __init__(self, header, moves, result):
+    logging.debug('header = %s', header)
+    for key, value in header.items():
+      setattr(self, key, value)
+    self.moves = moves
+    self.result = result
+  @staticmethod
+  #def parse(s: str) -> Optional['Game']:
+  def parse(s: str):
+    try:
+      return _game_parse(s)
+    except ValueError as err:
+      logging.debug(repr(err))
+      return None
+
+def _game_parse(s: str) -> Optional[Game]:
+  '''
+  https://lishogi.org/explanation/kif
+  '''
+  it = filter(lambda t: t != '', map(str.rstrip, s.split('\n')))
+  t = next(it)
+  a = list(t.split())
+  if len(a) != 3:
+    log.raise_value_error('Illegal number of fields in KIFU header')
+  if a[0] != '#KIF':
+    log.raise_value_error(f'Expected "#KIFU", but "{a[0]}" found')
+  p = _parse_key_value(a[1], '=')
+  if (p == None) or (p[0] != 'version'):
+    log.raise_value_error(f'Expected "version", but "{a[1]}" found')
+  version = p[1]
+  p = _parse_key_value(a[2], '=')
+  if (p == None) or (p[0] != 'encoding'):
+    log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
+  encoding = p[1]
+  d = {}
+  while True:
+    t = next(it)
+    if t == _HEADER_MOVES_SEPARATOR:
+      break
+    p = _parse_key_value(t, '：')
+    if p is None:
+      log.raise_value_error(f'Expected header section and moves section separator, but "{t}" found')
+    key, value = p
+    if key == '開始日時':
+      year, month, day = value.split('/')
+      if year.isdigit() and month.isdigit() and day.isdigit():
+        d['start_date'] = datetime.date(int(year), int(month), int(day))
+    elif key == '場所':
+      d['location'] = value
+    elif key == '持ち時間':
+      d['time_control'] = value
+    elif key == '手合割':
+      if value == '平手':
+        value = None
+      d['handicap'] = value
+    elif key == '先手':
+      _parse_player_name(d, value, 'sente')
+    elif key == '後手':
+      _parse_player_name(d, value, 'gote')
+  moves = []
+  prev_move = None
+  side_to_move = 1
+  game_result = None
+  for (i, s) in enumerate(it):
+    t = str(i+1)
+    a = list(filter(lambda t: t != '', s.split(' ')))
+    if (len(a) < 2) or (t != a[0]):
+      break
+    logging.debug('Move %s', a[1])
+    p = _RESULT_D.get(a[1])
+    if not p is None:
+      logging.debug('Result %s', p)
+      game_result = GameResult(p[0], p[1])
+      break
+    mv = move_parse(a[1], side_to_move, prev_move)
+    if mv is None:
+      break
+    moves.append(mv)
+    prev_move = mv
+    side_to_move *= -1
+  return Game(d, moves, game_result)
