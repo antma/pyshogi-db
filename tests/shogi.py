@@ -16,6 +16,21 @@ GAME1 =  ['２六歩(27)', '３四歩(33)', '７六歩(77)', '４四歩(43)', '�
 '３二飛(42)', '４一龍(31)', '８四香打', '８八香打', '２八歩打', '３七桂(29)', '５二銀打', '４四龍(41)',
 '４三銀(52)', '４六龍(44)', '４四歩打', '７六龍(46)']
 
+GAME2 = ['７六歩(77)', '８四歩(83)', '５六歩(57)', '３四歩(33)', '５五歩(56)', '４二玉(51)', '５八飛(28)',
+'６二銀(71)', '７七角(88)', '７四歩(73)', '６八銀(79)', '７三銀(62)', '５七銀(68)', '６四銀(73)',
+'６六銀(57)', '３二銀(31)', '５四歩(55)', '同\u3000歩(53)', '同\u3000飛(58)', '３三銀(32)',
+'５八飛(54)', '４四銀(33)', '４八玉(59)', '３二玉(42)', '３八玉(48)', '５二金(61)', '２八玉(38)',
+'７三桂(81)', '３八銀(39)', '８五歩(84)', '１六歩(17)', '９四歩(93)', '９六歩(97)', '６五桂(73)',
+'６八角(77)', '８六歩(85)', '同\u3000角(68)', '５五銀(44)', '同\u3000銀(66)',
+'同\u3000銀(64)', '５四歩打', '５六歩打', '５三歩成(54)', '５七歩成(56)', '９八飛(58)', '８五銀打',
+'９七角(86)', '９六銀(85)', '５二と(53)', '同\u3000金(41)', '５四歩打', '９七銀成(96)',
+'同\u3000飛(98)', '６四角打', '５三銀打', '同\u3000金(52)', '同\u3000歩成(54)',
+'同\u3000角(64)', '５四銀打', '９七角成(53)', '同\u3000桂(89)', '４七と(57)', '同\u3000銀(38)',
+'５七桂(65)', '５九金(69)', '４九桂成(57)', '同\u3000金(59)', '８八飛打', '５八歩打', '８九飛成(88)',
+'３九金打', '９九龍(89)', '７一角打', '８七飛成(82)', '５三角成(71)', '４二金打', '４五桂打', '４一香打',
+'４二馬(53)', '同\u3000香(41)', '５二金打', '４四銀(55)', '５三銀成(54)', '４五銀(44)', '４二金(52)',
+'３三玉(32)', '４三成銀(53)', '２四玉(33)', '２六香打']
+
 class TestShogiPiece(unittest.TestCase):
   def test_to_string(self):
     self.assertEqual(shogi.piece.to_string(shogi.piece.DRAGON), '+R')
@@ -35,16 +50,11 @@ class TestShogiPosition(unittest.TestCase):
     self.assertIsNotNone(mv)
     u = p.do_move(mv)
     self.assertEqual(p.sfen(), 'lnsgkgsnl/1r5b1/ppppppppp/9/9/7P1/PPPPPPP1P/1B5R1/LNSGKGSNL w - 2')
-  def test_game(self):
+  def _check_game(self, game, fens):
     p = shogi.Position()
     prev_move = None
-    fens = [('ln1g4l/1ks2r3/1ppppgn2/p5ppp/5p3/P1P1P2RP/1PBP1P3/2K1GS3/LN1G3N+b b SPslp 47', 'after promotion bishop to a horse'),
-      ('ln1g3+Rl/1ks2r3/1ppppgn2/p5p1p/9/P1P1P+b2P/1PBP5/2K1GS3/LN1G3N1 w S3Psl2p 52', 'after promotion rook to a dragon'),
-      ('ln1g4l/1ks2r3/1ppppgn2/p5pRp/9/P1P1P+b2P/1PBP5/2K1GS3/LN1G3N1 b S3Psl2p 51', 'after horse recaptures a pawn'),
-      ('ln1g4l/1ks2r3/1ppppgn2/p5pRp/9/P1P1PP2P/1PBP5/2K1GS3/LN1G3N+b w S3Pslp 50', 'before horse recaptures a pawn')
-    ]
     d = dict(map(lambda t: (int(list(t[0].split(' '))[3]) - 2, t[0]), fens))
-    for i, m in enumerate(GAME1):
+    for i, m in enumerate(game):
       logging.debug('Move: %s', m)
       mv = shogi.kifu.move_parse(m, p.side_to_move, prev_move)
       self.assertIsNotNone(mv)
@@ -54,6 +64,17 @@ class TestShogiPosition(unittest.TestCase):
       q = d.get(i)
       if not q is None:
         self.assertEqual(p.sfen(), q)
-    self.assertEqual(p.sfen(), 'ln1g5/1ks3r2/1ppppsn2/pl3pp1p/9/P1+R5P/1PBPP1N2/1LK1GS1p1/LN1G5 w BGSP3p 72')
+  def test_games(self):
+    fens1 = [('ln1g4l/1ks2r3/1ppppgn2/p5ppp/5p3/P1P1P2RP/1PBP1P3/2K1GS3/LN1G3N+b b SPslp 47', 'after promotion bishop to a horse'),
+      ('ln1g3+Rl/1ks2r3/1ppppgn2/p5p1p/9/P1P1P+b2P/1PBP5/2K1GS3/LN1G3N1 w S3Psl2p 52', 'after promotion rook to a dragon'),
+      ('ln1g4l/1ks2r3/1ppppgn2/p5pRp/9/P1P1P+b2P/1PBP5/2K1GS3/LN1G3N1 b S3Psl2p 51', 'after horse recaptures a pawn'),
+      ('ln1g4l/1ks2r3/1ppppgn2/p5pRp/9/P1P1PP2P/1PBP5/2K1GS3/LN1G3N+b w S3Pslp 50', 'before horse recaptures a pawn'),
+      ('ln1g5/1ks3r2/1ppppsn2/pl3pp1p/9/P1+R5P/1PBPP1N2/1LK1GS1p1/LN1G5 w BGSP3p 72', 'final position')
+    ]
+    logging.debug('First game')
+    self._check_game(GAME1, fens1)
+    fens2 = [('l6nl/5G1b1/3p1+S1pp/p1p3pk1/5s3/2P4LP/N+r1P1SPP1/4P2K1/+r4GGNL w GPbsn5p 90', 'final position')]
+    logging.debug('Second game')
+    self._check_game(GAME2, fens2)
 if __name__ == '__main__':
   unittest.main()

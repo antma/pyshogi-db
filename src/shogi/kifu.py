@@ -6,7 +6,7 @@ from typing import Optional
 from . import move
 from . import piece
 
-_KIFU_PIECES = '歩香桂銀金角飛玉と杏圭全?馬龍'
+_KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
 _KIFU_COLS = '１２３４５６７８９'
 _KIFU_ROWS = '一二三四五六七八九'
 
@@ -24,7 +24,6 @@ def _iter_is_empty(it):
 
 def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
   it = iter(s)
-  promoted = False
   try:
     t = next(it)
     if t == '同':
@@ -45,10 +44,21 @@ def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Opt
         logging.debug('expected to row, but %s found', t)
         return None
       to_cell = 9 * row + col
-    p = _KIFU_PIECES_D.get(next(it))
+    has_been_promoted = False
+    t = next(it)
+    if t == '成':
+      has_been_promoted = True
+      t = next(it)
+    p = _KIFU_PIECES_D.get(t)
     if p is None:
       return None
+    if has_been_promoted:
+      if piece.is_promoted(p):
+        logging.debug('double promotion in %s', s)
+        return None
+      p = piece.promote(p)
     t = next(it)
+    promoted = False
     if t == '成':
       promoted = True
       t = next(it)
