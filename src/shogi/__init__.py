@@ -151,14 +151,11 @@ class Position:
       c[abs(m.to_piece) - 1] -= 1
       u = None
     else:
-      #if self.side_to_move * m.from_piece <= 0:
-      #  log.raise_value_error("Position.do_move(): position side_to_move field isn't matched to move from_piece field'")
       taken_piece = self.board[m.to_cell]
+      logging.debug('taken_piece = %s', piece.to_string(taken_piece))
       if taken_piece == piece.FREE:
         u = None
       else:
-        #if taken_piece * self.side_to_move > 0:
-        #  log.raise_value_error("Position.do_move(): player takes his piece'")
         u = move.UndoMove(taken_piece)
         c = self.sente_pieces if taken_piece < 0 else self.gote_pieces
         a = abs(taken_piece)

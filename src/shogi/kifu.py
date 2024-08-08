@@ -6,12 +6,12 @@ from typing import Optional
 from . import move
 from . import piece
 
-_KIFU_PIECES = '歩香桂銀金角飛玉と杏圭全馬龍'
+_KIFU_PIECES = '歩香桂銀金角飛玉と杏圭全?馬龍'
 _KIFU_COLS = '１２３４５６７８９'
 _KIFU_ROWS = '一二三四五六七八九'
 
 def _create_kifu_dict(s, offset = 0):
-  return dict(map(lambda t: (t[1], t[0] + offset), enumerate(s)))
+  return dict(map(lambda t: (t[1], t[0] + offset), filter(lambda t: t[1] != '?', enumerate(s))))
 
 _KIFU_COLS_D = _create_kifu_dict(_KIFU_COLS)
 _KIFU_ROWS_D = _create_kifu_dict(_KIFU_ROWS)
