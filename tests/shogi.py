@@ -42,8 +42,13 @@ class TestShogiPosition(unittest.TestCase):
   def test_init_default(self):
     p = shogi.Position()
     self.assertEqual(p.sfen(), shogi.SFEN_INITIAL)
+  def _test_fen(self, fen):
+    p = shogi.Position(fen)
+    self.assertEqual(p.sfen(), fen)
   def test_init(self):
     self.assertRaises(ValueError, shogi.Position, '9 - - 1')
+    self._test_fen('+B2g1ksn+L/6g2/9/9/4+r4/9/4+b4/7R1/LNSGKGSN1 w SN2L18P 84')
+    self._test_fen('+B2g1ksn+L/6g2/9/9/4+r4/9/9/5K1R1/L+b1G1GSN1 b SN2L18Psn 87')
   def test_one_move(self):
     p = shogi.Position()
     mv = shogi.kifu.move_parse(GAME1[0], p.side_to_move, None)

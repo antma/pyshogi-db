@@ -70,13 +70,20 @@ class Position:
       if col != 0:
         log.raise_value_error(f'Position.__init__(sfen: {sfen}) not enough data in row #{row+1}')
     if a[2] != '-':
+      t = 0
       for c in a[2]:
         if c.islower():
-          self.gote_pieces[d.get(c) - 1] += 1
+          self.gote_pieces[d.get(c) - 1] += max(t, 1)
+          t = 0
         elif c.isupper():
-          self.sente_pieces[d.get(c.lower()) - 1] += 1
+          self.sente_pieces[d.get(c.lower()) - 1] += max(t, 1)
+          t = 0
+        elif c.isdigit():
+          t = 10 * t + int(c)
         else:
           log.raise_value_error(f'Position.__init__(sfen: {sfen}) piece in hand should be alphabetic')
+      if t != 0:
+        log.raise_value_error(f'Position.__init__(sfen: {sfen}) after number in hand should be alphabetic character')
   def sfen(self, moveno = True) -> str:
     s = ''
     for row in range(9):
