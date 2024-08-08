@@ -22,8 +22,8 @@ class Position:
       log.raise_value_error(f'Position._set_cell(): illegal cell ({row+1}, {col+1})')
   def __init__(self, sfen = SFEN_INITIAL):
     self.board = [piece.FREE] * 81
-    self.sente_pieces = [0] * 6
-    self.gote_pieces = [0] * 6
+    self.sente_pieces = [0] * piece.ROOK
+    self.gote_pieces = [0] * piece.ROOK
     a = list(sfen.split(' '))
     self.moveno = int(a[3])
     if a[1] == 'b':
@@ -99,12 +99,18 @@ class Position:
     s += 'b' if self.side_to_move > 0 else 'w'
     s += ' '
     w = ''
-    for c, t in zip(piece.ASCII_PIECES, self.sente_pieces):
+    for p in range(piece.ROOK, piece.FREE, -1):
+      t = self.sente_pieces[p-1]
       if t > 0:
-        w += c.upper() * t
-    for c, t in zip(piece.ASCII_PIECES, self.gote_pieces):
+        if t > 1:
+          w += str(t)
+        w += piece.ASCII_PIECES[p-1].upper()
+    for p in range(piece.ROOK, piece.FREE, -1):
+      t = self.gote_pieces[p-1]
       if t > 0:
-        w += c * t
+        if t > 1:
+          w += str(t)
+        w += piece.ASCII_PIECES[p-1]
     if w == '':
       s += '-'
     else:
@@ -118,7 +124,7 @@ class Position:
     if m.is_drop():
       if self.board[m.to_cell] != piece.FREE:
         raise ValueError('drop piece on occupied cell')
-      c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces 
+      c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces
       if c[abs(m.to_piece) - 1] <= 0:
         raise ValueError('dropping piece which not in the player hand')
     else:
@@ -139,7 +145,7 @@ class Position:
       #if self.board[m.to_cell] != piece.FREE:
       #  log.raise_value_error('Position.do_move(): drop piece on occupied cell')
       self.board[m.to_cell] = m.to_piece
-      c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces 
+      c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces
       #if c[m.to_piece - 1] <= 0:
       #  log.raise_value_error('Position.do_move(): dropping piece which not in the player hand')
       c[abs(m.to_piece) - 1] -= 1
@@ -154,7 +160,7 @@ class Position:
         #if taken_piece * self.side_to_move > 0:
         #  log.raise_value_error("Position.do_move(): player takes his piece'")
         u = move.UndoMove(taken_piece)
-        c = self.sente_pieces if taken_piece > 0 else self.gote_pieces 
+        c = self.sente_pieces if taken_piece < 0 else self.gote_pieces
         a = abs(taken_piece)
         if a != piece.KING:
           c[piece.unpromote(a) - 1] += 1

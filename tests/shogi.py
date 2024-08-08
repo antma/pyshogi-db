@@ -16,6 +16,11 @@ GAME1 =  ['２六歩(27)', '３四歩(33)', '７六歩(77)', '４四歩(43)', '�
 '３二飛(42)', '４一龍(31)', '８四香打', '８八香打', '２八歩打', '３七桂(29)', '５二銀打', '４四龍(41)',
 '４三銀(52)', '４六龍(44)', '４四歩打', '７六龍(46)']
 
+class TestShogiPiece(unittest.TestCase):
+  def test_to_string(self):
+    self.assertEqual(shogi.piece.to_string(shogi.piece.DRAGON), '+R')
+    self.assertEqual(shogi.piece.to_string(-shogi.piece.DRAGON), '+r')
+
 class TestShogiPosition(unittest.TestCase):
   def test_init_default(self):
     p = shogi.Position()
@@ -31,12 +36,19 @@ class TestShogiPosition(unittest.TestCase):
   def test_game(self):
     p = shogi.Position()
     prev_move = None
-    for m in GAME1:
+    fens = [('ln1g4l/1ks2r3/1ppppgn2/p5ppp/5p3/P1P1P2RP/1PBP1P3/2K1GS3/LN1G3N+b b SPslp 47', 'after promotion bishop to a horse'),
+      ('ln1g3+Rl/1ks2r3/1ppppgn2/p5p1p/9/P1P1P+b2P/1PBP5/2K1GS3/LN1G3N1 w S3Psl2p 52', 'after promotion rook to a dragon')
+    ]
+    d = dict(map(lambda t: (int(list(t[0].split(' '))[3]) - 2, t[0]), fens))
+    for i, m in enumerate(GAME1):
       logging.debug('Move: %s', m)
       mv = shogi.kifu.move_parse(m, p.side_to_move, prev_move)
       self.assertIsNotNone(mv)
       p.do_move(mv)
       prev_move = mv
+      q = d.get(i)
+      if not q is None:
+        self.assertEqual(p.sfen(), q)
     self.assertEqual(p.sfen(), 'ln1g5/1ks3r2/1ppppsn2/pl3pp1p/9/P1+R5P/1PBPP1N2/1LK1GS1p1/LN1G5 w BGSP3p 72')
 if __name__ == '__main__':
   unittest.main()
