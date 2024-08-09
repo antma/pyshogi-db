@@ -5,6 +5,7 @@ import os
 import unittest
 
 import shogi
+from shogi.position import Position
 
 MODULE_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
@@ -47,23 +48,23 @@ class TestShogiPiece(unittest.TestCase):
 
 class TestShogiPosition(unittest.TestCase):
   def test_init_default(self):
-    p = shogi.Position()
-    self.assertEqual(p.sfen(), shogi.SFEN_INITIAL)
+    p = Position()
+    self.assertEqual(p.sfen(), shogi.position.SFEN_INITIAL)
   def _test_fen(self, fen):
-    p = shogi.Position(fen)
+    p = Position(fen)
     self.assertEqual(p.sfen(), fen)
   def test_init(self):
-    self.assertRaises(ValueError, shogi.Position, '9 - - 1')
+    self.assertRaises(ValueError, Position, '9 - - 1')
     self._test_fen('+B2g1ksn+L/6g2/9/9/4+r4/9/4+b4/7R1/LNSGKGSN1 w SN2L18P 84')
     self._test_fen('+B2g1ksn+L/6g2/9/9/4+r4/9/9/5K1R1/L+b1G1GSN1 b SN2L18Psn 87')
   def test_one_move(self):
-    p = shogi.Position()
+    p = Position()
     mv = shogi.kifu.move_parse(GAME1[0], p.side_to_move, None)
     self.assertIsNotNone(mv)
     u = p.do_move(mv)
     self.assertEqual(p.sfen(), 'lnsgkgsnl/1r5b1/ppppppppp/9/9/7P1/PPPPPPP1P/1B5R1/LNSGKGSNL w - 2')
   def _check_game(self, game, fens):
-    p = shogi.Position()
+    p = Position()
     prev_move = None
     d = dict(map(lambda t: (int(list(t[0].split(' '))[3]) - 2, t[0]), fens))
     for i, m in enumerate(game):
@@ -93,7 +94,7 @@ class TestShogiPosition(unittest.TestCase):
     with open(os.path.join(MODULE_DIR, '81dojo', f'{kifu_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
       g = shogi.kifu.Game.parse(f.read())
     self.assertIsNotNone(g)
-    p = shogi.Position()
+    p = Position()
     for m in g.moves:
       p.do_move(m)
     self.assertEqual(p.sfen(), sfen)
