@@ -1,13 +1,34 @@
 # -*- coding: UTF8 -*-
 
+import itertools
 from typing import Optional
 import logging
 import log
 
 SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
-from shogi.move import (Move, UndoMove, Nifu)
+from shogi.move import (Move, UndoMove, Nifu, UnresolvedCheck)
 from shogi import piece
+
+_GOLD_L = [piece.GOLD, piece.promote(piece.PAWN), piece.promote(piece.LANCE), piece.promote(piece.KNIGHT), piece.promote(piece.SILVER)]
+_BISHOP_L = [piece.BISHOP, piece.HORSE]
+_ROOK_L = [piece.ROOK, piece.DRAGON]
+_GENERAL_L = _GOLD_L + [piece.SILVER]
+
+_BISHOP_S = set(_BISHOP_L)
+_ROOK_S = set(_ROOK_L)
+_NEAR_S = set([piece.KING, piece.HORSE, piece.DRAGON])
+_ATTACK_UP_FAR_S = set([piece.LANCE] + _ROOK_L)
+_ATTACK_UP_NEAR_S = set(itertools.chain(_ATTACK_UP_FAR_S, _GENERAL_L, [piece.PAWN]))
+_ATTACK_DIAG_UP_NEAR_S = set(itertools.chain(_BISHOP_L, _GENERAL_L))
+_ATTACK_ROOK_NEAR_S = set(itertools.chain(_ROOK_L, _GOLD_L)) 
+_ATTACK_BISHOP_NEAR_S = set(itertools.chain(_BISHOP_L, [piece.SILVER]))
+
+del _GOLD_L
+del _ROOK_L
+del _BISHOP_L
+del _GENERAL_L
+
 
 class Position:
   '''shogi position'''
@@ -18,6 +39,60 @@ class Position:
       self.board[9 * row + col] = p
     else:
       log.raise_value_error(f'Position._set_cell(): illegal cell ({row+1}, {col+1})')
+  def _find_king(self, side: int) -> Optional[int]:
+    if side > 0:
+      for i in range(80, -1, -1):
+        if self.board[i] == piece.KING:
+          return i
+    else:
+      p = -piece.KING
+      for i in range(81):
+        if self.board[i] == p:
+          return i
+  def _scan_board(self, side, r, c, dr, dc, far, near) -> bool:
+    #logging.debug('dr = %s, dc = %s', dr, dc)
+    k = 0
+    while True:
+      k += 1
+      r += dr
+      if (r < 0) or (r > 8):
+        return False
+      c += dc
+      if (c < 0) or (c > 8):
+        return False
+      p = self.board[9 * r + c]
+      t = p * side
+      if t > 0:
+        p = abs(p)
+        #logging.debug('piece = %s, k = %d, (r = %d, c = %d)', p, k, r, c)
+        if k > 1:
+          return p in far
+        else:
+          return (p in _NEAR_S) or (p in near)
+      if t < 0:
+        return False
+  def _king_under_check(self, side: int) -> bool:
+    s = side
+    (rk, ck) = divmod(self._find_king(s), 9)
+    if self._scan_board(-s, rk, ck, -s, 0, _ATTACK_UP_FAR_S, _ATTACK_UP_NEAR_S) or \
+       self._scan_board(-s, rk, ck, -s, -1, _BISHOP_S, _ATTACK_DIAG_UP_NEAR_S) or \
+       self._scan_board(-s, rk, ck, -s, 1, _BISHOP_S, _ATTACK_DIAG_UP_NEAR_S) or \
+       self._scan_board(-s, rk, ck, 0, -1, _ROOK_S, _ATTACK_ROOK_NEAR_S) or \
+       self._scan_board(-s, rk, ck, 0, 1, _ROOK_S, _ATTACK_ROOK_NEAR_S) or \
+       self._scan_board(-s, rk, ck, s, 0, _ROOK_S, _ATTACK_ROOK_NEAR_S) or \
+       self._scan_board(-s, rk, ck, s, -1, _BISHOP_S, _ATTACK_BISHOP_NEAR_S) or \
+       self._scan_board(-s, rk, ck, s, 1, _BISHOP_S, _ATTACK_BISHOP_NEAR_S): 
+        return True
+    #knight check
+    row = rk - 2 * s
+    if (row >= 0) and (row < 9):
+      u = 9 * row + ck
+      knight = -piece.KNIGHT * s
+      if (ck > 0) and (self.board[u - 1] == knight):
+        return True
+      if (ck < 8) and (self.board[u + 1] == knight):
+        return True
+    return False
   def __init__(self, sfen = SFEN_INITIAL):
     self.board = [piece.FREE] * 81
     self.sente_pieces = [0] * piece.ROOK
@@ -142,6 +217,8 @@ class Position:
       taken_piece = self.board[m.to_cell]
       if taken_piece * self.side_to_move > 0:
         raise ValueError("player takes his piece'")
+  def is_legal(self) -> bool:
+    return not self._king_under_check(-self.side_to_move)
   def do_move(self, m: Move) -> Optional[UndoMove]:
     try:
       self._validate_move(m)
@@ -166,6 +243,10 @@ class Position:
       self.board[m.to_cell] = m.to_piece
     self.side_to_move *= -1
     self.moveno += 1
+    if not self.is_legal():
+      logging.debug("Illegal position (king under check) = %s", self.sfen())
+      self.undo_move(m, u)
+      raise UnresolvedCheck
     return u
   def undo_move(self, m: Move, u: Optional[UndoMove]):
     self.side_to_move *= -1

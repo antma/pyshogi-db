@@ -44,6 +44,12 @@ NORMAL_GAMES = [
 
 ILLEGAL_MOVE_GAMES = [
   (11, 'l5gkl/5sgs1/2+Pp2np1/p4pp1p/1NBP2l2/2p5P/P4PNP1/4PGPK1/1+r4N1L b RBGP2s2p 105', -1),  #nifu
+  (36, 'lnS+R4+P/2sSb4/nkppp4/p4pg1p/1K7/P1PBP3P/1P1P1P3/3+r5/LN1+s4L b GLP2gn3p 81', -1), #check
+  (44, '4k2nl/4g1gs1/p1+B1sp+rp1/1r6p/1p3B1P1/2P1L1P1P/PPSPPPN2/2G1K1S2/LN3G2L w N4P 54', 1),
+  (49, '7nl/1p4gk1/2n2gspp/1Ppn1sp2/+R1bpPp3/3s5/3KLP1PP/6RB1/1+l1G3NL b GS6P 109', -1),
+  (53, 'l5+R1l/3s+B4/pG1p1+N3/2p2p1N1/R2Gp1S1p/2gk1P3/PP1g+sS2P/9/LNK3B1L w 3Pn5p 118', 1),
+  (105, 'lnsgk3l/6g2/1pppp1n1p/p3s1pp1/7P1/P1P6/1P1PPB+b1P/1S5R1/LN1GKG2L b RPsn2p 41', -1),
+  (124, 'l2G3nl/3+Rskg2/pp2ppspp/2ps2p2/4+bb3/2P2N3/PP2PPP1P/4G1K2/Lr2NG1Ns w 2Plp 60', 1),
 ]
 
 class TestShogiPiece(unittest.TestCase):
@@ -122,6 +128,13 @@ class TestShogiPosition(unittest.TestCase):
   def test_illegal_move_kifu(self):
     for t in ILLEGAL_MOVE_GAMES:
       self._check_kifu(t)
+  def test_is_check(self):
+    p = Position('l4+N+R1l/2ksg4/p2p1s3/2p1pp1N1/6S1p/2r2P3/PP1P1g2P/1G1S2+b2/LN1K4L b BGN3P4p 85')
+    self.assertEqual(p.is_legal(), True)
+    p = Position('lnsg1gsnl/1r5b1/ppppkpppp/4p4/5N3/6P2/PPPPPP1PP/1B5R1/LNSGKGS1L b - 1')
+    self.assertEqual(p.is_legal(), False)
+    p = Position('lnsg1gsnl/1r5b1/pppp1ppkp/4p2p1/8N/6P2/PPPPPP1PP/1B5R1/LNSGKGS1L b - 1')
+    self.assertEqual(p.is_legal(), False)
 
 if __name__ == '__main__':
   unittest.main()

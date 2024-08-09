@@ -10,6 +10,8 @@ class IllegalMove(Exception):
   pass
 class Nifu(IllegalMove):
   pass
+class UnresolvedCheck(IllegalMove):
+  pass
 
 class Move:
   def __init__(self, from_piece: Optional[int], from_cell: Optional[int], to_piece: int, to_cell: int):
