@@ -36,8 +36,14 @@ GAME2 = ['７六歩(77)', '８四歩(83)', '５六歩(57)', '３四歩(33)', '�
 '４二馬(53)', '同\u3000香(41)', '５二金打', '４四銀(55)', '５三銀成(54)', '４五銀(44)', '４二金(52)',
 '３三玉(32)', '４三成銀(53)', '２四玉(33)', '２六香打']
 
-SENTE_WINS = [(102, 'l5+R1k/6gLp/r1n1p2p+L/p4sN2/1p2sb1P1/2P2p1N1/PP5G1/4PG1K1/L8 w GNPb2s6p 194')]
-GOTE_WINS = [(10, 'lr6p/4g1k1l/3sN2pl/ppp1P1N2/4ppb2/PLPp2N2/NP3PP2/3G1S3/+p3K2Pr b GSPbgsp 111')]
+NORMAL_GAMES = [
+  (102, 'l5+R1k/6gLp/r1n1p2p+L/p4sN2/1p2sb1P1/2P2p1N1/PP5G1/4PG1K1/L8 w GNPb2s6p 194', 1),
+  (10, 'lr6p/4g1k1l/3sN2pl/ppp1P1N2/4ppb2/PLPp2N2/NP3PP2/3G1S3/+p3K2Pr b GSPbgsp 111', -1),  #time loss
+]
+
+ILLEGAL_MOVE_GAMES = [
+  (11, 'l5gkl/5sgs1/2+Pp2np1/p4pp1p/1NBP2l2/2p5P/P4PNP1/4PGPK1/1+r4N1L b RBGP2s2p 105', -1),  #nifu
+]
 
 class TestShogiPiece(unittest.TestCase):
   def test_to_string(self):
@@ -90,22 +96,19 @@ class TestShogiPosition(unittest.TestCase):
     logging.debug('Second game')
     self._check_game(GAME2, fens2)
   def _check_kifu(self, t):
-    kifu_id, sfen = t
+    kifu_id, sfen, sente_points = t
     with open(os.path.join(MODULE_DIR, '81dojo', f'{kifu_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
       g = shogi.kifu.Game.parse(f.read())
     self.assertIsNotNone(g)
-    p = Position()
-    for m in g.moves:
-      p.do_move(m)
-    self.assertEqual(p.sfen(), sfen)
+    self.assertEqual(g.last_legal_sfen, sfen)
+    self.assertEqual(g.sente_points(), sente_points)
     return g
-  def test_kifu(self):
-    for t in SENTE_WINS:
-      g = self._check_kifu(t)
-      self.assertEqual(g.sente_points(), 1)
-    for t in GOTE_WINS:
-      g = self._check_kifu(t)
-      self.assertEqual(g.sente_points(), -1)
+  def test_normal_kifu(self):
+    for t in NORMAL_GAMES:
+      self._check_kifu(t)
+  def test_illegal_move_kifu(self):
+    for t in ILLEGAL_MOVE_GAMES:
+      self._check_kifu(t)
 
 if __name__ == '__main__':
   unittest.main()

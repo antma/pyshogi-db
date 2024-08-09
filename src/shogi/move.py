@@ -6,6 +6,11 @@ def _cell(cell: int) -> str:
   row, col = divmod(cell, 9)
   return f'{1 + col}{1 + row}'
 
+class IllegalMove(Exception):
+  pass
+class Nifu(IllegalMove):
+  pass
+
 class Move:
   def __init__(self, from_piece: Optional[int], from_cell: Optional[int], to_piece: int, to_cell: int):
     assert((from_cell is None) or (0 <= from_cell < 81))

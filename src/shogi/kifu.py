@@ -8,6 +8,7 @@ from typing import (Optional, Tuple)
 
 from . import move
 from . import piece
+from shogi.position import Position
 import log
 
 _KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
@@ -140,13 +141,13 @@ def _parse_player_name(d: dict, s: str, key: str):
   d[key] = s
 
 class Game:
-  def __init__(self, header, moves, result, comments):
-    logging.debug('header = %s', header)
-    for key, value in header.items():
-      setattr(self, key, value)
+  def __init__(self, headers, moves, result, comments, last_legal_sfen):
+    logging.debug('KIFU headers = %s', headers)
+    self.headers = headers
     self.moves = moves
     self.result = result
     self.comments = comments
+    self.last_legal_sfen = last_legal_sfen
   @staticmethod
   def parse(s: str):
     try:
@@ -223,12 +224,21 @@ def _game_parse(s: str) -> Optional[Game]:
   side_to_move = 1
   game_result = None
   location_81dojo = d.get('location') == '81Dojo'
+  pos = Position()
+  illegal_move_idx = None
+  ignored_moves = 0
   for s in it:
     i = len(moves)
     if s.startswith('*'):
       comments[i].append(s)
-      if location_81dojo and (s == '*時間切れにて終局'):
-        game_result = GameResult(_RESULT_D['切れ負け'])
+      if location_81dojo:
+        if s == '*時間切れにて終局':
+          #time over
+          game_result = GameResult(_RESULT_D['切れ負け'])
+        elif s == '*反則手にて終局':
+          if (not illegal_move_idx is None) and (ignored_moves == 0):
+            #illegal previous move
+            game_result = GameResult(_RESULT_D['反則勝ち'])
       continue
     t = str(i+1)
     a = list(filter(lambda t: t != '', s.split(' ')))
@@ -242,7 +252,15 @@ def _game_parse(s: str) -> Optional[Game]:
     mv = move_parse(a[1], side_to_move, prev_move)
     if mv is None:
       break
-    moves.append(mv)
+    if illegal_move_idx is None:
+      moves.append(mv)
+      try:
+        pos.do_move(mv)
+      except move.IllegalMove as err:
+        logging.debug("Move #%s %s is illegal. %s", t, a[1], repr(err))
+        illegal_move_idx = len(moves) - 1
+    else:
+      ignored_moves += 1
     prev_move = mv
     side_to_move *= -1
-  return Game(d, moves, game_result, comments)
+  return Game(d, moves, game_result, comments, pos.sfen())

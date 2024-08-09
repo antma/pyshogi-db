@@ -6,7 +6,7 @@ import log
 
 SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
-from shogi.move import (Move, UndoMove)
+from shogi.move import (Move, UndoMove, Nifu)
 from shogi import piece
 
 class Position:
@@ -132,27 +132,24 @@ class Position:
       c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces
       if c[abs(m.to_piece) - 1] <= 0:
         raise ValueError('dropping piece which not in the player hand')
+      if abs(m.to_piece) == piece.PAWN:
+        col = m.to_cell % 9
+        if any(map(lambda row: self.board[9 * row + col] == m.to_piece, range(9))):
+          raise Nifu
     else:
       if self.side_to_move * m.from_piece <= 0:
         raise ValueError("position side_to_move field isn't matched to move from_piece field'")
       taken_piece = self.board[m.to_cell]
       if taken_piece * self.side_to_move > 0:
         raise ValueError("player takes his piece'")
-
   def do_move(self, m: Move) -> Optional[UndoMove]:
     try:
       self._validate_move(m)
     except ValueError as err:
       log.raise_value_error(f'Position.do_move(m = {m}): {err}. SFEN = "{self.sfen()}"')
-    #if self.side_to_move * m.to_piece <= 0:
-    #  log.raise_value_error("Position.do_move(): position side_to_move field isn't matched to move to_piece field'")
     if m.is_drop():
-      #if self.board[m.to_cell] != piece.FREE:
-      #  log.raise_value_error('Position.do_move(): drop piece on occupied cell')
       self.board[m.to_cell] = m.to_piece
       c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces
-      #if c[m.to_piece - 1] <= 0:
-      #  log.raise_value_error('Position.do_move(): dropping piece which not in the player hand')
       c[abs(m.to_piece) - 1] -= 1
       u = None
     else:
@@ -160,7 +157,6 @@ class Position:
       if taken_piece == piece.FREE:
         u = None
       else:
-        #logging.debug('taken_piece = %s', piece.to_string(taken_piece))
         u = UndoMove(taken_piece)
         c = self.sente_pieces if taken_piece < 0 else self.gote_pieces
         a = abs(taken_piece)
