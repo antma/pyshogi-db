@@ -5,6 +5,7 @@ import os
 import unittest
 
 import shogi
+from shogi.move import IllegalMove
 from shogi.position import Position
 
 MODULE_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -102,6 +103,18 @@ class TestShogiPosition(unittest.TestCase):
     self.assertIsNotNone(g)
     self.assertEqual(g.last_legal_sfen, sfen)
     self.assertEqual(g.sente_points(), sente_points)
+    #testing Position.undo_move
+    pos = Position()
+    pos_sfen = pos.sfen()
+    for m in g.moves:
+      try:
+        u = pos.do_move(m)
+        pos.undo_move(m, u)
+        self.assertEqual(pos_sfen, pos.sfen())
+        pos.do_move(m)
+      except IllegalMove:
+        break
+      pos_sfen = pos.sfen()
     return g
   def test_normal_kifu(self):
     for t in NORMAL_GAMES:

@@ -158,12 +158,30 @@ class Position:
         u = None
       else:
         u = UndoMove(taken_piece)
-        c = self.sente_pieces if taken_piece < 0 else self.gote_pieces
         a = abs(taken_piece)
         if a != piece.KING:
+          c = self.sente_pieces if taken_piece < 0 else self.gote_pieces
           c[piece.unpromote(a) - 1] += 1
       self.board[m.from_cell] = piece.FREE
       self.board[m.to_cell] = m.to_piece
     self.side_to_move *= -1
     self.moveno += 1
     return u
+  def undo_move(self, m: Move, u: Optional[UndoMove]):
+    self.side_to_move *= -1
+    self.moveno -= 1
+    if m.is_drop():
+      c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces
+      c[abs(m.to_piece) - 1] += 1
+      self.board[m.to_cell] = piece.FREE
+    else:
+      taken_piece = u and u.taken_piece
+      if taken_piece is None:
+        taken_piece = piece.FREE
+      if taken_piece != piece.FREE:
+        a = abs(taken_piece)
+        if a != piece.KING:
+          c = self.sente_pieces if taken_piece < 0 else self.gote_pieces
+          c[piece.unpromote(a) - 1] -= 1
+      self.board[m.to_cell] = taken_piece
+      self.board[m.from_cell] = m.from_piece
