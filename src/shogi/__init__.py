@@ -162,7 +162,7 @@ class Position:
       if taken_piece == piece.FREE:
         u = None
       else:
-        logging.debug('taken_piece = %s', piece.to_string(taken_piece))
+        #logging.debug('taken_piece = %s', piece.to_string(taken_piece))
         u = move.UndoMove(taken_piece)
         c = self.sente_pieces if taken_piece < 0 else self.gote_pieces
         a = abs(taken_piece)

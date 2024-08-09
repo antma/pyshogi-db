@@ -14,20 +14,21 @@ _KIFU_COLS = '１２３４５６７８９'
 _KIFU_ROWS = '一二三四五六七八九'
 _HEADER_MOVES_SEPARATOR = '手数----指手---------消費時間--'
 _RESULT_D = {
-  '中断': ('Aborted', 'Game was aborted.'),
-  '投了': ('Resignation', 'The player whose turn it was, is the one who resigned. Time that it took the player to resign can also be noted.'),
-  '千日手': ('Repetition', 'Four-fold repetition.'),
-  '詰み': ('Checkmate', 'Checkmate or stalemate. The player whose turn it was, is the one who is checkmated.'),
-  '切れ負け': ('Time', 'Losing on time. The player whose turn it was, is the one who ran out of time. Some sites use "Time-up" instead.'),
-  '反則勝ち': ('IllegalPrecedingMove', 'Indicates that the immediately preceding move was illegal.'),
-  '反則負け': ('IllegalMove', 'Indicates that the player whose turn this was supposed to be somehow lost by illegality.'),
-  '入玉勝ち': ('EnteringKing', 'Indicates that the player whose it was, declared win by entering king.')
+  '中断': ('Aborted', None, 'Game was aborted.'),
+  '投了': ('Resignation', -1, 'The player whose turn it was, is the one who resigned. Time that it took the player to resign can also be noted.'),
+  '千日手': ('Repetition', 0, 'Four-fold repetition.'),
+  '詰み': ('Checkmate', -1, 'Checkmate or stalemate. The player whose turn it was, is the one who is checkmated.'),
+  '切れ負け': ('Time', -1, 'Losing on time. The player whose turn it was, is the one who ran out of time. Some sites use "Time-up" instead.'),
+  '反則勝ち': ('IllegalPrecedingMove', 1, 'Indicates that the immediately preceding move was illegal.'),
+  '反則負け': ('IllegalMove', -1, 'Indicates that the player whose turn this was supposed to be somehow lost by illegality.'),
+  '入玉勝ち': ('EnteringKing', 1, 'Indicates that the player whose it was, declared win by entering king.')
 }
 
 class GameResult:
-  def __init__(self, result, description):
+  def __init__(self, result, side_to_move_points, description):
     logging.debug('GameResult.__init__(): result = %s, description = %s', result, description)
     self.result = result
+    self.side_to_move_points = side_to_move_points
     self.description = description
 
 def _create_kifu_dict(s, offset = 0):
@@ -144,19 +145,36 @@ class Game:
     self.moves = moves
     self.result = result
   @staticmethod
-  #def parse(s: str) -> Optional['Game']:
   def parse(s: str):
     try:
       return _game_parse(s)
     except ValueError as err:
       logging.debug(repr(err))
       return None
+  def sente_points(self) -> Optional[int]:
+    p = self.result.side_to_move_points
+    if p is None:
+      return None
+    if (len(self.moves) % 2) != 0:
+      p *= -1
+    return p
+
+def _strip_comment(t):
+  """Everything after '#' will be ignored by parsers."""
+  line, s = t
+  s = s.rstrip()
+  if line == 0:
+    return s
+  i = s.rfind('#')
+  if i < 0:
+    return s
+  return s[:i]
 
 def _game_parse(s: str) -> Optional[Game]:
   '''
   https://lishogi.org/explanation/kif
   '''
-  it = filter(lambda t: t != '', map(str.rstrip, s.split('\n')))
+  it = filter(lambda t: t != '', map(_strip_comment, enumerate(s.split('\n'))))
   t = next(it)
   a = list(t.split())
   if len(a) != 3:
@@ -209,7 +227,7 @@ def _game_parse(s: str) -> Optional[Game]:
     p = _RESULT_D.get(a[1])
     if not p is None:
       logging.debug('Result %s', p)
-      game_result = GameResult(p[0], p[1])
+      game_result = GameResult(p[0], p[1], p[2])
       break
     mv = move_parse(a[1], side_to_move, prev_move)
     if mv is None:
