@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 
+from collections import defaultdict
 import datetime
 import logging
 import re
@@ -25,7 +26,8 @@ _RESULT_D = {
 }
 
 class GameResult:
-  def __init__(self, result, side_to_move_points, description):
+  def __init__(self, p):
+    result, side_to_move_points, description = p
     logging.debug('GameResult.__init__(): result = %s, description = %s', result, description)
     self.result = result
     self.side_to_move_points = side_to_move_points
@@ -138,12 +140,13 @@ def _parse_player_name(d: dict, s: str, key: str):
   d[key] = s
 
 class Game:
-  def __init__(self, header, moves, result):
+  def __init__(self, header, moves, result, comments):
     logging.debug('header = %s', header)
     for key, value in header.items():
       setattr(self, key, value)
     self.moves = moves
     self.result = result
+    self.comments = comments
   @staticmethod
   def parse(s: str):
     try:
@@ -214,11 +217,19 @@ def _game_parse(s: str) -> Optional[Game]:
       _parse_player_name(d, value, 'sente')
     elif key == '後手':
       _parse_player_name(d, value, 'gote')
+  comments = defaultdict(list)
   moves = []
   prev_move = None
   side_to_move = 1
   game_result = None
-  for (i, s) in enumerate(it):
+  location_81dojo = d.get('location') == '81Dojo'
+  for s in it:
+    i = len(moves)
+    if s.startswith('*'):
+      comments[i].append(s)
+      if location_81dojo and (s == '*時間切れにて終局'):
+        game_result = GameResult(_RESULT_D['切れ負け'])
+      continue
     t = str(i+1)
     a = list(filter(lambda t: t != '', s.split(' ')))
     if (len(a) < 2) or (t != a[0]):
@@ -227,12 +238,11 @@ def _game_parse(s: str) -> Optional[Game]:
     p = _RESULT_D.get(a[1])
     if not p is None:
       logging.debug('Result %s', p)
-      game_result = GameResult(p[0], p[1], p[2])
-      break
+      game_result = GameResult(p)
     mv = move_parse(a[1], side_to_move, prev_move)
     if mv is None:
       break
     moves.append(mv)
     prev_move = mv
     side_to_move *= -1
-  return Game(d, moves, game_result)
+  return Game(d, moves, game_result, comments)

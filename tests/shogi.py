@@ -6,6 +6,8 @@ import unittest
 
 import shogi
 
+MODULE_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
+
 GAME1 =  ['２六歩(27)', '３四歩(33)', '７六歩(77)', '４四歩(43)', '４八銀(39)', '４二飛(82)', '５八金(49)',
 '６二玉(51)', '５六歩(57)', '７二玉(62)', '６八玉(59)', '８二玉(72)', '７八玉(68)', '７二銀(71)',
 '２五歩(26)', '３三角(22)', '３六歩(37)', '３二銀(31)', '９六歩(97)', '９四歩(93)', '６八銀(79)',
@@ -34,7 +36,7 @@ GAME2 = ['７六歩(77)', '８四歩(83)', '５六歩(57)', '３四歩(33)', '�
 '３三玉(32)', '４三成銀(53)', '２四玉(33)', '２六香打']
 
 SENTE_WINS = [(102, 'l5+R1k/6gLp/r1n1p2p+L/p4sN2/1p2sb1P1/2P2p1N1/PP5G1/4PG1K1/L8 w GNPb2s6p 194')]
-MODULE_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
+GOTE_WINS = [(10, 'lr6p/4g1k1l/3sN2pl/ppp1P1N2/4ppb2/PLPp2N2/NP3PP2/3G1S3/+p3K2Pr b GSPbgsp 111')]
 
 class TestShogiPiece(unittest.TestCase):
   def test_to_string(self):
@@ -100,6 +102,9 @@ class TestShogiPosition(unittest.TestCase):
     for t in SENTE_WINS:
       g = self._check_kifu(t)
       self.assertEqual(g.sente_points(), 1)
+    for t in GOTE_WINS:
+      g = self._check_kifu(t)
+      self.assertEqual(g.sente_points(), -1)
 
 if __name__ == '__main__':
   unittest.main()
