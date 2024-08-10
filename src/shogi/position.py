@@ -5,10 +5,10 @@ from typing import Optional
 import logging
 import log
 
-SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
-
 from shogi.move import (Move, UndoMove, Nifu, UnresolvedCheck)
 from shogi import piece
+
+SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
 _GOLD_L = [piece.GOLD, piece.promote(piece.PAWN), piece.promote(piece.LANCE), piece.promote(piece.KNIGHT), piece.promote(piece.SILVER)]
 _BISHOP_L = [piece.BISHOP, piece.HORSE]
@@ -21,14 +21,13 @@ _NEAR_S = set([piece.KING, piece.HORSE, piece.DRAGON])
 _ATTACK_UP_FAR_S = set([piece.LANCE] + _ROOK_L)
 _ATTACK_UP_NEAR_S = set(itertools.chain(_ATTACK_UP_FAR_S, _GENERAL_L, [piece.PAWN]))
 _ATTACK_DIAG_UP_NEAR_S = set(itertools.chain(_BISHOP_L, _GENERAL_L))
-_ATTACK_ROOK_NEAR_S = set(itertools.chain(_ROOK_L, _GOLD_L)) 
+_ATTACK_ROOK_NEAR_S = set(itertools.chain(_ROOK_L, _GOLD_L))
 _ATTACK_BISHOP_NEAR_S = set(itertools.chain(_BISHOP_L, [piece.SILVER]))
 
 del _GOLD_L
 del _ROOK_L
 del _BISHOP_L
 del _GENERAL_L
-
 
 class Position:
   '''shogi position'''
@@ -49,6 +48,7 @@ class Position:
       for i in range(81):
         if self.board[i] == p:
           return i
+    return None
   def _scan_board(self, side, r, c, dr, dc, far, near) -> bool:
     #logging.debug('dr = %s, dc = %s', dr, dc)
     k = 0
@@ -67,8 +67,7 @@ class Position:
         #logging.debug('piece = %s, k = %d, (r = %d, c = %d)', p, k, r, c)
         if k > 1:
           return p in far
-        else:
-          return (p in _NEAR_S) or (p in near)
+        return (p in _NEAR_S) or (p in near)
       if t < 0:
         return False
   def _king_under_check(self, side: int) -> bool:
@@ -81,11 +80,11 @@ class Position:
        self._scan_board(-s, rk, ck, 0, 1, _ROOK_S, _ATTACK_ROOK_NEAR_S) or \
        self._scan_board(-s, rk, ck, s, 0, _ROOK_S, _ATTACK_ROOK_NEAR_S) or \
        self._scan_board(-s, rk, ck, s, -1, _BISHOP_S, _ATTACK_BISHOP_NEAR_S) or \
-       self._scan_board(-s, rk, ck, s, 1, _BISHOP_S, _ATTACK_BISHOP_NEAR_S): 
-        return True
+       self._scan_board(-s, rk, ck, s, 1, _BISHOP_S, _ATTACK_BISHOP_NEAR_S):
+      return True
     #knight check
     row = rk - 2 * s
-    if (row >= 0) and (row < 9):
+    if 0 <= row < 9:
       u = 9 * row + ck
       knight = -piece.KNIGHT * s
       if (ck > 0) and (self.board[u - 1] == knight):

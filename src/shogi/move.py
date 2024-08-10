@@ -16,7 +16,7 @@ class UnresolvedCheck(IllegalMove):
 class Move:
   def __init__(self, from_piece: Optional[int], from_cell: Optional[int], to_piece: int, to_cell: int):
     assert((from_cell is None) or (0 <= from_cell < 81))
-    assert(0 <= to_cell < 81)
+    assert 0 <= to_cell < 81
     self.from_piece = from_piece
     self.from_cell = from_cell
     self.to_piece = to_piece

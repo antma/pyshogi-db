@@ -3,13 +3,12 @@
 from collections import defaultdict
 import datetime
 import logging
-import re
 from typing import (Optional, Tuple)
 
+import log
+from shogi.position import Position
 from . import move
 from . import piece
-from shogi.position import Position
-import log
 
 _KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
 _KIFU_COLS = '１２３４５６７８９'
@@ -98,7 +97,7 @@ def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Opt
       logging.debug('expected from column, but %s found', t)
       return None
     col = int(t) - 1
-    if not (0 <= col < 9):
+    if not 0 <= col < 9:
       logging.debug('from column is not in [1..9]')
       return None
     row = next(it)
@@ -113,7 +112,7 @@ def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Opt
       logging.debug("extra data")
       return None
     row = int(row) - 1
-    if not (0 <= row < 9):
+    if not 0 <= row < 9:
       logging.debug('from row is not in [1..9]')
       return None
     to_piece = piece.promote(p) if promoted else p
@@ -141,8 +140,9 @@ def _parse_player_name(d: dict, s: str, key: str):
   d[key] = s
 
 class Game:
-  def __init__(self, headers, moves, result, comments, last_legal_sfen):
+  def __init__(self, kifu_version, headers, moves, result, comments, last_legal_sfen):
     logging.debug('KIFU headers = %s', headers)
+    self.kifu_version = kifu_version
     self.headers = headers
     self.moves = moves
     self.result = result
@@ -174,11 +174,11 @@ def _strip_comment(t):
     return s
   return s[:i]
 
-def _game_parse(s: str) -> Optional[Game]:
+def _game_parse(game: str) -> Optional[Game]:
   '''
   https://lishogi.org/explanation/kif
   '''
-  it = filter(lambda t: t != '', map(_strip_comment, enumerate(s.split('\n'))))
+  it = filter(lambda t: t != '', map(_strip_comment, enumerate(game.split('\n'))))
   t = next(it)
   a = list(t.split())
   if len(a) != 3:
@@ -186,13 +186,13 @@ def _game_parse(s: str) -> Optional[Game]:
   if a[0] != '#KIF':
     log.raise_value_error(f'Expected "#KIFU", but "{a[0]}" found')
   p = _parse_key_value(a[1], '=')
-  if (p == None) or (p[0] != 'version'):
+  if (p is None) or (p[0] != 'version'):
     log.raise_value_error(f'Expected "version", but "{a[1]}" found')
   version = p[1]
   p = _parse_key_value(a[2], '=')
-  if (p == None) or (p[0] != 'encoding'):
+  if (p is None) or (p[0] != 'encoding'):
     log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
-  encoding = p[1]
+  _encoding = p[1]
   d = {}
   while True:
     t = next(it)
@@ -263,4 +263,4 @@ def _game_parse(s: str) -> Optional[Game]:
       ignored_moves += 1
     prev_move = mv
     side_to_move *= -1
-  return Game(d, moves, game_result, comments, pos.sfen())
+  return Game(version, d, moves, game_result, comments, pos.sfen())
