@@ -155,6 +155,19 @@ class Game:
     except ValueError as err:
       logging.debug(repr(err))
       return None
+  def get_row_values(self, data, keys):
+    a = []
+    for key in keys:
+      if key == 'data':
+        t = data
+      elif key == 'moves':
+        t = len(self.moves)
+      elif key == 'result':
+        t = self.sente_points()
+      else:
+        t = self.headers.get(key)
+      a.append(t)
+    return a
   def sente_points(self) -> Optional[int]:
     p = self.result.side_to_move_points
     if p is None:
