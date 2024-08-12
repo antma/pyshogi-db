@@ -23,6 +23,10 @@ class Move:
     self.from_cell = from_cell
     self.to_piece = to_piece
     self.to_cell = to_cell
+    #-1: illegal
+    #0: wasn't validated
+    #1: legal
+    self.legal = 0
   def __eq__(self, other):
     if not isinstance(other, Move):
       return False

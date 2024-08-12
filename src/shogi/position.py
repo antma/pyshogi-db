@@ -5,7 +5,7 @@ from typing import Optional
 import logging
 import log
 
-from shogi.move import (Move, UndoMove, Nifu, UnresolvedCheck)
+from shogi.move import (Move, UndoMove, IllegalMove, Nifu, UnresolvedCheck)
 from shogi import piece
 
 SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
@@ -219,9 +219,12 @@ class Position:
   def is_legal(self) -> bool:
     return not self._king_under_check(-self.side_to_move)
   def do_move(self, m: Move) -> Optional[UndoMove]:
+    if m.legal < 0:
+      raise IllegalMove()
     try:
       self._validate_move(m)
     except ValueError as err:
+      m.legal = -1
       log.raise_value_error(f'Position.do_move(m = {m}): {err}. SFEN = "{self.sfen()}"')
     if m.is_drop():
       self.board[m.to_cell] = m.to_piece
@@ -242,10 +245,12 @@ class Position:
       self.board[m.to_cell] = m.to_piece
     self.side_to_move *= -1
     self.moveno += 1
-    if not self.is_legal():
+    if (m.legal == 0) and not self.is_legal():
+      m.legal = -1
       logging.debug("Illegal position (king under check) = %s", self.sfen())
       self.undo_move(m, u)
       raise UnresolvedCheck
+    m.legal = 1
     return u
   def undo_move(self, m: Move, u: Optional[UndoMove]):
     self.side_to_move *= -1
