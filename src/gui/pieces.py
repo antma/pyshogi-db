@@ -24,4 +24,6 @@ def _load_images(filename):
 class ShogiPiecesImages:
   def __init__(self, filename):
     self._filename = filename
-    self.images = _load_images(filename)
+    self._images = _load_images(filename)
+  def get(self, piece: int):
+    return self._images.get(piece)
