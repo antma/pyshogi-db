@@ -1,8 +1,8 @@
 # -*- coding: UTF8 -*-
-from PIL import ImageTk, Image
 import tarfile
+from PIL import ImageTk, Image
 
-import shogi.piece
+import shogi
 
 def _load_images(filename):
   a = {}
