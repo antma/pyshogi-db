@@ -3,6 +3,7 @@
 from collections import defaultdict
 import datetime
 import logging
+import re
 from typing import (Optional, Tuple)
 
 import log
@@ -25,6 +26,9 @@ _RESULT_D = {
   '入玉勝ち': ('EnteringKing', 1, 'Indicates that the player whose it was, declared win by entering king.')
 }
 
+_REGEXP_MOVE_TIME = re.compile(r'(\d+):(\d+)')
+_REGEXP_CUM_MOVE_TIME = re.compile(r'(\d+):(\d+):(\d+)')
+
 class GameResult:
   def __init__(self, p):
     result, side_to_move_points, description = p
@@ -40,12 +44,44 @@ _KIFU_COLS_D = _create_kifu_dict(_KIFU_COLS)
 _KIFU_ROWS_D = _create_kifu_dict(_KIFU_ROWS)
 _KIFU_PIECES_D = _create_kifu_dict(_KIFU_PIECES, 1)
 
+def kifu_cell(cell: int) -> str:
+  (row, col) = divmod(cell, 9)
+  return _KIFU_COLS[col] + _KIFU_ROWS[row]
+
+_KIFU_PROMOTED_SINGLE_CHAR_S = set([piece.TOKIN, piece.HORSE, piece.DRAGON])
+
+def kifu_piece(p: int) -> str:
+  p = abs(p)
+  if piece.is_promoted(p) and not p in _KIFU_PROMOTED_SINGLE_CHAR_S:
+    return '成' + _KIFU_PIECES[piece.unpromote(p) - 1]
+  r = _KIFU_PIECES[p - 1]
+  assert r != '?'
+  return r
+
+def kifu_move(m: move.Move, prev: Optional[move.Move]) -> str:
+  ''' converts parsed move back to kifu '''
+  prev_to_cell = prev and prev.to_cell
+  if not m.from_cell is None:
+    t = '(' + move.ascii_cell(m.from_cell) + ')'
+  else:
+    t = ''
+  if prev_to_cell == m.to_cell:
+    r = '同\u3000'
+  else:
+    r = kifu_cell(m.to_cell)
+  if m.from_cell is None:
+    return r + kifu_piece(m.to_piece) + '打' + t
+  elif m.from_piece == m.to_piece:
+    return r + kifu_piece(m.to_piece) + t
+  else:
+    return r + kifu_piece(m.from_piece) + '成' + t
+
 def _iter_is_empty(it):
   for _c in it:
     return False
   return True
 
-def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
+def _move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
   it = iter(s)
   try:
     t = next(it)
@@ -128,6 +164,25 @@ def _parse_key_value(s: str, sep: str) -> Optional[Tuple[str, str]]:
     return None
   return (s[:i], s[i+1:])
 
+def _parse_move_times(s: Optional[str]) -> Tuple[Optional[datetime.timedelta], Optional[datetime.timedelta]]:
+  if not s or not s.startswith('(') or not s.endswith(')'):
+    return (None, None)
+  s = s[1:len(s)-1]
+  a = list(s.split('/'))
+  if not (1 <= len(a) <= 2):
+    return (None, None)
+  m = _REGEXP_MOVE_TIME.fullmatch(a[0])
+  if m is None:
+    return (None, None)
+  u = datetime.timedelta(minutes = int(m.group(1)), seconds = int(m.group(2)))
+  if len(a) == 1:
+    return (u, None)
+  m = _REGEXP_CUM_MOVE_TIME.fullmatch(a[1])
+  if m is None:
+    return (u, None)
+  v = datetime.timedelta(hours = int(m.group(1)), minutes = int(m.group(2)), seconds = int(m.group(3)))
+  return (u, v)
+
 def _parse_player_name(d: dict, s: str, key: str):
   if s.endswith(')'):
     i = s.rfind('(')
@@ -139,12 +194,23 @@ def _parse_player_name(d: dict, s: str, key: str):
         return
   d[key] = s
 
+class KifuMove:
+  def __init__(self, a: list[str]):
+    self.kifu = a[1]
+    self.time = None
+    self.cum_time = None
+    if len(a) >= 3:
+      self.time, self.cum_time = _parse_move_times(a[2])
+  def parse(self, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
+    return _move_parse(self.kifu, side_to_move, last_move)
+
 class Game:
-  def __init__(self, kifu_version, headers, moves, result, comments, last_legal_sfen):
+  def __init__(self, kifu_version, headers, moves, parsed_moves, result, comments, last_legal_sfen):
     logging.debug('KIFU headers = %s', headers)
     self.kifu_version = kifu_version
     self.headers = headers
     self.moves = moves
+    self.parsed_moves = parsed_moves
     self.result = result
     self.comments = comments
     self.last_legal_sfen = last_legal_sfen
@@ -161,7 +227,7 @@ class Game:
     p = self.result.side_to_move_points
     if p is None:
       return None
-    if (len(self.moves) % 2) != 0:
+    if (len(self.parsed_moves) % 2) != 0:
       p *= -1
     return p
 
@@ -222,6 +288,7 @@ def _game_parse(game: str) -> Optional[Game]:
       _parse_player_name(d, value, 'gote')
   comments = defaultdict(list)
   moves = []
+  parsed_moves = []
   prev_move = None
   side_to_move = 1
   game_result = None
@@ -237,25 +304,30 @@ def _game_parse(game: str) -> Optional[Game]:
         if s == '*時間切れにて終局':
           #time over
           game_result = GameResult(_RESULT_D['切れ負け'])
+          break
         elif s == '*反則手にて終局':
           if (not illegal_move_idx is None) and (ignored_moves == 0):
             #illegal previous move
             game_result = GameResult(_RESULT_D['反則勝ち'])
+            break
       continue
     t = str(i+1)
     a = list(filter(lambda t: t != '', s.split(' ')))
     if (len(a) < 2) or (t != a[0]):
       break
-    logging.debug('Move %s', a[1])
-    p = _RESULT_D.get(a[1])
+    km = KifuMove(a)
+    moves.append(km)
+    logging.debug('Move %s', km.kifu)
+    p = _RESULT_D.get(km.kifu)
     if not p is None:
       logging.debug('Result %s', p)
       game_result = GameResult(p)
-    mv = move_parse(a[1], side_to_move, prev_move)
+      break
+    mv = km.parse(side_to_move, prev_move)
     if mv is None:
       break
     if illegal_move_idx is None:
-      moves.append(mv)
+      parsed_moves.append(mv)
       try:
         pos.do_move(mv)
       except move.IllegalMove as err:
@@ -265,4 +337,4 @@ def _game_parse(game: str) -> Optional[Game]:
       ignored_moves += 1
     prev_move = mv
     side_to_move *= -1
-  return Game(version, d, moves, game_result, comments, pos.sfen())
+  return Game(version, d, moves, parsed_moves, game_result, comments, pos.sfen())

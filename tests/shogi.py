@@ -70,19 +70,14 @@ class TestShogiPosition(unittest.TestCase):
     self.assertRaises(ValueError, Position, '9 - - 1')
     self._test_fen('+B2g1ksn+L/6g2/9/9/4+r4/9/4+b4/7R1/LNSGKGSN1 w SN2L18P 84')
     self._test_fen('+B2g1ksn+L/6g2/9/9/4+r4/9/9/5K1R1/L+b1G1GSN1 b SN2L18Psn 87')
-  def test_one_move(self):
-    p = Position()
-    mv = shogi.kifu.move_parse(GAME1[0], p.side_to_move, None)
-    self.assertIsNotNone(mv)
-    u = p.do_move(mv)
-    self.assertEqual(p.sfen(), 'lnsgkgsnl/1r5b1/ppppppppp/9/9/7P1/PPPPPPP1P/1B5R1/LNSGKGSNL w - 2')
   def _check_game(self, game, fens):
     p = Position()
     prev_move = None
     d = dict(map(lambda t: (int(list(t[0].split(' '))[3]) - 2, t[0]), fens))
     for i, m in enumerate(game):
       logging.debug('Move: %s', m)
-      mv = shogi.kifu.move_parse(m, p.side_to_move, prev_move)
+      km = shogi.kifu.KifuMove([str(i+1), m])
+      mv = km.parse(p.side_to_move, prev_move)
       self.assertIsNotNone(mv)
       logging.debug('Parsed move: %s', mv)
       p.do_move(mv)
@@ -112,7 +107,10 @@ class TestShogiPosition(unittest.TestCase):
     #testing Position.undo_move
     pos = Position()
     pos_sfen = pos.sfen()
-    for m in g.moves:
+    prev_move = None
+    for (km, m) in zip(g.moves, g.parsed_moves):
+      #testing kifu.kifu_move
+      self.assertEqual(km.kifu, shogi.kifu.kifu_move(m, prev_move))
       #testing move packing
       packed_move = m.pack_to_int()
       self.assertEqual(m, Move.unpack_from_int(packed_move, pos.side_to_move))
@@ -124,6 +122,7 @@ class TestShogiPosition(unittest.TestCase):
       self.assertEqual(pos_sfen, pos.sfen())
       pos.do_move(m)
       pos_sfen = pos.sfen()
+      prev_move = m
     return g
   def test_normal_kifu(self):
     for t in NORMAL_GAMES:
