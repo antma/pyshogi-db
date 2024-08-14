@@ -2,14 +2,15 @@
 '''tks means tk(shogi). TK frame for display shogi position'''
 
 import tkinter as tk
-import gui
+
 import shogi
 from shogi.position import Position
+from . import pieces
 
 class TksPosition:
-  def __init__(self, parent_window, pieces_filename, cell_width: int):
+  def __init__(self, parent_window, pieces_filename: str, cell_width: int):
     self.parent_window = parent_window
-    self.images = gui.pieces.ShogiPiecesImages(pieces_filename)
+    self.images = pieces.ShogiPiecesImages(pieces_filename)
     self.cell_width = cell_width
     self.height = 9 * (cell_width + 1)
     self._gote_hand = _Hand(self, -1)
@@ -27,14 +28,14 @@ class _Board:
     row, col = divmod(i, 9)
     col = 8 - col
     return (col * (self._p.cell_width + 1), row * (self._p.cell_width + 1))
-  def __init__(self, tk_position):
+  def __init__(self, tk_position: TksPosition):
     self._p = tk_position
     cell_width = tk_position.cell_width
     self._board = [shogi.piece.FREE] * 81
-    self._canvas = tk.Canvas(tk_position.parent_window, height = tk_position.height, width = tk_position.height, bg = '#000')
+    self._canvas = tk.Canvas(tk_position.parent_window, height = tk_position.height, width = tk_position.height, bg = '#FFCC99')
     for i in range(81):
       x1, y1 = self._cell_coords(i)
-      self._canvas.create_rectangle(x1, y1, x1 + (cell_width + 1), y1 + (cell_width + 1), outline = '#666')
+      self._canvas.create_rectangle(x1, y1, x1 + (cell_width + 1), y1 + (cell_width + 1), outline = '#000')
     self._canvas.pack(side = tk.LEFT)
   def draw_position(self, pos: Position):
     for i, (old, new) in enumerate(zip(self._board, pos.board)):
@@ -49,7 +50,7 @@ class _Board:
       self._board[i] = new
 
 class _Hand:
-  def __init__(self, tk_position, side):
+  def __init__(self, tk_position: TksPosition, side: int):
     self._p = tk_position
     self._side = side
     self._side_name = 'sente' if side > 0 else 'gote'

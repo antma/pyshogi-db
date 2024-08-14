@@ -5,8 +5,8 @@ from typing import Optional
 import logging
 import log
 
-from shogi.move import (Move, UndoMove, IllegalMove, Nifu, UnresolvedCheck)
-from shogi import piece
+from .move import (Move, UndoMove, IllegalMove, Nifu, UnresolvedCheck)
+from . import piece
 
 SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
