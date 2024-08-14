@@ -106,7 +106,7 @@ class KifuDB:
     assert not rowid is None
     pos = shogi.position.Position()
     vals = []
-    for m in g.moves:
+    for m in g.parsed_moves:
       sfen = pos.sfen()
       try:
         pos.do_move(m)
