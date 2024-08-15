@@ -67,7 +67,7 @@ class KifuDB:
       return r
     return r[0]
   def _get_rowid(self, table_name: str, field_name: str, value, force = False) -> Optional[int]:
-    self._select_single_value(f'SELECT rowid FROM {table_name} WHERE {field_name} == ?', (value, ))
+    r = self._select_single_value(f'SELECT rowid FROM {table_name} WHERE {field_name} == ?', (value, ))
     if not r is None:
       return r
     if not force:

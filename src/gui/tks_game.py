@@ -1,6 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from datetime import timedelta
+import logging
 import tkinter as tk
 from  tkinter import ttk
 from typing import Optional
@@ -15,8 +16,41 @@ def _timedelta_to_str(t: Optional[timedelta]) -> str:
     return ''
   return str(t)
 
+class _Positions:
+  def __init__(self, game: Game):
+    self._game = game
+    self._sfens = []
+  def goto_move(self, move_no: int) -> Position:
+    if move_no == 0:
+      return Position()
+    while move_no >= len(self._sfens):
+      self._sfens.append(None)
+    sfen = self._sfens[move_no]
+    if not sfen is None:
+      return Position(sfen)
+    i = move_no
+    while (i >= 0) and (self._sfens[i] is None):
+      i -= 1
+    if i < 0:
+      pos = Position()
+      i = 0
+    else:
+      pos = Position(self._sfens[i])
+    cur_move = i
+    for j in range(i, move_no):
+      if j >= len(self._game.parsed_moves):
+        break
+      m = self._game.parsed_moves[j]
+      pos.do_move(m)
+      cur_move = j + 1
+    self._sfens[cur_move] = pos.sfen()
+    return pos
+
 class MovesTreeView:
-  def __init__(self, parent, game: Game):
+  def __init__(self, game_window, game: Game):
+    parent = game_window.frame
+    self._positions = _Positions(game)
+    self._game_window = game_window
     self._tree = ttk.Treeview(parent, columns = ('move_no', 'kifu', 'time', 'cum_time'))
     self._tree.column('#0', width = 0, stretch = tk.NO)
     #self._tree.column('move_no', anchor = tk.CENTER
@@ -24,12 +58,22 @@ class MovesTreeView:
       t = (str(i + 1), m.kifu, _timedelta_to_str(m.time), _timedelta_to_str(m.cum_time))
       self._tree.insert(parent = '', index = tk.END, iid = i, text = '', values = t)
     self._tree.pack(side = tk.LEFT, expand = True, fill = tk.Y)
+    self._tree.bind('<<TreeviewSelect>>', self._select_event)
+  def _select_event(self, event):
+    item = self._tree.selection()
+    logging.debug(f'Select item {item}, event {event}')
+    self.goto_move(int(item[0]))
+  def goto_move(self, move_no: int):
+    pos = self._positions.goto_move(move_no)
+    self._game_window.draw_position(pos)
 
 class GameWindow:
   def __init__(self, parent, images: pieces.ShogiPiecesImages, game: Game):
-    self._frame = tk.Frame(parent)
-    self._board = tks_pos.TksPosition(self._frame, images)
+    self.frame = tk.Frame(parent)
+    self._board = tks_pos.TksPosition(self.frame, images)
     pos = Position()
     self._board.draw_position(pos)
-    self._moves_view = MovesTreeView(self._frame, game)
-    self._frame.pack()
+    self._moves_view = MovesTreeView(self, game)
+    self.frame.pack()
+  def draw_position(self, pos: Position):
+    self._board.draw_position(pos)

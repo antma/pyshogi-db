@@ -71,10 +71,9 @@ def kifu_move(m: move.Move, prev: Optional[move.Move]) -> str:
     r = kifu_cell(m.to_cell)
   if m.from_cell is None:
     return r + kifu_piece(m.to_piece) + '打' + t
-  elif m.from_piece == m.to_piece:
+  if m.from_piece == m.to_piece:
     return r + kifu_piece(m.to_piece) + t
-  else:
-    return r + kifu_piece(m.from_piece) + '成' + t
+  return r + kifu_piece(m.from_piece) + '成' + t
 
 def _iter_is_empty(it):
   for _c in it:
@@ -169,7 +168,7 @@ def _parse_move_times(s: Optional[str]) -> Tuple[Optional[datetime.timedelta], O
     return (None, None)
   s = s[1:len(s)-1]
   a = list(s.split('/'))
-  if not (1 <= len(a) <= 2):
+  if not 1 <= len(a) <= 2:
     return (None, None)
   m = _REGEXP_MOVE_TIME.fullmatch(a[0])
   if m is None:
@@ -305,7 +304,7 @@ def _game_parse(game: str) -> Optional[Game]:
           #time over
           game_result = GameResult(_RESULT_D['切れ負け'])
           break
-        elif s == '*反則手にて終局':
+        if s == '*反則手にて終局':
           if (not illegal_move_idx is None) and (ignored_moves == 0):
             #illegal previous move
             game_result = GameResult(_RESULT_D['反則勝ち'])
