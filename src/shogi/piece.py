@@ -17,7 +17,7 @@ HORSE = BISHOP + PROMOTED
 DRAGON = ROOK + PROMOTED
 
 ASCII_PIECES = 'plnsgbrk'
-ASCII_LONG_NAMES = [None, 'pawn', 'lance', 'knight', 'silver', 'gold', 'bishop', 'rook', 'king', 'token', \
+ASCII_LONG_NAMES = [None, 'pawn', 'lance', 'knight', 'silver', 'gold', 'bishop', 'rook', 'king', 'tokin', \
  'promotedlance', 'promotedknight', 'promotedsilver', None, 'horse', 'dragon']
 
 _UNPROMOTED_PIECES = set([FREE, GOLD, KING])
