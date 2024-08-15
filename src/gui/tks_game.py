@@ -3,7 +3,7 @@
 from datetime import timedelta
 import logging
 import tkinter as tk
-from  tkinter import ttk
+from  tkinter import ttk, font
 from typing import Optional
 
 from shogi.kifu import Game
@@ -51,12 +51,21 @@ class MovesTreeView:
     parent = game_window.frame
     self._positions = _Positions(game)
     self._game_window = game_window
-    self._tree = ttk.Treeview(parent, columns = ('move_no', 'kifu', 'time', 'cum_time'))
+    columns = ('move_no', 'kifu', 'time', 'cum_time')
+    self._tree = ttk.Treeview(parent, columns = columns, selectmode = tk.BROWSE)
     self._tree.column('#0', width = 0, stretch = tk.NO)
-    #self._tree.column('move_no', anchor = tk.CENTER
+    view_font = font.Font(family = 'Times', size = 12, slant = font.ROMAN)
+    name = 'TKSViewFont'
+    col_widths = [0] * 4
     for i, m in enumerate(game.moves):
       t = (str(i + 1), m.kifu, _timedelta_to_str(m.time), _timedelta_to_str(m.cum_time))
-      self._tree.insert(parent = '', index = tk.END, iid = i, text = '', values = t)
+      for j in range(4):
+        col_widths[j] = max(col_widths[j], view_font.measure(t[j]))
+      self._tree.insert(parent = '', index = tk.END, iid = i, text = '', values = t, tags = name)
+    self._tree.tag_configure(name, font = view_font, anchor = tk.CENTER)
+    for j in range(4):
+      w = round(col_widths[j] * 1.2)
+      self._tree.column(columns[j], anchor = tk.CENTER, minwidth = w, width = w)
     self._tree.pack(side = tk.LEFT, expand = True, fill = tk.Y)
     self._tree.bind('<<TreeviewSelect>>', self._select_event)
   def _select_event(self, event):
