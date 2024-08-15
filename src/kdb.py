@@ -4,7 +4,7 @@ import hashlib
 import logging
 import lzma
 import sqlite3
-from typing import Tuple
+from typing import (Optional, Tuple)
 
 import shogi
 
@@ -45,7 +45,7 @@ class KifuDB:
   start_date real,
   sente_rating integer,
   gote_rating integer,
-  time_control text,
+  time_control integer,
   moves integer,
   result integer,
   md5 blob,
@@ -55,16 +55,32 @@ class KifuDB:
   pos_hash2 integer,
   move integer,
   game integer)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS time_controls (time_control text PRIMARY KEY)''')
     c.execute('CREATE INDEX IF NOT EXISTS idx_pos ON moves(pos_hash1)')
     c.close()
-  def find_game_by_kifu_md5(self, kifu_md5):
+  def _select_single_value(self, q, parameters = ()):
     c = self._connection.cursor()
-    res = c.execute('SELECT rowid FROM kifus WHERE md5 == ?', (kifu_md5, ))
+    res = c.execute(q, parameters)
     r = res.fetchone()
     c.close()
     if r is None:
       return r
     return r[0]
+  def _get_rowid(self, table_name: str, field_name: str, value, force = False) -> Optional[int]:
+    self._select_single_value(f'SELECT rowid FROM {table_name} WHERE {field_name} == ?', (value, ))
+    if not r is None:
+      return r
+    if not force:
+      return None
+    self.insert_values(table_name, [field_name], [value])
+    return self._get_rowid(table_name, field_name, value, False)
+  def find_game_by_kifu_md5(self, kifu_md5):
+    return self._get_rowid('kifus', 'md5', kifu_md5)
+  def get_time_countrol_rowid(self, time_control: str, force = False) -> Optional[int]:
+    return self._get_rowid('time_controls', 'time_control', time_control, force)
+  def player_with_most_games(self, side: int) -> Optional[str]:
+    side = 'sente' if side > 0 else 'gote'
+    return self._select_single_value(f'select {side}, count(*) as c from kifus group by {side} order by c desc limit 1')
   def insert_values(self, table_name, fields, values):
     assert len(fields) == len(values)
     q = _insert(table_name, fields)
@@ -93,6 +109,11 @@ class KifuDB:
     data = lzma.compress(b)
     fields = ['sente', 'gote', 'start_date', 'sente_rating', 'gote_rating', 'time_control']
     v = g.get_row_values_from_headers(fields)
+    tc = v.pop()
+    if tc is None:
+      tc = ''
+    tc = self.get_time_countrol_rowid(tc, force = True)
+    v.append(tc)
     fields.append('moves')
     v.append(len(g.moves))
     fields.append('result')
