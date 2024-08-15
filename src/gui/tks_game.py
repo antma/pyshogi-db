@@ -52,20 +52,21 @@ class MovesTreeView:
     self._positions = _Positions(game)
     self._game_window = game_window
     columns = ('move_no', 'kifu', 'time', 'cum_time')
-    self._tree = ttk.Treeview(parent, columns = columns, selectmode = tk.BROWSE)
+    font_size = 12
+    view_font = font.Font(family = 'Times', size = font_size, slant = font.ROMAN)
+    style = ttk.Style()
+    style.configure('Moves.Treeview', font = view_font, rowheight = round(font_size * 1.5))
+    self._tree = ttk.Treeview(parent, style = 'Moves.Treeview', columns = columns, selectmode = tk.BROWSE, show = '')
     self._tree.column('#0', width = 0, stretch = tk.NO)
-    view_font = font.Font(family = 'Times', size = 12, slant = font.ROMAN)
-    name = 'TKSViewFont'
     col_widths = [0] * 4
     for i, m in enumerate(game.moves):
       t = (str(i + 1), m.kifu, _timedelta_to_str(m.time), _timedelta_to_str(m.cum_time))
       for j in range(4):
         col_widths[j] = max(col_widths[j], view_font.measure(t[j]))
-      self._tree.insert(parent = '', index = tk.END, iid = i, text = '', values = t, tags = name)
-    self._tree.tag_configure(name, font = view_font, anchor = tk.CENTER)
+      self._tree.insert(parent = '', index = tk.END, iid = i, text = '', values = t)
     for j in range(4):
-      w = round(col_widths[j] * 1.2)
-      self._tree.column(columns[j], anchor = tk.CENTER, minwidth = w, width = w)
+      w = round(col_widths[j] * 1.5)
+      self._tree.column(columns[j], anchor = tk.CENTER, minwidth = w, width = w, stretch = tk.NO)
     self._tree.pack(side = tk.LEFT, expand = True, fill = tk.Y)
     self._tree.bind('<<TreeviewSelect>>', self._select_event)
   def _select_event(self, event):
