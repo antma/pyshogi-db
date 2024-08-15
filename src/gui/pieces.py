@@ -22,8 +22,9 @@ def _load_images(filename):
   return a
 
 class ShogiPiecesImages:
-  def __init__(self, filename):
+  def __init__(self, filename, cell_width):
     self._filename = filename
+    self.cell_width = cell_width
     self._images = _load_images(filename)
   def get(self, piece: int):
     return self._images.get(piece)

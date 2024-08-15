@@ -8,15 +8,15 @@ from shogi.position import Position
 from . import pieces
 
 class TksPosition:
-  def __init__(self, parent_window, pieces_filename: str, cell_width: int):
+  def __init__(self, parent_window, images: pieces.ShogiPiecesImages):
     self.parent_window = parent_window
-    self.images = pieces.ShogiPiecesImages(pieces_filename)
-    self.cell_width = cell_width
-    self.height = 9 * (cell_width + 1)
+    self.images = images
+    self.cell_width = self.images.cell_width
+    self.height = 9 * (self.cell_width + 1)
     self._gote_hand = _Hand(self, -1)
     self._board = _Board(self)
     self._sente_hand = _Hand(self, 1)
-    fs = cell_width // 5
+    fs = self.cell_width // 5
     self.font = f'Arial {fs} bold'
   def draw_position(self, pos: Position):
     self._gote_hand.draw_position(pos)
