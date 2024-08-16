@@ -7,6 +7,7 @@ import sqlite3
 from typing import (Optional, Tuple)
 
 import shogi
+from shogi.position import Position
 
 def _insert(table, a):
   return 'INSERT INTO ' + table + '(' + ', '.join(a) + ') VALUES (' +  ', '.join('?' * len(a)) + ')'
@@ -19,6 +20,9 @@ def _md5_digest(data):
 def _u64_to_i64(x):
   return x - 0x8000000000000000
 
+def _side_to_str(side: int) -> str:
+  return "sente" if side > 0 else "gote"
+
 def sfen_hashes(sfen: str) -> Tuple[int, int]:
   m = hashlib.md5()
   m.update(bytes(sfen, 'ascii'))
@@ -26,6 +30,15 @@ def sfen_hashes(sfen: str) -> Tuple[int, int]:
   lo, hi = (x & 0xffff_ffff_ffff_ffff), x >> 64
   assert x == (lo + (hi << 64))
   return (_u64_to_i64(lo), _u64_to_i64(hi))
+
+class MoveWithStat:
+  def __init__(self, packed_move: int, games: int, score: float, sum_of_opponent_ratings: int):
+    self.packed_move = packed_move
+    self.games = games
+    self.score = score
+    self.sum_of_opponent_ratings = sum_of_opponent_ratings
+  def __repr__(self):
+    return f'MoveWithStat ( packed_move = {self.packed_move}, games = {self.games}, score = {self.score}, sum_of_opponent_ratings = {self.sum_of_opponent_ratings})'
 
 class KifuDB:
   def __init__(self, database = ':memory:'):
@@ -79,7 +92,7 @@ class KifuDB:
   def get_time_countrol_rowid(self, time_control: str, force = False) -> Optional[int]:
     return self._get_rowid('time_controls', 'time_control', time_control, force)
   def player_with_most_games(self, side: int) -> Optional[str]:
-    side = 'sente' if side > 0 else 'gote'
+    side = _side_to_str(side)
     return self._select_single_value(f'select {side}, count(*) as c from kifus group by {side} order by c desc limit 1')
   def insert_values(self, table_name, fields, values):
     assert len(fields) == len(values)
@@ -138,3 +151,38 @@ class KifuDB:
     fields = ['pos_hash1', 'pos_hash2', 'move', 'game']
     self.insert_many_values('moves',  fields, vals)
     return True
+  def moves_with_stats(self, pos: Position, player: Tuple[str, int], time_control: Optional[str]) -> list[MoveWithStat]:
+    name, side = player
+    #side = _side_to_str(player[1])
+    player_side = _side_to_str(side)
+    oside = _side_to_str(-side)
+    orating = f'kifus.{oside}_rating'
+    hash1, hash2 = sfen_hashes(pos.sfen())
+    values = [hash1, hash2, name]
+    conds = ['moves.pos_hash1 == ?', 'moves.pos_hash2 == ?', f'kifus.{player_side} == ?']
+    if not time_control is None:
+      tc = self.get_time_countrol_rowid(time_control, force = False)
+      if tc is None:
+        return []
+      values.append(tc)
+      conds.append('kifus.time_control == ?')
+    conds.extend([f'{orating} > 0', 'kifus.result >= -1', 'kifus.result <= 1'])
+    cond = ' AND '.join('(' + s + ')' for s in conds)
+    q = f'''SELECT moves.move, COUNT(*) as c, SUM(kifus.result), SUM({orating}) FROM moves
+INNER JOIN kifus ON moves.game == kifus.rowid
+WHERE {cond}
+GROUP BY moves.move
+ORDER BY c DESC
+'''
+    logging.debug(q)
+    c = self._connection.cursor()
+    res = c.execute(q, values)
+    l = []
+    for t in res:
+      n = t[1]
+      sente_score = 0.5 * (t[2] + n)
+      score = sente_score if side > 0 else n - sente_score
+      l.append(MoveWithStat(t[0], n, score, t[3]))
+    c.close()
+    logging.debug('%s', l)
+    return l
