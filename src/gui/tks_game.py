@@ -6,6 +6,7 @@ import tkinter as tk
 from  tkinter import ttk, font
 from typing import Optional
 
+import kdb
 from shogi.kifu import Game
 from shogi.position import Position
 from . import tks_pos
@@ -78,7 +79,9 @@ class MovesTreeView:
     self._game_window.draw_position(pos)
 
 class GameWindow:
-  def __init__(self, parent, images: pieces.ShogiPiecesImages, game: Game):
+  def __init__(self, parent, images: pieces.ShogiPiecesImages, db: kdb.KifuDB, game_id: int):
+    game = db.load_game(game_id)
+    self._db = db
     self.frame = tk.Frame(parent)
     self._board = tks_pos.TksPosition(self.frame, images)
     pos = Position()
