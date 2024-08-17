@@ -89,7 +89,7 @@ class KifuDB:
     self.insert_values(table_name, [field_name], [value])
     return self._get_rowid(table_name, field_name, value, False)
   def find_data_by_game_id(self, game_id: int) -> Optional[str]:
-    compressed_data = self._select_single_value(f'SELECT data FROM kifus WHERE rowid = ?', (game_id, ))
+    compressed_data = self._select_single_value('SELECT data FROM kifus WHERE rowid = ?', (game_id, ))
     if compressed_data is None:
       return None
     return lzma.decompress(compressed_data).decode('UTF8')
