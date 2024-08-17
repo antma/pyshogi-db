@@ -8,6 +8,7 @@ from typing import (Optional, Tuple)
 
 import shogi
 from shogi.position import Position
+from shogi.kifu import Game
 
 def _insert(table, a):
   return 'INSERT INTO ' + table + '(' + ', '.join(a) + ') VALUES (' +  ', '.join('?' * len(a)) + ')'
@@ -87,6 +88,11 @@ class KifuDB:
       return None
     self.insert_values(table_name, [field_name], [value])
     return self._get_rowid(table_name, field_name, value, False)
+  def find_data_by_game_id(self, game_id: int) -> Optional[str]:
+    compressed_data = self._select_single_value(f'SELECT data FROM kifus WHERE rowid = ?', (game_id, ))
+    if compressed_data is None:
+      return None
+    return lzma.decompress(compressed_data).decode('UTF8')
   def find_game_by_kifu_md5(self, kifu_md5):
     return self._get_rowid('kifus', 'md5', kifu_md5)
   def get_time_countrol_rowid(self, time_control: str, force = False) -> Optional[int]:
@@ -186,3 +192,8 @@ ORDER BY c DESC
     c.close()
     logging.debug('%s', l)
     return l
+  def load_game(self, game_id: int) -> Optional[Game]:
+    kifu = self.find_data_by_game_id(game_id)
+    if kifu is None:
+      return None
+    return Game.parse(kifu)
