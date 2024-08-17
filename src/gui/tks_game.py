@@ -48,8 +48,9 @@ class _Positions:
     return pos
 
 class MovesTreeView:
-  def __init__(self, game_window, game: Game):
+  def __init__(self, game_window):
     parent = game_window.frame
+    game = game_window.game
     self._positions = _Positions(game)
     self._game_window = game_window
     columns = ('move_no', 'kifu', 'time', 'cum_time')
@@ -80,13 +81,13 @@ class MovesTreeView:
 
 class GameWindow:
   def __init__(self, parent, images: pieces.ShogiPiecesImages, db: kdb.KifuDB, game_id: int):
-    game = db.load_game(game_id)
     self._db = db
+    self.game = db.load_game(game_id)
     self.frame = tk.Frame(parent)
     self._board = tks_pos.TksPosition(self.frame, images)
     pos = Position()
     self._board.draw_position(pos)
-    self._moves_view = MovesTreeView(self, game)
+    self._moves_view = MovesTreeView(self)
     self.frame.pack()
   def draw_position(self, pos: Position):
     self._board.draw_position(pos)
