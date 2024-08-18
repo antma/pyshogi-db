@@ -38,6 +38,10 @@ class MoveWithStat:
     self.games = games
     self.score = score
     self.sum_of_opponent_ratings = sum_of_opponent_ratings
+  def percent(self) -> float:
+    if self.games == 0:
+      return 0.0
+    return (100.0 * self.score) / self.games
   def __repr__(self):
     return f'MoveWithStat ( packed_move = {self.packed_move}, games = {self.games}, score = {self.score}, sum_of_opponent_ratings = {self.sum_of_opponent_ratings})'
 
@@ -45,6 +49,7 @@ class KifuDB:
   def __init__(self, database = ':memory:'):
     self._database = database
     self._connection = None
+    self._cached_player_with_most_games = None
   def __enter__(self):
     self._connection = sqlite3.connect(self._database)
     self.create_tables()
@@ -97,9 +102,24 @@ class KifuDB:
     return self._get_rowid('kifus', 'md5', kifu_md5)
   def get_time_countrol_rowid(self, time_control: str, force = False) -> Optional[int]:
     return self._get_rowid('time_controls', 'time_control', time_control, force)
-  def player_with_most_games(self, side: int) -> Optional[str]:
+  def _player_with_most_games(self, side: int) -> Optional[str]:
     side = _side_to_str(side)
     return self._select_single_value(f'select {side}, count(*) as c from kifus group by {side} order by c desc limit 1')
+  def player_with_most_games(self) -> Optional[str]:
+    if not self._cached_player_with_most_games is None:
+      if self._cached_player_with_most_games == '':
+        return None
+      return self._cached_player_with_most_games
+    self._cached_player_with_most_games = ''
+    p1 = self._player_with_most_games(1)
+    if p1 is None:
+      return None
+    p2 = self._player_with_most_games(-1)
+    if (p2 is None) or (p1 != p2):
+      return None
+    self._cached_player_with_most_games = p1
+    logging.debug('Player with most games is %s', p1)
+    return p1
   def insert_values(self, table_name, fields, values):
     assert len(fields) == len(values)
     q = _insert(table_name, fields)
@@ -157,9 +177,8 @@ class KifuDB:
     fields = ['pos_hash1', 'pos_hash2', 'move', 'game']
     self.insert_many_values('moves',  fields, vals)
     return True
-  def moves_with_stats(self, pos: Position, player: Tuple[str, int], time_control: Optional[str]) -> list[MoveWithStat]:
+  def moves_with_stats(self, pos: Position, player: Tuple[str, int], time_control: Optional[int]) -> list[MoveWithStat]:
     name, side = player
-    #side = _side_to_str(player[1])
     player_side = _side_to_str(side)
     oside = _side_to_str(-side)
     orating = f'kifus.{oside}_rating'
@@ -167,10 +186,7 @@ class KifuDB:
     values = [hash1, hash2, name]
     conds = ['moves.pos_hash1 == ?', 'moves.pos_hash2 == ?', f'kifus.{player_side} == ?']
     if not time_control is None:
-      tc = self.get_time_countrol_rowid(time_control, force = False)
-      if tc is None:
-        return []
-      values.append(tc)
+      values.append(time_control)
       conds.append('kifus.time_control == ?')
     conds.extend([f'{orating} > 0', 'kifus.result >= -1', 'kifus.result <= 1'])
     cond = ' AND '.join('(' + s + ')' for s in conds)

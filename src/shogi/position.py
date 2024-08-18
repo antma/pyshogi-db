@@ -97,7 +97,7 @@ class Position:
     self.sente_pieces = [0] * piece.ROOK
     self.gote_pieces = [0] * piece.ROOK
     a = list(sfen.split(' '))
-    self.moveno = int(a[3])
+    self.move_no = int(a[3])
     if a[1] == 'b':
       self.side_to_move = 1
     elif a[1] == 'w':
@@ -156,7 +156,7 @@ class Position:
           log.raise_value_error(f'Position.__init__(sfen: {sfen}) piece in hand should be alphabetic')
       if t != 0:
         log.raise_value_error(f'Position.__init__(sfen: {sfen}) after number in hand should be alphabetic character')
-  def sfen(self, moveno = True) -> str:
+  def sfen(self, move_no = True) -> str:
     s = ''
     for row in range(9):
       u = 9 * row
@@ -194,8 +194,8 @@ class Position:
       s += '-'
     else:
       s += w
-    if moveno:
-      s += ' ' + str(self.moveno)
+    if move_no:
+      s += ' ' + str(self.move_no)
     return s
   def _validate_move(self, m: Move):
     if self.side_to_move * m.to_piece <= 0:
@@ -244,7 +244,7 @@ class Position:
       self.board[m.from_cell] = piece.FREE
       self.board[m.to_cell] = m.to_piece
     self.side_to_move *= -1
-    self.moveno += 1
+    self.move_no += 1
     if (m.legal == 0) and not self.is_legal():
       m.legal = -1
       logging.debug("Illegal position (king under check) = %s", self.sfen())
@@ -254,7 +254,7 @@ class Position:
     return u
   def undo_move(self, m: Move, u: Optional[UndoMove]):
     self.side_to_move *= -1
-    self.moveno -= 1
+    self.move_no -= 1
     if m.is_drop():
       c = self.sente_pieces if m.to_piece > 0 else self.gote_pieces
       c[abs(m.to_piece) - 1] += 1

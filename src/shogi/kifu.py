@@ -220,6 +220,8 @@ class Game:
     except ValueError as err:
       logging.debug(repr(err))
       return None
+  def get_header_value(self, key: str):
+    return self.headers.get(key)
   def get_row_values_from_headers(self, keys):
     return [self.headers.get(key) for key in keys]
   def sente_points(self) -> Optional[int]:

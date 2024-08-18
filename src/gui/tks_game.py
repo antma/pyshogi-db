@@ -9,8 +9,9 @@ from typing import Optional
 import kdb
 from shogi.kifu import Game
 from shogi.position import Position
-from . import tks_pos
 from . import pieces
+from . import tks_pos
+from . import tks_tree
 
 def _timedelta_to_str(t: Optional[timedelta]) -> str:
   if t is None:
@@ -81,13 +82,15 @@ class MovesTreeView:
 
 class GameWindow:
   def __init__(self, parent, images: pieces.ShogiPiecesImages, db: kdb.KifuDB, game_id: int):
-    self._db = db
+    self.db = db
     self.game = db.load_game(game_id)
     self.frame = tk.Frame(parent)
     self._board = tks_pos.TksPosition(self.frame, images)
     pos = Position()
     self._board.draw_position(pos)
     self._moves_view = MovesTreeView(self)
+    self._moves_with_stat = tks_tree.MovesWithStatTreeView(self)
     self.frame.pack()
   def draw_position(self, pos: Position):
     self._board.draw_position(pos)
+    self._moves_with_stat.draw_position(pos)
