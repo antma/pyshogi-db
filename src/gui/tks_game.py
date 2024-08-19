@@ -12,6 +12,7 @@ from shogi.position import Position
 from . import pieces
 from . import tks_pos
 from . import tks_tree
+from . import table
 
 def _timedelta_to_str(t: Optional[timedelta]) -> str:
   if t is None:
@@ -48,49 +49,56 @@ class _Positions:
     self._sfens[cur_move] = pos.sfen()
     return pos
 
-class MovesTreeView:
+class TableMoves:
   def __init__(self, game_window):
-    parent = game_window.frame
+    view_font = game_window.table_font
+    parent = game_window.frame2
     game = game_window.game
     self._positions = _Positions(game)
     self._game_window = game_window
     columns = ('move_no', 'kifu', 'time', 'cum_time')
-    font_size = 12
-    view_font = font.Font(family = 'Times', size = font_size, slant = font.ROMAN)
-    style = ttk.Style()
-    style.configure('Moves.Treeview', font = view_font, rowheight = round(font_size * 1.5))
-    self._tree = ttk.Treeview(parent, style = 'Moves.Treeview', columns = columns, selectmode = tk.BROWSE, show = '')
-    self._tree.column('#0', width = 0, stretch = tk.NO)
-    col_widths = [0] * 4
+    self.table = table.Table(parent, 'TableMoves', columns, view_font, tk.BROWSE)
+    cw = self.table.make_columns_width()
     for i, m in enumerate(game.moves):
       t = (str(i + 1), m.kifu, _timedelta_to_str(m.time), _timedelta_to_str(m.cum_time))
-      for j in range(4):
-        col_widths[j] = max(col_widths[j], view_font.measure(t[j]))
-      self._tree.insert(parent = '', index = tk.END, iid = i, text = '', values = t)
-    for j in range(4):
-      w = round(col_widths[j] * 1.5)
-      self._tree.column(columns[j], anchor = tk.CENTER, minwidth = w, width = w, stretch = tk.NO)
-    self._tree.pack(side = tk.LEFT, expand = True, fill = tk.Y)
-    self._tree.bind('<<TreeviewSelect>>', self._select_event)
+      self.table.insert_row(t, cw)
+    self.table.adjust_columns_width(cw)
+    self.table.tree.pack(side = tk.TOP, anchor = tk.N + tk.W, expand = tk.YES, fill = tk.Y)
+    self.table.tree.bind('<<TreeviewSelect>>', self._select_event)
+  def widget(self):
+    return self.table.tree
   def _select_event(self, event):
-    item = self._tree.selection()
+    item = self.table.tree.selection()
     logging.debug(f'Select item {item}, event {event}')
     self.goto_move(int(item[0]))
   def goto_move(self, move_no: int):
     pos = self._positions.goto_move(move_no)
     self._game_window.draw_position(pos)
 
+class GameHeaders:
+  def __init__(self, game_window):
+    game = game_window.game
+    parent = game_window.frame
+
 class GameWindow:
   def __init__(self, parent, images: pieces.ShogiPiecesImages, db: kdb.KifuDB, game_id: int):
     self.db = db
+    self.table_font = font.Font(family = 'Times', size = 12, slant = font.ROMAN)
     self.game = db.load_game(game_id)
     self.frame = tk.Frame(parent)
     self._board = tks_pos.TksPosition(self.frame, images)
     pos = Position()
     self._board.draw_position(pos)
-    self._moves_view = MovesTreeView(self)
-    self._moves_with_stat = tks_tree.MovesWithStatTreeView(self)
-    self.frame.pack()
+    self.frame2 = tk.Frame(parent)
+    #self.frame2.grid_columnconfigure(0, weight=1)
+    #self.frame2.grid_rowconfigure(0, weight=1)
+    #self._table_moves.widget().grid(row = 0, column = 0, sticky = tk.N + tk.E + tk.S + tk.W)
+    #self._moves_with_stat = tks_tree.MovesWithStatTreeView(self)
+    self._table_moves = TableMoves(self)
+    self._moves_with_stat = tks_tree.TableMovesWithStat(self)
+    #self._table_moves.widget().pack(side = tk.LEFT, expand = tk.YES, fill = tk.Y)
+    self.frame.pack(side = tk.LEFT)
+    self.frame2.pack(side = tk.LEFT, expand = tk.YES, fill = tk.BOTH)
   def draw_position(self, pos: Position):
     self._board.draw_position(pos)
     self._moves_with_stat.draw_position(pos)
