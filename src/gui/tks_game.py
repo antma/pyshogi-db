@@ -63,7 +63,7 @@ class TableMoves:
       t = (str(i + 1), m.kifu, _timedelta_to_str(m.time), _timedelta_to_str(m.cum_time))
       self.table.insert_row(t, cw)
     self.table.adjust_columns_width(cw)
-    self.table.tree.pack(side = tk.TOP, anchor = tk.N, expand = tk.YES, fill = tk.BOTH)
+    self.table.tree.pack(side = tk.LEFT, anchor = tk.N + tk.E, expand = tk.YES, fill = tk.BOTH)
     self.table.tree.bind('<<TreeviewSelect>>', self._select_event)
   def widget(self):
     return self.table.tree
@@ -123,8 +123,8 @@ class GameWindow:
     #self.frame2.grid_rowconfigure(0, weight=1)
     #self._table_moves.widget().grid(row = 0, column = 0, sticky = tk.N + tk.E + tk.S + tk.W)
     #self._moves_with_stat = tks_tree.MovesWithStatTreeView(self)
-    self._table_headers = TableHeaders(self)
     self._table_moves = TableMoves(self)
+    self._table_headers = TableHeaders(self)
     self._moves_with_stat = tks_tree.TableMovesWithStat(self)
     #self._table_moves.widget().pack(side = tk.LEFT, expand = tk.YES, fill = tk.Y)
     self.frame.pack(side = tk.LEFT)

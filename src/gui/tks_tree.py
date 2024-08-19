@@ -43,7 +43,7 @@ class TableMovesWithStat:
     #self.table.state(ttk.DISABLED)
   def pack(self):
     if not self._filter is None:
-      self.table.tree.pack(side = tk.BOTTOM, anchor = tk.S, expand = tk.YES, fill = tk.X)
+      self.table.tree.pack(side = tk.BOTTOM, anchor = tk.S + tk.W, expand = tk.YES, fill = tk.X)
       self.active = True
   def pack_forget(self):
     if self.active:
