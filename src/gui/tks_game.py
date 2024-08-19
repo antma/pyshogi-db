@@ -63,7 +63,7 @@ class TableMoves:
       t = (str(i + 1), m.kifu, _timedelta_to_str(m.time), _timedelta_to_str(m.cum_time))
       self.table.insert_row(t, cw)
     self.table.adjust_columns_width(cw)
-    self.table.tree.pack(side = tk.TOP, anchor = tk.N + tk.W, expand = tk.YES, fill = tk.Y)
+    self.table.tree.pack(side = tk.TOP, anchor = tk.N, expand = tk.YES, fill = tk.BOTH)
     self.table.tree.bind('<<TreeviewSelect>>', self._select_event)
   def widget(self):
     return self.table.tree
@@ -75,10 +75,39 @@ class TableMoves:
     pos = self._positions.goto_move(move_no)
     self._game_window.draw_position(pos)
 
-class GameHeaders:
+class TableHeaders:
   def __init__(self, game_window):
     game = game_window.game
-    parent = game_window.frame
+    parent = game_window.frame2
+    columns = ('key', 'value')
+    self.table = table.Table(parent, 'TableHeaders', columns, game_window.table_font, tk.NONE)
+    cw = self.table.make_columns_width()
+    a = []
+    sente = game.player_with_rating(1)
+    if sente is None:
+      sente = '-'
+    a.append(('Sente', sente))
+    gote = game.player_with_rating(-1)
+    if gote is None:
+      gote = '-'
+    a.append(('Gote', gote))
+    for title, key in [ ('Date', 'start_date'), ('Time control', 'time_control')]:
+      p = game.get_header_value(key)
+      if p is None:
+        continue
+      if not isinstance(p, str):
+        p = str(p)
+      a.append((title, p))
+    tr = game.text_result()
+    if not tr is None:
+      a.append(('Result', tr))
+    cw = self.table.make_columns_width()
+    for t in a:
+      self.table.insert_row(t, cw)
+    #self.table.tree.column('key', anchor = tk.W)
+    self.table.adjust_columns_width(cw)
+    self.table.tree['height'] = len(a)
+    self.table.tree.pack(side = tk.TOP, anchor = tk.N, expand = tk.YES, fill = tk.X)
 
 class GameWindow:
   def __init__(self, parent, images: pieces.ShogiPiecesImages, db: kdb.KifuDB, game_id: int):
@@ -94,6 +123,7 @@ class GameWindow:
     #self.frame2.grid_rowconfigure(0, weight=1)
     #self._table_moves.widget().grid(row = 0, column = 0, sticky = tk.N + tk.E + tk.S + tk.W)
     #self._moves_with_stat = tks_tree.MovesWithStatTreeView(self)
+    self._table_headers = TableHeaders(self)
     self._table_moves = TableMoves(self)
     self._moves_with_stat = tks_tree.TableMovesWithStat(self)
     #self._table_moves.widget().pack(side = tk.LEFT, expand = tk.YES, fill = tk.Y)

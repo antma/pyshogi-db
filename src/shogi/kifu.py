@@ -44,6 +44,9 @@ _KIFU_COLS_D = _create_kifu_dict(_KIFU_COLS)
 _KIFU_ROWS_D = _create_kifu_dict(_KIFU_ROWS)
 _KIFU_PIECES_D = _create_kifu_dict(_KIFU_PIECES, 1)
 
+def side_to_str(side: int) -> str:
+  return "sente" if side > 0 else "gote"
+
 def kifu_cell(cell: int) -> str:
   (row, col) = divmod(cell, 9)
   return _KIFU_COLS[col] + _KIFU_ROWS[row]
@@ -222,6 +225,15 @@ class Game:
       return None
   def get_header_value(self, key: str):
     return self.headers.get(key)
+  def player_with_rating(self, side: int) -> Optional[str]:
+    name = side_to_str(side)
+    player = self.get_header_value(name)
+    if player is None:
+      return None
+    rating = self.get_header_value(name + '_rating')
+    if rating is None:
+      return player
+    return f'{player}({rating})'
   def get_row_values_from_headers(self, keys):
     return [self.headers.get(key) for key in keys]
   def sente_points(self) -> Optional[int]:
@@ -231,6 +243,15 @@ class Game:
     if (len(self.parsed_moves) % 2) != 0:
       p *= -1
     return p
+  def text_result(self) -> Optional[int]:
+    p = self.sente_points()
+    if p is None:
+      return None
+    if p > 0:
+      return "1-0"
+    if p < 0:
+      return "0-1"
+    return "1/2"
 
 def _strip_comment(t):
   """Everything after '#' will be ignored by parsers."""

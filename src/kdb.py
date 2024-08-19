@@ -8,7 +8,7 @@ from typing import (Optional, Tuple)
 
 import shogi
 from shogi.position import Position
-from shogi.kifu import Game
+from shogi.kifu import Game, side_to_str
 
 def _insert(table, a):
   return 'INSERT INTO ' + table + '(' + ', '.join(a) + ') VALUES (' +  ', '.join('?' * len(a)) + ')'
@@ -20,9 +20,6 @@ def _md5_digest(data):
 
 def _u64_to_i64(x):
   return x - 0x8000000000000000
-
-def _side_to_str(side: int) -> str:
-  return "sente" if side > 0 else "gote"
 
 def sfen_hashes(sfen: str) -> Tuple[int, int]:
   m = hashlib.md5()
@@ -103,7 +100,7 @@ class KifuDB:
   def get_time_countrol_rowid(self, time_control: str, force = False) -> Optional[int]:
     return self._get_rowid('time_controls', 'time_control', time_control, force)
   def _player_with_most_games(self, side: int) -> Optional[str]:
-    side = _side_to_str(side)
+    side = side_to_str(side)
     return self._select_single_value(f'select {side}, count(*) as c from kifus group by {side} order by c desc limit 1')
   def player_with_most_games(self) -> Optional[str]:
     if not self._cached_player_with_most_games is None:
@@ -179,8 +176,8 @@ class KifuDB:
     return True
   def moves_with_stats(self, pos: Position, player: Tuple[str, int], time_control: Optional[int]) -> list[MoveWithStat]:
     name, side = player
-    player_side = _side_to_str(side)
-    oside = _side_to_str(-side)
+    player_side = side_to_str(side)
+    oside = side_to_str(-side)
     orating = f'kifus.{oside}_rating'
     hash1, hash2 = sfen_hashes(pos.sfen())
     values = [hash1, hash2, name]
