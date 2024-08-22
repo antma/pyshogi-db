@@ -175,8 +175,9 @@ class KifuDB:
     self.insert_many_values('moves',  fields, vals)
     return True
   def time_control_stats(self):
-    q = f'''SELECT time_control, COUNT(*) as c FROM kifus
-GROUP BY time_control
+    q = f'''SELECT time_controls.time_control, COUNT(*) as c FROM kifus
+INNER JOIN time_controls ON time_controls.rowid == kifus.time_control
+GROUP BY time_controls.rowid
 ORDER BY c DESC'''
     c = self._connection.cursor()
     res = list(c.execute(q))
