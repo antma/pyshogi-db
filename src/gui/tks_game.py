@@ -112,7 +112,7 @@ class TableHeaders:
 class GameWindow:
   def __init__(self, parent, images: pieces.ShogiPiecesImages, db: kdb.KifuDB, game_id: int):
     self.db = db
-    self.table_font = font.Font(family = 'Times', size = 12, slant = font.ROMAN)
+    self.table_font = font.Font(family = 'Times New Roman', size = 12)
     self.game = db.load_game(game_id)
     self.frame = tk.Frame(parent)
     self._board = tks_pos.TksPosition(self.frame, images)
