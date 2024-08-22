@@ -42,7 +42,7 @@ class MoveWithStat:
   def performance(self) -> Optional[float]:
     if self.percent is None:
       return None
-    return performance(self.sum_of_opponent_ratings / self.games, self.percent) 
+    return performance(self.sum_of_opponent_ratings / self.games, self.percent)
   def __repr__(self):
     return f'MoveWithStat ( packed_move = {self.packed_move}, games = {self.games}, score = {self.score}, sum_of_opponent_ratings = {self.sum_of_opponent_ratings})'
 
@@ -179,7 +179,7 @@ class KifuDB:
     self.insert_many_values('moves',  fields, vals)
     return True
   def time_control_stats(self):
-    q = f'''SELECT time_controls.time_control, COUNT(*) as c FROM kifus
+    q = '''SELECT time_controls.time_control, COUNT(*) as c FROM kifus
 INNER JOIN time_controls ON time_controls.rowid == kifus.time_control
 GROUP BY time_controls.rowid
 ORDER BY c DESC'''

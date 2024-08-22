@@ -3,7 +3,7 @@
 from datetime import timedelta
 import logging
 import tkinter as tk
-from  tkinter import ttk, font
+from  tkinter import font
 from typing import Optional
 
 import kdb
@@ -69,11 +69,13 @@ class TableMoves:
     return self.table.tree
   def _select_event(self, event):
     item = self.table.tree.selection()
-    logging.debug(f'Select item {item}, event {event}')
+    logging.debug('Select item %s, event %s', item, event)
     self.goto_move(int(item[0]))
   def goto_move(self, move_no: int):
     pos = self._positions.goto_move(move_no)
     self._game_window.draw_position(pos)
+  def select_first_move(self):
+    self.table.tree.selection_set(0)
 
 class TableHeaders:
   def __init__(self, game_window):
@@ -127,8 +129,10 @@ class GameWindow:
     self._table_headers = TableHeaders(self)
     self._moves_with_stat = tks_tree.TableMovesWithStat(self)
     #self._table_moves.widget().pack(side = tk.LEFT, expand = tk.YES, fill = tk.Y)
+    self._table_moves.select_first_move()
     self.frame.pack(side = tk.LEFT)
     self.frame2.pack(side = tk.LEFT, expand = tk.YES, fill = tk.BOTH)
   def draw_position(self, pos: Position):
+    logging.debug('GameWindow.draw_position: %s', pos.sfen())
     self._board.draw_position(pos)
     self._moves_with_stat.draw_position(pos)

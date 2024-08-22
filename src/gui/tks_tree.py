@@ -2,7 +2,6 @@
 
 import logging
 import tkinter as tk
-from tkinter import font, ttk
 from typing import Optional
 
 import kdb
@@ -72,7 +71,7 @@ class TableMovesWithStat:
       except IndexError:
         pass
     columns_width = self.table.make_columns_width()
-    for i, m in enumerate(moves):
+    for m in moves:
       mv = Move.unpack_from_int(m.packed_move, pos.side_to_move)
       p = m.percent
       perf = round(m.performance())
