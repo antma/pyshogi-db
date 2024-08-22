@@ -174,6 +174,14 @@ class KifuDB:
     fields = ['pos_hash1', 'pos_hash2', 'move', 'game']
     self.insert_many_values('moves',  fields, vals)
     return True
+  def time_control_stats(self):
+    q = f'''SELECT time_control, COUNT(*) as c FROM kifus
+GROUP BY time_control
+ORDER BY c DESC'''
+    c = self._connection.cursor()
+    res = list(c.execute(q))
+    c.close()
+    return res
   def moves_with_stats(self, pos: Position, player: Tuple[str, int], time_control: Optional[int]) -> list[MoveWithStat]:
     name, side = player
     player_side = side_to_str(side)
