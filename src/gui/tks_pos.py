@@ -62,7 +62,7 @@ class _Hand:
     for i, (old, new) in enumerate(zip(self._pocket, c)):
       if old == new:
         continue
-      t = '{self._side_name}{i}'
+      t = f'{self._side_name}{i}'
       img_name = 'i' + t
       text_name = 't' + t
       if old > 0:
