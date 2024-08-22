@@ -6,6 +6,7 @@ import lzma
 import sqlite3
 from typing import (Optional, Tuple)
 
+from elo_rating import performance
 import shogi
 from shogi.position import Position
 from shogi.kifu import Game, side_to_str
@@ -35,10 +36,13 @@ class MoveWithStat:
     self.games = games
     self.score = score
     self.sum_of_opponent_ratings = sum_of_opponent_ratings
-  def percent(self) -> float:
-    if self.games == 0:
-      return 0.0
-    return (100.0 * self.score) / self.games
+    self.percent = None
+    if self.games > 0:
+      self.percent = (100.0 * self.score) / self.games
+  def performance(self) -> Optional[float]:
+    if self.percent is None:
+      return None
+    return performance(self.sum_of_opponent_ratings / self.games, self.percent) 
   def __repr__(self):
     return f'MoveWithStat ( packed_move = {self.packed_move}, games = {self.games}, score = {self.score}, sum_of_opponent_ratings = {self.sum_of_opponent_ratings})'
 

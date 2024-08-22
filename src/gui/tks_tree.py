@@ -37,7 +37,7 @@ class TableMovesWithStat:
     game = game_window.game
     self._game_window = game_window
     self._filter = _Filter.make(game_window.db, game)
-    columns = ('move', 'games', 'percent')
+    columns = ('move', 'games', 'percent', 'perf')
     self.table = table.Table(parent, 'TableMovesWithStat', columns, game_window.table_font, tk.NONE, headings = True)
     self.active = False
     #self.table.state(ttk.DISABLED)
@@ -74,8 +74,9 @@ class TableMovesWithStat:
     columns_width = self.table.make_columns_width()
     for i, m in enumerate(moves):
       mv = Move.unpack_from_int(m.packed_move, pos.side_to_move)
-      p = m.percent()
-      t = (kifu_move(mv, prev_move), str(m.games), f'{p:.01f}%')
+      p = m.percent
+      perf = round(m.performance())
+      t = (kifu_move(mv, prev_move), str(m.games), f'{p:.01f}%', str(perf))
       self.table.insert_row(t, columns_width)
     self.table.adjust_columns_width(columns_width)
     self.table.tree['height'] = len(moves)
