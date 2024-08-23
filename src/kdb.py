@@ -46,6 +46,12 @@ class MoveWithStat:
   def __repr__(self):
     return f'MoveWithStat ( packed_move = {self.packed_move}, games = {self.games}, score = {self.score}, sum_of_opponent_ratings = {self.sum_of_opponent_ratings})'
 
+class PlayerAndTimeControlFilter:
+  '''class for filtering DB'''
+  def __init__(self, player_name: str, player_side: int, time_control: Optional[int]):
+    self.player = (player_name, player_side)
+    self.time_control = time_control
+
 class KifuDB:
   def __init__(self, database = ':memory:'):
     self._database = database
@@ -187,8 +193,13 @@ ORDER BY c DESC'''
     res = list(c.execute(q))
     c.close()
     return res
-  def moves_with_stats(self, pos: Position, player: Tuple[str, int], time_control: Optional[int]) -> list[MoveWithStat]:
-    name, side = player
+  def moves_with_stats(self, pos: Position, player_and_tc: PlayerAndTimeControlFilter) -> list[MoveWithStat]:
+    l = []
+    if player_and_tc is None:
+      logging.debug('moves_with_stats(): player_and_tc is None')
+      return l
+    name, side = player_and_tc.player
+    time_control = player_and_tc.time_control
     player_side = side_to_str(side)
     oside = side_to_str(-side)
     orating = f'kifus.{oside}_rating'
@@ -209,7 +220,6 @@ ORDER BY c DESC
     logging.debug(q)
     c = self._connection.cursor()
     res = c.execute(q, values)
-    l = []
     for t in res:
       n = t[1]
       sente_score = 0.5 * (t[2] + n)
@@ -223,3 +233,17 @@ ORDER BY c DESC
     if kifu is None:
       return None
     return Game.parse(kifu)
+  def make_player_and_tc_filter(self, game: Game) -> Optional[PlayerAndTimeControlFilter]:
+    player = self.player_with_most_games()
+    if player is None:
+      return None
+    time_control = game.get_header_value('time_control')
+    if not time_control is None:
+      time_control = self.get_time_countrol_rowid(time_control, force = False)
+      if time_control is None:
+        return None
+    if player == game.get_header_value('sente'):
+      return PlayerAndTimeControlFilter(player, 1, time_control)
+    if player == game.get_header_value('gote'):
+      return PlayerAndTimeControlFilter(player, -1, time_control)
+    return None

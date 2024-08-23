@@ -35,7 +35,7 @@ class TableMovesWithStat:
     parent = game_window.frame2
     game = game_window.game
     self._game_window = game_window
-    self._filter = _Filter.make(game_window.db, game)
+    self._filter = game_window.db.make_player_and_tc_filter(game)
     columns = ('move', 'games', 'percent', 'perf')
     self.table = table.Table(parent, 'TableMovesWithStat', columns, game_window.table_font, tk.NONE, headings = True)
     self.active = False
@@ -53,7 +53,7 @@ class TableMovesWithStat:
   def draw_position(self, pos: Position):
     if self._filter is None:
       return
-    moves = self._filter.moves_with_stats(self._game_window.db, pos)
+    moves = self._game_window.db.moves_with_stats(pos, self._filter)
     total_games = sum(m.games for m in moves)
     self.pack_forget()
     self.delete_items()
