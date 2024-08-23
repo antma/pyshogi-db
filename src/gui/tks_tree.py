@@ -27,7 +27,7 @@ class _Filter:
     if player == game.get_header_value('gote'):
       return _Filter(player, -1, time_control)
     return None
-  def moves_with_stats(self, db: kdb.KifuDB, pos: Position) -> list[kdb.MoveWithStat]:
+  def moves_with_stats(self, db: kdb.KifuDB, pos: Position) -> list[kdb.MoveGameStat]:
     return db.moves_with_stats(pos, self.player, self.time_control)
 
 class TableMovesWithStat:

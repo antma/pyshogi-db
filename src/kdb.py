@@ -30,21 +30,29 @@ def sfen_hashes(sfen: str) -> Tuple[int, int]:
   assert x == (lo + (hi << 64))
   return (_u64_to_i64(lo), _u64_to_i64(hi))
 
-class MoveWithStat:
-  def __init__(self, packed_move: int, games: int, score: float, sum_of_opponent_ratings: int):
-    self.packed_move = packed_move
+class GameStat:
+  def __init__(self, games: int, score: float, sum_of_opponent_ratings: int):
     self.games = games
     self.score = score
     self.sum_of_opponent_ratings = sum_of_opponent_ratings
     self.percent = None
     if self.games > 0:
       self.percent = (100.0 * self.score) / self.games
+  def __add__(self, other):
+    if isinstance(other, GameStat):
+      return GameStat(self.games + other.games, self.score + other.score, self.sum_of_opponent_ratings + other.sum_of_opponent_ratings)
+    return NotImplemented
   def performance(self) -> Optional[float]:
     if self.percent is None:
       return None
     return performance(self.sum_of_opponent_ratings / self.games, self.percent)
+
+class MoveGameStat(GameStat):
+  def __init__(self, packed_move: int, games: int, score: float, sum_of_opponent_ratings: int):
+    self.packed_move = packed_move
+    super(MoveGameStat, self).__init__(games, score, sum_of_opponent_ratings)
   def __repr__(self):
-    return f'MoveWithStat ( packed_move = {self.packed_move}, games = {self.games}, score = {self.score}, sum_of_opponent_ratings = {self.sum_of_opponent_ratings})'
+    return f'MoveGameStat ( packed_move = {self.packed_move}, games = {self.games}, score = {self.score}, sum_of_opponent_ratings = {self.sum_of_opponent_ratings})'
 
 class PlayerAndTimeControlFilter:
   '''class for filtering DB'''
@@ -193,7 +201,7 @@ ORDER BY c DESC'''
     res = list(c.execute(q))
     c.close()
     return res
-  def moves_with_stats(self, pos: Position, player_and_tc: PlayerAndTimeControlFilter) -> list[MoveWithStat]:
+  def moves_with_stats(self, pos: Position, player_and_tc: PlayerAndTimeControlFilter) -> list[MoveGameStat]:
     l = []
     if player_and_tc is None:
       logging.debug('moves_with_stats(): player_and_tc is None')
@@ -217,17 +225,63 @@ WHERE {cond}
 GROUP BY moves.move
 ORDER BY c DESC
 '''
-    logging.debug(q)
+    #logging.debug(q)
     c = self._connection.cursor()
-    res = c.execute(q, values)
-    for t in res:
+    for t in c.execute(q, values):
       n = t[1]
       sente_score = 0.5 * (t[2] + n)
       score = sente_score if side > 0 else n - sente_score
-      l.append(MoveWithStat(t[0], n, score, t[3]))
+      l.append(MoveGameStat(t[0], n, score, t[3]))
     c.close()
     logging.debug('%s', l)
     return l
+  def _build_histogram_data_for_player_filter(self, player_and_tc: PlayerAndTimeControlFilter, step: int):
+    d = {}
+    if player_and_tc is None:
+      logging.debug('moves_with_stats(): player_and_tc is None')
+      return d
+    name, side = player_and_tc.player
+    time_control = player_and_tc.time_control
+    player_side = side_to_str(side)
+    oside = side_to_str(-side)
+    orating = f'{oside}_rating'
+    conds = [f'{player_side} == ?']
+    values = [name]
+    if not time_control is None:
+      values.append(time_control)
+      conds.append('time_control == ?')
+    conds.extend([f'{orating} > 0', 'result >= -1', 'result <= 1'])
+    cond = ' AND '.join('(' + s + ')' for s in conds)
+    q = f'''SELECT ({orating} / {step}) * {step} as b, COUNT(*), SUM(result), SUM({orating})
+FROM kifus
+WHERE {cond}
+GROUP BY b
+ORDER BY b
+'''
+    c = self._connection.cursor()
+    for t in c.execute(q, values):
+      n = t[1]
+      sente_score = 0.5 * (t[2] + n)
+      score = sente_score if side > 0 else n - sente_score
+      #percent = 100.0 * score / n
+      d[t[0]] = GameStat(n, score, t[3]) 
+      #l.append((t[0], n, percent, t[3] / n))
+    c.close()
+    return d
+  def build_histogram_data(self, player: str, time_control: str, step: int) -> dict[int, GameStat]:
+    tc = self.get_time_countrol_rowid(time_control, force = False)
+    if tc is None:
+      return {}
+    sd = self._build_histogram_data_for_player_filter(PlayerAndTimeControlFilter(player, 1, tc), step)
+    gd = self._build_histogram_data_for_player_filter(PlayerAndTimeControlFilter(player, -1, tc), step)
+    for key, value in gd.items():
+      p = sd.get(key)
+      if p is None:
+        sd[key] = value
+      else:
+        #https://stackoverflow.com/questions/1047021/overriding-in-python-iadd-method
+        sd[key] += value
+    return sd
   def load_game(self, game_id: int) -> Optional[Game]:
     kifu = self.find_data_by_game_id(game_id)
     if kifu is None:
