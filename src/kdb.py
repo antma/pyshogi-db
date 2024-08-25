@@ -8,6 +8,7 @@ from typing import (Optional, Tuple)
 
 from elo_rating import performance
 import shogi
+from shogi.move import Move
 from shogi.position import Position
 from shogi.kifu import Game, side_to_str
 
@@ -235,6 +236,31 @@ ORDER BY c DESC
     c.close()
     logging.debug('%s', l)
     return l
+  def build_tree(self, player_and_tc: PlayerAndTimeControlFilter, max_games: int):
+    pos = Position()
+    moves = self.moves_with_stats(pos, player_and_tc)
+    #stack: (moves, (move, undo move))
+    stack = [(moves, None)]
+    r = []
+    while len(stack) > 0:
+      logging.debug('%s, %d moves', pos.sfen(), len(moves))
+      moves, u = stack.pop()
+      if len(moves) == 0:
+        if not u is None:
+          pos.undo_move(u[0], u[1])
+      else:
+        ms = moves.pop()
+        if ms.games >= max_games:
+          m = Move.unpack_from_int(ms.packed_move, pos.side_to_move)
+          u = pos.do_move(m)
+          r.append((ms.performance(), ms.games, ms.percent, pos.sfen()))
+          stack.append((moves, u))
+          moves = self.moves_with_stats(pos, player_and_tc)
+          stack.append((moves, (m, u)))
+        else:
+          stack.append((moves, u))
+    r.sort(reverse = True)
+    return r
   def _build_histogram_data_for_player_filter(self, player_and_tc: PlayerAndTimeControlFilter, step: int):
     d = {}
     if player_and_tc is None:
@@ -264,7 +290,7 @@ ORDER BY b
       sente_score = 0.5 * (t[2] + n)
       score = sente_score if side > 0 else n - sente_score
       #percent = 100.0 * score / n
-      d[t[0]] = GameStat(n, score, t[3]) 
+      d[t[0]] = GameStat(n, score, t[3])
       #l.append((t[0], n, percent, t[3] / n))
     c.close()
     return d
