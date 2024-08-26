@@ -252,7 +252,7 @@ ORDER BY c DESC
         if ms.games >= max_games:
           m = Move.unpack_from_int(ms.packed_move, pos.side_to_move)
           pos.do_move(m)
-          r.append((ms.performance(), ms.games, ms.percent, pos.sfen()))
+          r.append((ms.performance(), ms.games, ms.percent, pos.kifu_line(), pos.sfen()))
           stack.append(moves)
           moves = self.moves_with_stats(pos, player_and_tc)
           stack.append(moves)

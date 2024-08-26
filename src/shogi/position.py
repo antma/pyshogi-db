@@ -6,7 +6,7 @@ import logging
 import log
 
 from .move import (Move, UndoMove, IllegalMove, Nifu, UnresolvedCheck)
-from . import piece
+from . import kifu, piece
 
 SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
@@ -282,4 +282,10 @@ class PositionWithHistory(Position):
     if len(self.history) > 0:
       m, u = self.history.pop()
       super().undo_move(m, u)
-
+  def kifu_line(self):
+    a = []
+    prev = None
+    for m, _ in self.history:
+      a.append(kifu.kifu_move(m, prev))
+      prev = m
+    return ' '.join(("☗'" if (i & 1) == 0 else "☖'") + t for i, t in enumerate(a))
