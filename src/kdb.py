@@ -9,7 +9,7 @@ from typing import (Optional, Tuple)
 from elo_rating import performance
 import shogi
 from shogi.move import Move
-from shogi.position import Position
+from shogi.position import Position, PositionWithHistory
 from shogi.kifu import Game, side_to_str
 
 def _insert(table, a):
@@ -237,28 +237,27 @@ ORDER BY c DESC
     logging.debug('%s', l)
     return l
   def build_tree(self, player_and_tc: PlayerAndTimeControlFilter, max_games: int):
-    pos = Position()
+    pos = PositionWithHistory()
     moves = self.moves_with_stats(pos, player_and_tc)
     #stack: (moves, (move, undo move))
-    stack = [(moves, None)]
+    stack = [moves]
     r = []
     while len(stack) > 0:
       logging.debug('%s, %d moves', pos.sfen(), len(moves))
-      moves, u = stack.pop()
+      moves = stack.pop()
       if len(moves) == 0:
-        if not u is None:
-          pos.undo_move(u[0], u[1])
+        pos.undo_move()
       else:
         ms = moves.pop()
         if ms.games >= max_games:
           m = Move.unpack_from_int(ms.packed_move, pos.side_to_move)
-          u = pos.do_move(m)
+          pos.do_move(m)
           r.append((ms.performance(), ms.games, ms.percent, pos.sfen()))
-          stack.append((moves, u))
+          stack.append(moves)
           moves = self.moves_with_stats(pos, player_and_tc)
-          stack.append((moves, (m, u)))
+          stack.append(moves)
         else:
-          stack.append((moves, u))
+          stack.append(moves)
     r.sort(reverse = True)
     return r
   def _build_histogram_data_for_player_filter(self, player_and_tc: PlayerAndTimeControlFilter, step: int):

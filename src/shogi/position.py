@@ -270,3 +270,16 @@ class Position:
           c[piece.unpromote(a) - 1] -= 1
       self.board[m.to_cell] = taken_piece
       self.board[m.from_cell] = m.from_piece
+
+class PositionWithHistory(Position):
+  def __init__(self, sfen = SFEN_INITIAL):
+    self.history = []
+    super().__init__(sfen)
+  def do_move(self, m: Move):
+    u = super().do_move(m)
+    self.history.append((m, u))
+  def undo_move(self):
+    if len(self.history) > 0:
+      m, u = self.history.pop()
+      super().undo_move(m, u)
+
