@@ -253,7 +253,7 @@ ORDER BY c DESC
       logging.debug('%s, %d moves', pos.sfen(), len(moves))
       moves = stack.pop()
       if len(moves) == 0:
-        pos.undo_move()
+        pos.undo_last_move()
       else:
         ms = moves.pop()
         if ms.games >= max_games:

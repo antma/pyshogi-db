@@ -278,10 +278,10 @@ class PositionWithHistory(Position):
   def do_move(self, m: Move):
     u = super().do_move(m)
     self.history.append((m, u))
-  def undo_move(self):
+  def undo_last_move(self):
     if len(self.history) > 0:
       m, u = self.history.pop()
-      super().undo_move(m, u)
+      self.undo_move(m, u)
   def kifu_line(self):
     a = []
     prev = None
