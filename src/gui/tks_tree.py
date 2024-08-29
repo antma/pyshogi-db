@@ -21,7 +21,7 @@ class _Filter:
       return None
     time_control = game.get_header_value('time_control')
     if not time_control is None:
-      time_control = db.get_time_countrol_rowid(time_control, force = False)
+      time_control = db.get_time_control_rowid(time_control, force = False)
     if player == game.get_header_value('sente'):
       return _Filter(player, 1, time_control)
     if player == game.get_header_value('gote'):

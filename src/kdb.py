@@ -1,6 +1,7 @@
 # -*- coding: UTF8 -*-
 
 import hashlib
+import functools
 import logging
 import lzma
 import sqlite3
@@ -22,6 +23,13 @@ def _md5_digest(data):
 
 def _u64_to_i64(x):
   return x - 0x8000000000000000
+
+def _tc_to_str(initial: int, byoyomi: int) -> str:
+  return f"{initial}分+{byoyomi}秒"
+
+
+def _conditions_and_join(conds: list[str]) -> str:
+  return ' AND '.join('(' + s + ')' for s in conds)
 
 def sfen_hashes(sfen: str) -> Tuple[int, int]:
   m = hashlib.md5()
@@ -116,7 +124,7 @@ class KifuDB:
     return lzma.decompress(compressed_data).decode('UTF8')
   def find_game_by_kifu_md5(self, kifu_md5):
     return self._get_rowid('kifus', 'md5', kifu_md5)
-  def get_time_countrol_rowid(self, time_control: str, force = False) -> Optional[int]:
+  def get_time_control_rowid(self, time_control: str, force = False) -> Optional[int]:
     return self._get_rowid('time_controls', 'time_control', time_control, force)
   def _player_with_most_games(self, side: int) -> Optional[str]:
     side = side_to_str(side)
@@ -167,7 +175,7 @@ class KifuDB:
     tc = v.pop()
     if tc is None:
       tc = ''
-    tc = self.get_time_countrol_rowid(tc, force = True)
+    tc = self.get_time_control_rowid(tc, force = True)
     v.append(tc)
     fields.append('moves')
     v.append(len(g.moves))
@@ -219,14 +227,13 @@ ORDER BY c DESC'''
       values.append(time_control)
       conds.append('kifus.time_control == ?')
     conds.extend([f'{orating} > 0', 'kifus.result >= -1', 'kifus.result <= 1'])
-    cond = ' AND '.join('(' + s + ')' for s in conds)
+    cond = _conditions_and_join(conds)
     q = f'''SELECT moves.move, COUNT(*) as c, SUM(kifus.result), SUM({orating}) FROM moves
 INNER JOIN kifus ON moves.game == kifus.rowid
 WHERE {cond}
 GROUP BY moves.move
 ORDER BY c DESC
 '''
-    #logging.debug(q)
     c = self._connection.cursor()
     for t in c.execute(q, values):
       n = t[1]
@@ -276,7 +283,7 @@ ORDER BY c DESC
       values.append(time_control)
       conds.append('time_control == ?')
     conds.extend([f'{orating} > 0', 'result >= -1', 'result <= 1'])
-    cond = ' AND '.join('(' + s + ')' for s in conds)
+    cond = _conditions_and_join(conds)
     q = f'''SELECT ({orating} / {step}) * {step} as b, COUNT(*), SUM(result), SUM({orating})
 FROM kifus
 WHERE {cond}
@@ -294,7 +301,7 @@ ORDER BY b
     c.close()
     return d
   def build_histogram_data(self, player: str, time_control: str, step: int) -> dict[int, GameStat]:
-    tc = self.get_time_countrol_rowid(time_control, force = False)
+    tc = self.get_time_control_rowid(time_control, force = False)
     if tc is None:
       return {}
     sd = self._build_histogram_data_for_player_filter(PlayerAndTimeControlFilter(player, 1, tc), step)
@@ -307,6 +314,35 @@ ORDER BY b
         #https://stackoverflow.com/questions/1047021/overriding-in-python-iadd-method
         sd[key] += value
     return sd
+  def player_time_control_stats(self, player: str, time_control: Tuple[int, int]) -> Optional[GameStat]:
+    initial, byoyomi = time_control
+    time_control = _tc_to_str(initial, byoyomi)
+    tc = self.get_time_control_rowid(time_control, force = False)
+    if tc is None:
+      logging.warning('Time control %s is absent in database', time_control)
+      return None
+    gs = []
+    for side in (-1, 1):
+      player_side = side_to_str(side)
+      opponent_side = side_to_str(-side)
+      opponent_rating = opponent_side + '_rating'
+      cond = _conditions_and_join(['time_control == ?', f'{player_side} == ?', f'{opponent_rating} > 0'])
+      values = (tc, player)
+      q = f'SELECT COUNT(*) as c, SUM(result), SUM({opponent_rating}) FROM kifus WHERE {cond}'
+      logging.debug(q)
+      c = self._connection.cursor()
+      res = c.execute(q, values)
+      r = res.fetchone()
+      c.close()
+      if r is None:
+        continue
+      n = r[0]
+      sente_score = 0.5 * (r[1] + n)
+      score = sente_score if side > 0 else n - sente_score
+      gs.append(GameStat(n, score, r[2]))
+    if len(gs) == 0:
+      return None
+    return functools.reduce(lambda x, y: x + y, gs)
   def load_game(self, game_id: int) -> Optional[Game]:
     kifu = self.find_data_by_game_id(game_id)
     if kifu is None:
@@ -318,7 +354,7 @@ ORDER BY b
       return None
     time_control = game.get_header_value('time_control')
     if not time_control is None:
-      time_control = self.get_time_countrol_rowid(time_control, force = False)
+      time_control = self.get_time_control_rowid(time_control, force = False)
       if time_control is None:
         return None
     if player == game.get_header_value('sente'):
