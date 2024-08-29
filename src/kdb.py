@@ -9,8 +9,9 @@ from typing import (Optional, Tuple)
 
 from elo_rating import performance
 import shogi
+from shogi.history import PositionWithHistory
 from shogi.move import Move
-from shogi.position import Position, PositionWithHistory
+from shogi.position import Position
 from shogi.kifu import Game, side_to_str
 
 def _insert(table, a):

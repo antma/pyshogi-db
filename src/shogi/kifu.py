@@ -7,9 +7,9 @@ import re
 from typing import (Optional, Tuple)
 
 import log
-from shogi.position import Position
 from . import move
 from . import piece
+from . import position
 
 _KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
 _KIFU_COLS = '１２３４５６７８９'
@@ -315,7 +315,7 @@ def _game_parse(game: str) -> Optional[Game]:
   side_to_move = 1
   game_result = None
   location_81dojo = d.get('location') == '81Dojo'
-  pos = Position()
+  pos = position.Position()
   illegal_move_idx = None
   ignored_moves = 0
   for s in it:

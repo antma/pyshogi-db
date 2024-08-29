@@ -6,7 +6,7 @@ import logging
 import log
 
 from .move import (Move, UndoMove, IllegalMove, Nifu, UnresolvedCheck)
-from . import kifu, piece
+from . import piece
 
 SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
@@ -270,22 +270,3 @@ class Position:
           c[piece.unpromote(a) - 1] -= 1
       self.board[m.to_cell] = taken_piece
       self.board[m.from_cell] = m.from_piece
-
-class PositionWithHistory(Position):
-  def __init__(self, sfen = SFEN_INITIAL):
-    self.history = []
-    super().__init__(sfen)
-  def do_move(self, m: Move):
-    u = super().do_move(m)
-    self.history.append((m, u))
-  def undo_last_move(self):
-    if len(self.history) > 0:
-      m, u = self.history.pop()
-      self.undo_move(m, u)
-  def kifu_line(self):
-    a = []
-    prev = None
-    for m, _ in self.history:
-      a.append(kifu.kifu_move(m, prev))
-      prev = m
-    return ' '.join(("☗'" if (i & 1) == 0 else "☖'") + t for i, t in enumerate(a))
