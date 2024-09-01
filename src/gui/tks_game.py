@@ -8,6 +8,7 @@ from typing import Optional
 
 import kdb
 from shogi.kifu import Game
+from shogi.move import Move
 from shogi.position import Position
 from . import pieces
 from . import tks_pos
@@ -74,6 +75,13 @@ class TableMoves:
   def goto_move(self, move_no: int):
     pos = self._positions.goto_move(move_no)
     self._game_window.draw_position(pos)
+    m = None
+    if move_no > 0:
+      try:
+        m = self._game_window.game.parsed_moves[move_no - 1]
+      except IndexError:
+        pass
+    self._game_window.set_last_move(m)
   def select_first_move(self):
     self.table.tree.selection_set(0)
 
@@ -136,3 +144,5 @@ class GameWindow:
     logging.debug('GameWindow.draw_position: %s', pos.sfen())
     self._board.draw_position(pos)
     self._moves_with_stat.draw_position(pos)
+  def set_last_move(self, m: Optional[Move]):
+    self._board.select_cell(m and m.to_cell)
