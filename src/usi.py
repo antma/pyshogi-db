@@ -2,6 +2,9 @@
 
 import logging
 import subprocess
+from typing import Optional
+
+import log
 
 class USIEngine:
   def __init__(self, args, options):
@@ -61,3 +64,29 @@ class USIEngine:
     if not self._p is None:
       self.quit()
       self._p = None
+  def new_game(self):
+    self.send('usinewgame')
+  def analyse(self, start_position_sfen: Optional[str], usi_moves: Optional[list[str]], time_in_seconds: float):
+    s = 'position '
+    if start_position_sfen is None:
+      s += 'startpos'
+    else:
+      s += 'sfen ' + start_position_sfen
+    if (not usi_moves is None) and (len(usi_moves) > 0):
+      s += ' moves'
+      for m in usi_moves:
+        s += ' ' + m
+    self.send(s)
+    self.ping()
+    t = round(time_in_seconds * 1000.0)
+    self.send(f'go movetime {t}')
+    infos = []
+    while True:
+      s = self.recv()
+      if s.startswith('info '):
+        infos.append(s)
+      elif s.startswith('bestmove'):
+        break
+      else:
+        log.raise_value_error(f'Unknown engine line: {s}')
+    return infos
