@@ -8,6 +8,10 @@ def ascii_cell(cell: int) -> str:
   row, col = divmod(cell, 9)
   return f'{1+col}{1+row}'
 
+def ascii_cell2(cell: int) -> str:
+  row, col = divmod(cell, 9)
+  return chr(49 + col) + chr(97 + row)
+
 class IllegalMove(Exception):
   pass
 class Nifu(IllegalMove):
@@ -73,6 +77,14 @@ class Move:
     x >>= 7
     from_piece = to_piece if x == 0 else to_piece - piece.PROMOTED
     return Move(from_piece * side, from_cell, to_piece * side, to_cell)
+  def usi_str(self) -> str:
+    if self.is_drop():
+      return piece.to_string(abs(self.to_piece)) + '*' + ascii_cell2(self.to_cell)
+    s = ascii_cell2(self.from_cell) + ascii_cell2(self.to_cell)
+    if self.from_piece != self.to_piece:
+      assert piece.PROMOTED + self.from_piece == self.to_piece
+      s += '+'
+    return s
 
 class UndoMove:
   def __init__(self, taken_piece: int):
