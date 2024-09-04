@@ -1,20 +1,76 @@
 # -*- coding: UTF8 -*-
 
+from itertools import chain
 import json
 import logging
+import os
 import subprocess
 from typing import Optional
 
 import log
 
-_INFO_INT_PARAM_S = set(['cp', 'depth', 'seldepth', 'multipv', 'nodes', 'nps', 'time', 'score.cp', 'score.mate'])
-_INFO_NO_PARAM_S = set(['lowerbound', 'upperbound'])
+_INFO_BOUND_L = ['lowerbound', 'upperbound']
+_INFO_SCORE_L = ['score.' + s for s in ['cp', 'mate']]
+_INFO_INT_PARAM_S = set(['cp', 'depth', 'seldepth', 'multipv', 'nodes', 'nps', 'time'] + _INFO_SCORE_L)
+_INFO_NO_PARAM_S = set(_INFO_BOUND_L)
+_BOOLEAN_S = set(['true','false'])
+
+class USIEngineOption:
+  def __init__(self, a: list[str]):
+    it = iter(a)
+    if next(it) != 'option':
+      log.raise_value_error("Expected 'option'")
+    if next(it) != 'name':
+      log.raise_value_error("Expected 'name'")
+    self.name = next(it)
+    if next(it) != 'type':
+      log.raise_value_error("Expected 'type'")
+    self.type = next(it)
+    self.default = None
+    self.min = None
+    self.max = None
+    if self.type == 'button':
+      return
+    if next(it) != 'default':
+      log.raise_value_error("Expected 'default'")
+    self.default = next(it)
+    if self.type != 'spin':
+      return
+    self.default = int(self.default)
+    if next(it) != 'min':
+      log.raise_value_error("Expected 'min'")
+    self.min = int(next(it))
+    if next(it) != 'max':
+      log.raise_value_error("Expected 'max'")
+    self.max = int(next(it))
+  def check_value(self, value) -> bool:
+    if self.type == 'spin':
+      return self.min <= value <= self.max
+    if self.type == 'filename':
+      return isinstance(value, str) and os.path.lexists(value)
+    if self.type == 'button':
+      return value is None
+    if self.type == 'check':
+      return value in _BOOLEAN_S
+    return True
+
+class USIEngineSearchParameters:
+  def __init__(self, args: list[str], time_ms: int, hash_size: int, threads: int, extra_options):
+    self._args = args
+    self.engine_name = None
+    self.time_ms = time_ms
+    self.hash_size = hash_size
+    self.threads = threads
+    self.extra_options = extra_options
+  def set_engine_name(self, engine_name):
+    logging.info('Engine %s', engine_name)
+    self.engine_name = engine_name
 
 class InfoMessage:
-  def __init__(self, s: str):
-    it = iter(s.split())
+  def __init__(self, message: str):
+    it = iter(message.split())
     if next(it) != 'info':
-      log.raise_value_error(f"'info' is not found in '{s}'")
+      log.raise_value_error(f"'info' is not found in '{message}'")
     d = {}
     key = None
     pv = []
@@ -32,23 +88,27 @@ class InfoMessage:
       elif key == 'score':
         key += '.' + s
       else:
-        log.raise_value_error(f"Unknown key '{key}' in info line '{s}'")
+        log.raise_value_error(f"Unknown key '{key}' in info line '{message}'")
     if key == 'pv':
       d[key] = pv
       key = None
     if not key is None:
-      log.raise_value_error(f"Incomplete key '{key}' in info line '{s}'")
+      log.raise_value_error(f"Incomplete key '{key}' in info line '{message}'")
     self._d = d
     logging.debug("%s", self.json())
   def json(self) -> str:
     return json.dumps(self._d)
+  def has_score(self) -> bool:
+    return any(s in self._d for s in _INFO_SCORE_L)
+  def exact_score(self) -> Optional[bool]:
+    if not self.has_score():
+      return None
+    return not any(s in self._d for s in _INFO_BOUND_L)
 
 class USIEngine:
-  def __init__(self, args, options):
-    self._args = args
-    self._options = options
+  def __init__(self, params: USIEngineSearchParameters):
+    self.params = params
     self._p = None
-    self.name = None
   def send(self, cmd):
     logging.debug('SEND %s', cmd)
     self._p.stdin.write((cmd + '\n').encode('ascii'))
@@ -57,12 +117,12 @@ class USIEngine:
     s = self._p.stdout.readline().decode('ascii').rstrip('\n')
     logging.debug('RECV %s', s)
     return s
-  def quit(self):
+  def quit(self, timeout = 5.0):
     if self._p is None:
       return None
     self.send('quit')
     try:
-      self._p.wait(5.0)
+      self._p.wait(timeout)
       return True
     except subprocess.TimeoutExpired:
       self._p.terminate()
@@ -77,7 +137,8 @@ class USIEngine:
       a.append(s)
     return a
   def __enter__(self):
-    self._p = subprocess.Popen(self._args, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+    params = self.params
+    self._p = subprocess.Popen(params._args, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
     self.send('usi')
     a = []
     while True:
@@ -85,12 +146,21 @@ class USIEngine:
       if s == 'usiok':
         break
       a.append(s)
+    options = {}
     for s in a:
       b = s.split()
       if len(b) == 3 and b[0] == 'id' and b[1] == 'name':
-        self.name = b[2]
-        logging.info('Engine %s', self.name)
-    for name, value in self._options.items():
+        params.set_engine_name(b[2])
+      elif (len(b) >= 3) and (b[0] == 'option'):
+        o = USIEngineOption(b)
+        options[o.name] = o
+    for name, value in chain([('USI_Hash', params.hash_size), ('Threads', params.threads)], params.extra_options.items()):
+      p = options.get(name)
+      if p is None:
+        logging.warning("Skipping unknown USI option '%s'", name)
+        continue
+      if not p.check_value(value):
+        log.raise_value_error(f"Illegal value '{value}' for USI option '{name}'")
       cmd = f'setoption name {name}'
       if not value is None:
         cmd += f' value {value}'
@@ -103,7 +173,7 @@ class USIEngine:
       self._p = None
   def new_game(self):
     self.send('usinewgame')
-  def analyse(self, start_position_sfen: Optional[str], usi_moves: Optional[list[str]], time_in_seconds: float):
+  def analyse(self, start_position_sfen: Optional[str], usi_moves: Optional[list[str]]):
     s = 'position '
     if start_position_sfen is None:
       s += 'startpos'
@@ -115,16 +185,19 @@ class USIEngine:
         s += ' ' + m
     self.send(s)
     self.ping()
-    t = round(time_in_seconds * 1000.0)
-    self.send(f'go movetime {t}')
+    self.send(f'go movetime {self.params.time_ms}')
     infos = []
     while True:
       s = self.recv()
       if s.startswith('info '):
         infos.append(s)
-      elif s.startswith('bestmove'):
+      elif s.startswith('bestmove '):
         break
       else:
         log.raise_value_error(f'Unknown engine line: {s}')
-    #TODO: optimization don't parse InfoMessage for all list
-    return [ InfoMessage(s) for s in infos]
+    for s in reversed(infos):
+      im = InfoMessage(s)
+      if not im.exact_score():
+        log.raise_value_error('Last info message has not exact score')
+      return im
+    return None
