@@ -13,6 +13,7 @@ from shogi.history import PositionWithHistory
 from shogi.move import Move
 from shogi.position import Position
 from shogi.kifu import Game, side_to_str
+import usi
 
 def _insert(table, a):
   return 'INSERT INTO ' + table + '(' + ', '.join(a) + ') VALUES (' +  ', '.join('?' * len(a)) + ')'
@@ -60,7 +61,7 @@ class GameStat:
 class MoveGameStat(GameStat):
   def __init__(self, packed_move: int, games: int, score: float, sum_of_opponent_ratings: int):
     self.packed_move = packed_move
-    super(MoveGameStat, self).__init__(games, score, sum_of_opponent_ratings)
+    super().__init__(games, score, sum_of_opponent_ratings)
   def __repr__(self):
     return f'MoveGameStat ( packed_move = {self.packed_move}, games = {self.games}, score = {self.score}, sum_of_opponent_ratings = {self.sum_of_opponent_ratings})'
 
@@ -101,6 +102,13 @@ class KifuDB:
   game integer)''')
     c.execute('''CREATE TABLE IF NOT EXISTS time_controls (time_control text PRIMARY KEY)''')
     c.execute('CREATE INDEX IF NOT EXISTS idx_pos ON moves(pos_hash1)')
+    c.execute('''CREATE TABLE IF NOT EXISTS engines (
+  name text NOT NULL,
+  time integer NOT NULL,
+  hash integer,
+  threads integer,
+  PRIMARY KEY (name, time, hash, threads)
+)''')
     c.close()
   def _select_single_value(self, q, parameters = ()):
     c = self._connection.cursor()
@@ -118,6 +126,18 @@ class KifuDB:
       return None
     self.insert_values(table_name, [field_name], [value])
     return self._get_rowid(table_name, field_name, value, False)
+  def _get_engineid(self, params: usi.USIEngineSearchParameters, force: bool = False) -> Optional[int]:
+    fields = ['name', 'time', 'hash', 'threads']
+    conds = [ f'{s} == ?' for s in fields]
+    values = (params.name, params.time_ms, params.hash_size, params.threads)
+    cond = _conditions_and_join(conds)
+    r = self._select_single_value(f'SELECT rowid FROM engines WHERE {cond}', values)
+    if not r is None:
+      return r
+    if not force:
+      return None
+    self.insert_values('engines', fields, values)
+    return self._get_engineid(params, False)
   def find_data_by_game_id(self, game_id: int) -> Optional[str]:
     compressed_data = self._select_single_value('SELECT data FROM kifus WHERE rowid = ?', (game_id, ))
     if compressed_data is None:
@@ -251,7 +271,6 @@ ORDER BY c DESC
     stack = [moves]
     r = []
     while len(stack) > 0:
-      logging.debug('%s, %d moves', pos.sfen(), len(moves))
       moves = stack.pop()
       if len(moves) == 0:
         pos.undo_last_move()
