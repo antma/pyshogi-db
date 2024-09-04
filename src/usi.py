@@ -1,10 +1,47 @@
 # -*- coding: UTF8 -*-
 
+import json
 import logging
 import subprocess
 from typing import Optional
 
 import log
+
+_INFO_INT_PARAM_S = set(['cp', 'depth', 'seldepth', 'multipv', 'nodes', 'nps', 'time', 'score.cp', 'score.mate'])
+_INFO_NO_PARAM_S = set(['lowerbound', 'upperbound'])
+
+class InfoMessage:
+  def __init__(self, s: str):
+    it = iter(s.split())
+    if next(it) != 'info':
+      log.raise_value_error(f"'info' is not found in '{s}'")
+    d = {}
+    key = None
+    pv = []
+    for s in it:
+      if key is None:
+        key = s
+      elif key in _INFO_INT_PARAM_S:
+        d[key] = int(s)
+        key = None
+      elif key in _INFO_NO_PARAM_S:
+        d[key] = None
+        key = None
+      elif key == 'pv':
+        pv.append(s)
+      elif key == 'score':
+        key += '.' + s
+      else:
+        log.raise_value_error(f"Unknown key '{key}' in info line '{s}'")
+    if key == 'pv':
+      d[key] = pv
+      key = None
+    if not key is None:
+      log.raise_value_error(f"Incomplete key '{key}' in info line '{s}'")
+    self._d = d
+    logging.debug("%s", self.json())
+  def json(self) -> str:
+    return json.dumps(self._d)
 
 class USIEngine:
   def __init__(self, args, options):
@@ -89,4 +126,5 @@ class USIEngine:
         break
       else:
         log.raise_value_error(f'Unknown engine line: {s}')
-    return infos
+    #TODO: optimization don't parse InfoMessage for all list
+    return [ InfoMessage(s) for s in infos]
