@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import subprocess
+import time
 from typing import Optional
 
 import log
@@ -128,6 +129,7 @@ class USIEngine:
       self._p.terminate()
     return False
   def ping(self) -> list[str]:
+    t = time.time()
     self.send('isready')
     a = []
     while True:
@@ -135,6 +137,7 @@ class USIEngine:
       if s == 'readyok':
         break
       a.append(s)
+    logging.debug('ping: elapsed time %d ms.', round(time.time() - t) * 1000.0)
     return a
   def __enter__(self):
     params = self.params
@@ -173,7 +176,8 @@ class USIEngine:
       self._p = None
   def new_game(self):
     self.send('usinewgame')
-  def analyse(self, start_position_sfen: Optional[str], usi_moves: Optional[list[str]]):
+    self.ping()
+  def analyse_position(self, start_position_sfen: Optional[str], usi_moves: Optional[list[str]]):
     s = 'position '
     if start_position_sfen is None:
       s += 'startpos'
@@ -187,11 +191,15 @@ class USIEngine:
     self.ping()
     self.send(f'go movetime {self.params.time_ms}')
     infos = []
+    bestmove = None
     while True:
       s = self.recv()
       if s.startswith('info '):
         infos.append(s)
       elif s.startswith('bestmove '):
+        a = s.split()
+        assert a[0] == 'bestmove'
+        bestmove = a[1]
         break
       else:
         log.raise_value_error(f'Unknown engine line: {s}')
@@ -199,5 +207,5 @@ class USIEngine:
       im = InfoMessage(s)
       if not im.exact_score():
         log.raise_value_error('Last info message has not exact score')
-      return im
-    return None
+      return (im, bestmove)
+    return (None, bestmove)
