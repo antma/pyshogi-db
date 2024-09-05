@@ -109,7 +109,7 @@ class InfoMessage:
   def score_i16(self) -> int:
     p = self._d.get('score.cp')
     if not p is None:
-      assert abs(p) < MATE_SCORE
+      assert abs(p) < _MATE_SCORE_I16
       return p
     p = self._d['score.mate']
     return p + _MATE_SCORE_I16 if p > 0 else p - _MATE_SCORE_I16
