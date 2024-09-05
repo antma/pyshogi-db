@@ -15,6 +15,7 @@ _INFO_SCORE_L = ['score.' + s for s in ['cp', 'mate']]
 _INFO_INT_PARAM_S = set(['cp', 'depth', 'seldepth', 'multipv', 'nodes', 'nps', 'time'] + _INFO_SCORE_L)
 _INFO_NO_PARAM_S = set(_INFO_BOUND_L)
 _BOOLEAN_S = set(['true','false'])
+_MATE_SCORE_I16 = 32000
 
 class USIEngineOption:
   def __init__(self, a: list[str]):
@@ -105,6 +106,13 @@ class InfoMessage:
     if not self.has_score():
       return None
     return not any(s in self._d for s in _INFO_BOUND_L)
+  def score_i16(self) -> int:
+    p = self._d.get('score.cp')
+    if not p is None:
+      assert abs(p) < MATE_SCORE
+      return p
+    p = self._d['score.mate']
+    return p + _MATE_SCORE_I16 if p > 0 else p - _MATE_SCORE_I16
 
 class USIEngine:
   def __init__(self, params: USIEngineSearchParameters):
