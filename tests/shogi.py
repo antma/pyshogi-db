@@ -62,7 +62,7 @@ class TestShogiPiece(unittest.TestCase):
 class TestShogiPosition(unittest.TestCase):
   def test_init_default(self):
     p = Position()
-    self.assertEqual(p.sfen(), shogi.position.SFEN_INITIAL)
+    self.assertEqual(p.sfen(), shogi.position.SFEN_STARTPOS)
   def _test_fen(self, fen):
     p = Position(fen)
     self.assertEqual(p.sfen(), fen)

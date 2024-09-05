@@ -1,9 +1,10 @@
 # -*- coding: UTF8 -*-
 
+from typing import Optional
 from . import kifu, move, position
 
 class PositionWithHistory(position.Position):
-  def __init__(self, sfen = position.SFEN_INITIAL):
+  def __init__(self, sfen: Optional[str] = None):
     self.history = []
     super().__init__(sfen)
   def do_move(self, m: move.Move):

@@ -8,7 +8,7 @@ import log
 from .move import (Move, UndoMove, IllegalMove, Nifu, UnresolvedCheck)
 from . import piece
 
-SFEN_INITIAL = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
+SFEN_STARTPOS = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 
 _GOLD_L = [piece.GOLD, piece.promote(piece.PAWN), piece.promote(piece.LANCE), piece.promote(piece.KNIGHT), piece.promote(piece.SILVER)]
 _BISHOP_L = [piece.BISHOP, piece.HORSE]
@@ -92,7 +92,9 @@ class Position:
       if (ck < 8) and (self.board[u + 1] == knight):
         return True
     return False
-  def __init__(self, sfen = SFEN_INITIAL):
+  def __init__(self, sfen: Optional[str] = None):
+    if sfen is None:
+      sfen = SFEN_STARTPOS
     self.board = [piece.FREE] * 81
     self.sente_pieces = [0] * piece.ROOK
     self.gote_pieces = [0] * piece.ROOK
