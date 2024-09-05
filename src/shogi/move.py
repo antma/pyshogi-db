@@ -82,7 +82,7 @@ class Move:
       return piece.to_string(abs(self.to_piece)) + '*' + ascii_cell2(self.to_cell)
     s = ascii_cell2(self.from_cell) + ascii_cell2(self.to_cell)
     if self.from_piece != self.to_piece:
-      assert piece.PROMOTED + self.from_piece == self.to_piece
+      assert piece.promote(self.from_piece) == self.to_piece
       s += '+'
     return s
 
