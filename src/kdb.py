@@ -394,6 +394,26 @@ ORDER BY b
     if player == game.get_header_value('gote'):
       return PlayerAndTimeControlFilter(player, -1, time_control)
     return None
+  def _position_already_analysed_by_engine_id(self, engine_id, hashes):
+    conds = ['pos_hash1 == ?', 'pos_hash2 == ?', 'engine_id == ?']
+    values = (hashes[0], hashes[1], engine_id)
+    cond = _conditions_and_join(conds)
+    query = f'SELECT 1 FROM analysis WHERE {cond} LIMIT 1'
+    return not self._select_single_value(query, values) is None
+  def _position_already_analysed_by_better_engine(self, params: usi.USIEngineSearchParameters, hashes):
+    conds = ['analysis.pos_hash1 == ?', 'analysis.pos_hash2 == ?', '(engines.time > ?) OR (engines.hash > ?) OR (engines.threads > ?)']
+    values = (hashes[0], hashes[1], params.time_ms, params.hash_size, params.threads)
+    cond = _conditions_and_join(conds)
+    query = f'''SELECT 1 FROM engines
+INNER JOIN analysis ON engines.rowid == analysis.engine_id
+WHERE {cond}
+LIMIT 1'''
+    return not self._select_single_value(query, values) is None
+  def _store_position_analyse(self, engine_id: int, info: usi.InfoMessage, hashes):
+    fields = ['pos_hash1', 'pos_hash2', 'nodes', 'time', 'score', 'engine_id', 'depth', 'seldepth', 'pv']
+    values = [hashes[0], hashes[1], info.get('nodes'), info.get('time'), info.score_i16(), engine_id, info.get('depth'), info.get('seldepth')]
+    values.append(' '.join(info.get('pv')))
+    self.insert_values('analysis', fields, values)
   def analyse_game(self, engine: usi.USIEngine, game_id: int):
     engine_id = self._get_engine_id(engine.params, force = True)
     logging.debug("Analyse game #%d: engine_id = %d", game_id, engine_id)
@@ -407,11 +427,11 @@ ORDER BY b
     for m in game.parsed_moves:
       usi_moves.append(m.usi_str())
       pos.do_move(m)
-    t = 3
     while len(usi_moves) > 0:
-      engine.analyse_position(None, usi_moves)
+      pos_hashes = sfen_hashes(pos.sfen())
+      b = self._position_already_analysed_by_engine_id(engine_id, pos_hashes) or self._position_already_analysed_by_better_engine(engine.params, pos_hashes)
+      if not b:
+        info, _ = engine.analyse_position(None, usi_moves)
+        self._store_position_analyse(engine_id, info, pos_hashes)
       usi_moves.pop()
       pos.undo_last_move()
-      t -= 1
-      if t < 0:
-        break

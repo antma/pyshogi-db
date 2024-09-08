@@ -113,6 +113,8 @@ class InfoMessage:
       return p
     p = self._d['score.mate']
     return p + _MATE_SCORE_I16 if p > 0 else p - _MATE_SCORE_I16
+  def get(self, key: str):
+    return self._d.get(key)
 
 class USIEngine:
   def __init__(self, params: USIEngineSearchParameters):
