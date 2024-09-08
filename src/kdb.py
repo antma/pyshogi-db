@@ -96,19 +96,31 @@ class KifuDB:
   md5 blob,
   data blob)''')
     c.execute('''CREATE TABLE IF NOT EXISTS moves (
-  pos_hash1 integer,
-  pos_hash2 integer,
-  move integer,
-  game integer)''')
+  pos_hash1 integer NOT NULL,
+  pos_hash2 integer NOT NULL,
+  move integer NOT NULL,
+  game integer NOT NULL)''')
     c.execute('''CREATE TABLE IF NOT EXISTS time_controls (time_control text PRIMARY KEY)''')
     c.execute('CREATE INDEX IF NOT EXISTS idx_pos ON moves(pos_hash1)')
     c.execute('''CREATE TABLE IF NOT EXISTS engines (
   name text NOT NULL,
   time integer NOT NULL,
-  hash integer,
-  threads integer,
+  hash integer NOT NULL,
+  threads integer NOT NULL,
   PRIMARY KEY (name, time, hash, threads)
 )''')
+    c.execute('''CREATE TABLE IF NOT EXISTS analysis (
+  pos_hash1 integer NOT NULL,
+  pos_hash2 integer NOT NULL,
+  nodes integer NOT NULL,
+  time integer NOT NULL,
+  score integer NOT NULL,
+  engine_id integer NOT NULL,
+  depth integer NOT NULL,
+  seldepth integer,
+  pv TEXT NOT NULL
+)''')
+    c.execute('CREATE INDEX IF NOT EXISTS analysis_idx ON analysis(pos_hash1)')
     c.close()
   def _select_single_value(self, q, parameters = ()):
     c = self._connection.cursor()
@@ -126,10 +138,10 @@ class KifuDB:
       return None
     self.insert_values(table_name, [field_name], [value])
     return self._get_rowid(table_name, field_name, value, False)
-  def _get_engineid(self, params: usi.USIEngineSearchParameters, force: bool = False) -> Optional[int]:
+  def _get_engine_id(self, params: usi.USIEngineSearchParameters, force: bool = False) -> Optional[int]:
     fields = ['name', 'time', 'hash', 'threads']
     conds = [ f'{s} == ?' for s in fields]
-    values = (params.name, params.time_ms, params.hash_size, params.threads)
+    values = (params.engine_name, params.time_ms, params.hash_size, params.threads)
     cond = _conditions_and_join(conds)
     r = self._select_single_value(f'SELECT rowid FROM engines WHERE {cond}', values)
     if not r is None:
@@ -137,7 +149,7 @@ class KifuDB:
     if not force:
       return None
     self.insert_values('engines', fields, values)
-    return self._get_engineid(params, False)
+    return self._get_engine_id(params, False)
   def find_data_by_game_id(self, game_id: int) -> Optional[str]:
     compressed_data = self._select_single_value('SELECT data FROM kifus WHERE rowid = ?', (game_id, ))
     if compressed_data is None:
@@ -382,3 +394,24 @@ ORDER BY b
     if player == game.get_header_value('gote'):
       return PlayerAndTimeControlFilter(player, -1, time_control)
     return None
+  def analyse_game(self, engine: usi.USIEngine, game_id: int):
+    engine_id = self._get_engine_id(engine.params, force = True)
+    logging.debug("Analyse game #%d: engine_id = %d", game_id, engine_id)
+    game = self.load_game(game_id)
+    if game is None:
+      logging.error("Can not load game #%d{game_id} from db '%s'", game_id, self._database)
+      return
+    engine.new_game()
+    pos = PositionWithHistory()
+    usi_moves = []
+    for m in game.parsed_moves:
+      usi_moves.append(m.usi_str())
+      pos.do_move(m)
+    t = 3
+    while len(usi_moves) > 0:
+      engine.analyse_position(None, usi_moves)
+      usi_moves.pop()
+      pos.undo_last_move()
+      t -= 1
+      if t < 0:
+        break
