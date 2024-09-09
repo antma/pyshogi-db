@@ -15,6 +15,11 @@ from . import tks_pos
 from . import tks_tree
 from . import table
 
+def _timedelta_to_seconds_str(t: Optional[timedelta]) -> str:
+  if t is None:
+    return ''
+  return str(round(t.total_seconds()))
+
 def _timedelta_to_str(t: Optional[timedelta]) -> str:
   if t is None:
     return ''
@@ -61,7 +66,7 @@ class TableMoves:
     self.table = table.Table(parent, 'TableMoves', columns, view_font, tk.BROWSE)
     cw = self.table.make_columns_width()
     for i, m in enumerate(game.moves):
-      t = (str(i + 1), m.kifu, _timedelta_to_str(m.time), _timedelta_to_str(m.cum_time))
+      t = (str(i + 1), m.kifu, _timedelta_to_seconds_str(m.time), _timedelta_to_str(m.cum_time))
       self.table.insert_row(t, cw)
     self.table.adjust_columns_width(cw)
     self.table.tree.pack(side = tk.LEFT, anchor = tk.N + tk.E, expand = tk.YES, fill = tk.BOTH)
