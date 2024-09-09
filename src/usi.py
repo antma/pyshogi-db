@@ -124,9 +124,16 @@ class InfoMessage:
       assert abs(p) < _MATE_SCORE_I16
       return p
     p = self._d['score.mate']
+    assert abs(p) < 100
     return p + _MATE_SCORE_I16 if p > 0 else p - _MATE_SCORE_I16
   def get(self, key: str):
     return self._d.get(key)
+  def score_to_short_str(self, side_to_move: int) -> str:
+    p = self._d.get('score.cp')
+    if not p is None:
+      return str(p * side_to_move)
+    p = self._d['score.mate']
+    return 'm' + str(p * side_to_move)
 
 class USIEngine:
   def __init__(self, params: USIEngineSearchParameters):

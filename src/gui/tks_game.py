@@ -62,11 +62,16 @@ class TableMoves:
     game = game_window.game
     self._positions = _Positions(game)
     self._game_window = game_window
-    columns = ('move_no', 'kifu', 'time', 'cum_time')
+    columns = ('move_no', 'kifu', 'time', 'cum_time', 'score')
     self.table = table.Table(parent, 'TableMoves', columns, view_font, tk.BROWSE)
     cw = self.table.make_columns_width()
     for i, m in enumerate(game.moves):
-      t = (str(i + 1), m.kifu, _timedelta_to_seconds_str(m.time), _timedelta_to_str(m.cum_time))
+      if (i > 0) and (i < len(game_window.analysis)):
+        logging.debug("%s", game_window.analysis[i-1]._d)
+        s = game_window.analysis[i-1].score_to_short_str(1 - (i % 2) * 2)
+      else:
+        s = ''
+      t = (str(i + 1), m.kifu, _timedelta_to_seconds_str(m.time), _timedelta_to_str(m.cum_time), s)
       self.table.insert_row(t, cw)
     self.table.adjust_columns_width(cw)
     self.table.tree.pack(side = tk.LEFT, anchor = tk.N + tk.E, expand = tk.YES, fill = tk.BOTH)

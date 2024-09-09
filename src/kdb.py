@@ -431,10 +431,19 @@ LIMIT 1'''
       usi_moves.append(m.usi_str())
       pos.do_move(m)
     while len(usi_moves) > 0:
-      pos_hashes = sfen_hashes(pos.sfen())
-      b = self._position_already_analysed_by_engine_id(engine_id, pos_hashes) or self._position_already_analysed_by_better_engine(engine.params, pos_hashes)
-      if not b:
+      sfen = pos.sfen()
+      pos_hashes = sfen_hashes(sfen)
+      ok = True
+      if self._position_already_analysed_by_engine_id(engine_id, pos_hashes):
+        logging.debug("Position '%s' has already been analysed by engine_id '%d'", sfen, engine_id)
+        ok = False
+      elif self._position_already_analysed_by_better_engine(engine.params, pos_hashes):
+        logging.debug("Position '%s' has analysed by better engine", sfen)
+        ok = False
+      if ok:
         info, _ = engine.analyse_position(None, usi_moves)
+        #engine.new_game()
+        #info, _ = engine.analyse_position(sfen, [])
         self._store_position_analyse(engine_id, info, pos_hashes)
       usi_moves.pop()
       pos.undo_last_move()
@@ -450,6 +459,7 @@ LIMIT 1'''
     c.close()
     if r is None:
       return r
+    logging.debug("%s", r)
     d = {}
     for i, key in enumerate(fields):
       d[key] = r[i+1]
