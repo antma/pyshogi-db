@@ -442,8 +442,9 @@ LIMIT 1'''
     values = sfen_hashes(pos.sfen())
     fields = _GET_EVAL_FIELDS
     sf = ','.join(fields)
-    query = f'SELECT score,{sf} FROM analysis WHERE {_POSITION_CONDITION} ORDER BY nodes LIMIT BY 1'
+    query = f'SELECT score,{sf} FROM analysis WHERE {_POSITION_CONDITION} ORDER BY nodes LIMIT 1'
     c = self._connection.cursor()
+    logging.debug(query)
     res = c.execute(query, values)
     r = res.fetchone()
     c.close()
@@ -464,4 +465,5 @@ LIMIT 1'''
       if r is None:
         break
       a.append(r)
+    logging.debug(f'Found analysis for {len(a)} moves')
     return a

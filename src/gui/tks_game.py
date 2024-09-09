@@ -129,6 +129,7 @@ class GameWindow:
     self.db = db
     self.table_font = font.Font(family = 'Times New Roman', size = 12)
     self.game = db.load_game(game_id)
+    self.analysis = db.load_game_analysis(self.game)
     self.frame = tk.Frame(parent)
     self._board = tks_pos.TksPosition(self.frame, images)
     pos = Position()
