@@ -68,36 +68,48 @@ class USIEngineSearchParameters:
     logging.info('Engine %s', engine_name)
     self.engine_name = engine_name
 
-class InfoMessage:
-  def __init__(self, message: str):
-    it = iter(message.split())
-    if next(it) != 'info':
-      log.raise_value_error(f"'info' is not found in '{message}'")
-    d = {}
-    key = None
-    pv = []
-    for s in it:
-      if key is None:
-        key = s
-      elif key in _INFO_INT_PARAM_S:
-        d[key] = int(s)
-        key = None
-      elif key in _INFO_NO_PARAM_S:
-        d[key] = None
-        key = None
-      elif key == 'pv':
-        pv.append(s)
-      elif key == 'score':
-        key += '.' + s
-      else:
-        log.raise_value_error(f"Unknown key '{key}' in info line '{message}'")
-    if key == 'pv':
-      d[key] = pv
+def _info_message_parse(message: str) -> dict:
+  it = iter(message.split())
+  if next(it) != 'info':
+    log.raise_value_error(f"'info' is not found in '{message}'")
+  d = {}
+  key = None
+  pv = []
+  for s in it:
+    if key is None:
+      key = s
+    elif key in _INFO_INT_PARAM_S:
+      d[key] = int(s)
       key = None
-    if not key is None:
-      log.raise_value_error(f"Incomplete key '{key}' in info line '{message}'")
-    self._d = d
+    elif key in _INFO_NO_PARAM_S:
+      d[key] = None
+      key = None
+    elif key == 'pv':
+      pv.append(s)
+    elif key == 'score':
+      key += '.' + s
+    else:
+      log.raise_value_error(f"Unknown key '{key}' in info line '{message}'")
+  if key == 'pv':
+    d[key] = pv
+    key = None
+  if not key is None:
+    log.raise_value_error(f"Incomplete key '{key}' in info line '{message}'")
+  return d
+
+class InfoMessage:
+  def __init__(self, param):
+    if isinstance(param, str):
+      self._d = _info_message_parse(param)
+    else:
+      assert isinstance(param, dict)
+      self._d = param
     logging.debug("%s", self.json())
+  def set_score(self, score_i16: int):
+    if abs(score_i16) < _MATE_SCORE_I16:
+      self._d['score.cp'] = score_i16
+    else:
+      self._d['score.mate'] = score_i16 - _MATE_SCORE_I16 if score_i16 > 0 else score_i16 + _MATE_SCORE_I16
   def json(self) -> str:
     return json.dumps(self._d)
   def has_score(self) -> bool:

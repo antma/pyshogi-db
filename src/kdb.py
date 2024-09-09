@@ -29,9 +29,12 @@ def _u64_to_i64(x):
 def _tc_to_str(initial: int, byoyomi: int) -> str:
   return f"{initial}分+{byoyomi}秒"
 
-
 def _conditions_and_join(conds: list[str]) -> str:
   return ' AND '.join('(' + s + ')' for s in conds)
+
+_POSITION_CONDITION = _conditions_and_join(['pos_hash1 == ?', 'pos_hash2 == ?'])
+_GET_EVAL_FIELDS = ['nodes', 'time', 'depth', 'seldepth', 'pv']
+_STORE_EVAL_FIELDS = ['pos_hash1', 'pos_hash2', 'nodes', 'time', 'score', 'engine_id', 'depth', 'seldepth', 'pv']
 
 def sfen_hashes(sfen: str) -> Tuple[int, int]:
   m = hashlib.md5()
@@ -410,7 +413,7 @@ WHERE {cond}
 LIMIT 1'''
     return not self._select_single_value(query, values) is None
   def _store_position_analyse(self, engine_id: int, info: usi.InfoMessage, hashes):
-    fields = ['pos_hash1', 'pos_hash2', 'nodes', 'time', 'score', 'engine_id', 'depth', 'seldepth', 'pv']
+    fields = _STORE_EVAL_FIELDS
     values = [hashes[0], hashes[1], info.get('nodes'), info.get('time'), info.score_i16(), engine_id, info.get('depth'), info.get('seldepth')]
     values.append(' '.join(info.get('pv')))
     self.insert_values('analysis', fields, values)
@@ -435,3 +438,30 @@ LIMIT 1'''
         self._store_position_analyse(engine_id, info, pos_hashes)
       usi_moves.pop()
       pos.undo_last_move()
+  def _get_position_analysis(self, pos: Position) -> Optional[usi.InfoMessage]:
+    values = sfen_hashes(pos.sfen())
+    fields = _GET_EVAL_FIELDS
+    sf = ','.join(fields)
+    query = f'SELECT score,{sf} FROM analysis WHERE {_POSITION_CONDITION} ORDER BY nodes LIMIT BY 1'
+    c = self._connection.cursor()
+    res = c.execute(query, values)
+    r = res.fetchone()
+    c.close()
+    if r is None:
+      return r
+    d = {}
+    for i, key in enumerate(fields):
+      d[key] = r[i+1]
+    info = usi.InfoMessage(d)
+    info.set_score(r[0])
+    return info
+  def load_game_analysis(self, game: Game):
+    a = []
+    pos = Position()
+    for m in game.parsed_moves:
+      pos.do_move(m)
+      r = self._get_position_analysis(pos)
+      if r is None:
+        break
+      a.append(r)
+    return a
