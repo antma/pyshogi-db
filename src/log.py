@@ -2,17 +2,35 @@
 ''' functions for raising exceptions and logging '''
 
 import logging
+import os
 import sys
-from logging import (DEBUG, INFO)
 
 def raise_value_error(msg):
   '''log error and raise ValueError'''
   logging.error(msg)
   raise ValueError(msg)
 
-def init_logging(log_filename, logging_level = logging.INFO):
+def init_logging(log_filename = None, logging_level = logging.INFO):
   fmt = '%(asctime)s %(levelname)s [%(module)s] %(message)s'
-  if log_filename is None:
-    logging.basicConfig(level=logging_level, format=fmt, stream=sys.stdout)
+  df = "%H:%M:%S"
+  level = os.getenv('LOG_LEVEL', logging_level)
+  if not log_filename is None:
+    logging.basicConfig(datefmt = df, level = level, format = fmt, filename=log_filename, filemode='w')
   else:
-    logging.basicConfig(level=logging_level, format=fmt, filename=log_filename, filemode='w')
+    try:
+      import colorlog
+    except ImportError:
+      logging.basicConfig(datefmt = df, level = level, format = fmt, stream=sys.stdout)
+      logging.warning('Please install colorlog: pip3 install colorlog')
+    else:
+      handler = colorlog.StreamHandler()
+      fmt = "%(log_color)s" + fmt
+      formatter = colorlog.ColoredFormatter(fmt, datefmt = df, log_colors = {
+        'DEBUG':    'cyan',
+        'INFO':     'white',
+        'WARNING':  'yellow',
+        'ERROR':    'red',
+        'CRITICAL': 'red,bg_white',
+      })
+      handler.setFormatter(formatter)
+      logging.basicConfig(level = logging_level, handlers=[handler])
