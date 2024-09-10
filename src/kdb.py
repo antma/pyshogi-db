@@ -4,6 +4,8 @@ import hashlib
 import functools
 import logging
 import lzma
+import os
+import shutil
 import sqlite3
 from typing import (Optional, Tuple)
 
@@ -75,8 +77,13 @@ class PlayerAndTimeControlFilter:
     self.time_control = time_control
 
 class KifuDB:
-  def __init__(self, database = ':memory:'):
-    self._database = database
+  def __init__(self, database_name: str, database_dir: str, backup_dir: Optional[str] = None):
+    filename = database_name + '.db'
+    self._database = os.path.join(database_dir, filename)
+    if not os.path.lexists(self._database):
+      if not backup_dir is None:
+        logging.info("Copying database '%s' from backup directory '%s'", filename, backup_dir)
+        shutil.copyfile(os.path.join(backup_dir, filename), self._database)
     self._connection = None
     self._cached_player_with_most_games = None
   def __enter__(self):
@@ -195,15 +202,20 @@ class KifuDB:
       c.execute(q, v)
     c.close()
     self._connection.commit()
-  def insert(self, data: str) -> bool:
+  def insert_kifu_file(self, filename: str) -> bool:
+    with open(filename, 'r', encoding = 'UTF8') as f:
+      kifu = f.read()
+      return self._insert_kifu_data(filename, kifu)
+  def _insert_kifu_data(self, filename: str, data: str) -> bool:
     b = bytes(data, 'UTF8')
     kifu_md5 = _md5_digest(b)
     rowid = self.find_game_by_kifu_md5(kifu_md5)
     if not rowid is None:
-      logging.debug('KIFU file has been already inserted in DB (rowid = %d).', rowid)
+      logging.info('KIFU file has been already inserted in DB (rowid = %d).', rowid)
       return False
     g = shogi.kifu.Game.parse(data)
     if g is None:
+      logging.warning("Can not parse KIFU file '%s'", os.path.basename(filename))
       return False
     data = lzma.compress(b)
     fields = ['sente', 'gote', 'start_date', 'sente_rating', 'gote_rating', 'time_control']
@@ -475,5 +487,5 @@ LIMIT 1'''
       if r is None:
         break
       a.append(r)
-    logging.debug(f'Found analysis for {len(a)} moves')
+    logging.debug('Found analysis for %d moves', len(a))
     return a
