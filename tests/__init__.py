@@ -1,4 +1,5 @@
 # -*- coding: UTF8 -*-
+import logging
 import os
 import sys
 
@@ -7,4 +8,4 @@ SOURCE_PATH = os.path.join(PROJECT_PATH,"src")
 sys.path.append(SOURCE_PATH)
 
 import log
-log.init_logging(None, log.DEBUG)
+log.init_logging(None, logging.DEBUG)
