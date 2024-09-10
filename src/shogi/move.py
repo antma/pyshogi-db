@@ -2,15 +2,8 @@
 
 from typing import Optional
 
+from . import cell
 from . import piece
-
-def ascii_cell(cell: int) -> str:
-  row, col = divmod(cell, 9)
-  return f'{1+col}{1+row}'
-
-def usi_cell(cell: int) -> str:
-  row, col = divmod(cell, 9)
-  return chr(49 + col) + chr(97 + row)
 
 class IllegalMove(Exception):
   pass
@@ -42,9 +35,9 @@ class Move:
     a = []
     if not self.from_piece is None:
       a.append(f'from_piece = {self.from_piece}')
-      a.append(f'from_cell = {ascii_cell(self.from_cell)}')
+      a.append(f'from_cell = {cell.digital_str(self.from_cell)}')
     a.append(f'to_piece = {self.to_piece}')
-    a.append(f'to_cell = {ascii_cell(self.to_cell)}')
+    a.append(f'to_cell = {cell.digital_str(self.to_cell)}')
     return 'Move {' + ', '.join(a) + '}'
   def pack_to_int(self):
     '''
@@ -79,8 +72,8 @@ class Move:
     return Move(from_piece * side, from_cell, to_piece * side, to_cell)
   def usi_str(self) -> str:
     if self.is_drop():
-      return piece.to_string(abs(self.to_piece)) + '*' + usi_cell(self.to_cell)
-    s = usi_cell(self.from_cell) + usi_cell(self.to_cell)
+      return piece.to_string(abs(self.to_piece)) + '*' + cell.usi_str(self.to_cell)
+    s = cell.usi_str(self.from_cell) + cell.usi_str(self.to_cell)
     if self.from_piece != self.to_piece:
       assert piece.promote(self.from_piece) == self.to_piece
       s += '+'
