@@ -6,6 +6,7 @@ import logging
 import log
 
 from .move import (Move, UndoMove, IllegalMove, Nifu, UnresolvedCheck)
+from . import cell
 from . import piece
 
 SFEN_STARTPOS = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
@@ -272,3 +273,48 @@ class Position:
           c[piece.unpromote(a) - 1] -= 1
       self.board[m.to_cell] = taken_piece
       self.board[m.from_cell] = m.from_piece
+  def parse_usi_move(self, s: str) -> Move:
+    it = iter(s)
+    from_cell, from_piece = None, None
+    to_cell, to_piece = None, None
+    try:
+      c = next(it)
+      if c.isupper():
+        to_piece = (piece.ASCII_PIECES.index(c.lower()) + 1) * self.side_to_move
+        if next(it) != '*':
+          log.raise_value_error(f"parse_usi_move('{s}'): expected '*'")
+      elif c.isdigit():
+        from_cell = cell.usi_parse(c, next(it))
+        if from_cell is None:
+          log.raise_value_error(f"parse_usi_move('{s}'): illegal from cell")
+        from_piece = self.board[from_cell]
+        if from_piece * self.side_to_move <= 0:
+          log.raise_value_error(f"parse_usi_move('{s}'): illegal from piece")
+      else:
+        log.raise_value_error(f"parse_usi_move('{s}'): illegal first character '{c}'")
+      to_cell = cell.usi_parse(next(it), next(it))
+    except StopIteration:
+      log.raise_value_error(f"parse_usi_move('{s}'): not enough data")
+    if to_cell is None:
+      log.raise_value_error(f"parse_usi_move('{s}'): illegal to cell")
+    drop = from_cell is None
+    taken_piece = self.board[to_cell]
+    if drop:
+      if taken_piece != piece.FREE:
+        log.raise_value_error(f"parse_usi_move('{s}'): drop piece on occupied cell")
+    else:
+      if taken_piece * self.side_to_move > 0:
+        log.raise_value_error(f"parse_usi_move('{s}'): eating own piece")
+    promotion = False
+    for c in it:
+      if drop:
+        log.raise_value_error(f"parse_usi_move('{s}'): drop promoted piece is impossible")
+      if c == '+':
+        if promotion:
+          log.raise_value_error(f"parse_usi_move('{s}'): too many '+'")
+        promotion = True
+      else:
+        log.raise_value_error(f"parse_usi_move('{s}'): expected '+'")
+    if not drop:
+      to_piece = piece.promote(from_piece) if promotion else from_piece
+    return Move(from_piece, from_cell, to_piece, to_cell)

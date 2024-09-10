@@ -52,6 +52,28 @@ ILLEGAL_MOVE_GAMES = [
   (124, 'l2G3nl/3+Rskg2/pp2ppspp/2ps2p2/4+bb3/2P2N3/PP2PPP1P/4G1K2/Lr2NG1Ns w 2Plp 60', 1),
 ]
 
+USI_GAMES = [
+('7g7f 3c3d 6g6f 8c8d 7i7h 7a6b 8h7g 5a4b 7h6g 6a5b 2h5h 4b3b 5i4h 3a4b 4h3h '
+ '7c7d 3h2h 6b7c 3i3h 8d8e 5g5f 5c5d 6i7h 4b5c 1g1f 1c1d 5h5i 5c4d 4g4f 7c6d '
+ '7g6h 9c9d 3h4g 5b4b 3g3f 7d7e 6f6e 6d6e 7f7e 5d5e 4f4e 4d4e 5f5e P*5f 6h7g '
+ '8b5b P*4f 2b5e 7g5e 5b5e B*8h B*6d 4f4e 5f5g+ 4g4f 5e4e 8h1a+ 6d4f S*3g '
+ '4f3g+ 2i3g 4e4g+ B*3h S*2b 3h4g 5g4g R*1b 4a3a 4i3h P*5h 6g5h 4g3h 2h3h B*5f '
+ '5h4g 5f4g+ 3h4g S*5f 4g3h G*4g 3h2h S*4h 5i7i 4h3g 2h1h 4g3h L*2i 3h2i 7i2i '
+ 'N*2e 2g2f 3g3h 2f2e 3h2i 1h2i R*5i N*3i 5i5h+ G*6h L*2f S*2g 2f2g 3i2g S*2h '
+ '2i1h 5h3h 1a2b 3a2b 1b2b+ 3b2b B*5e B*4d',
+ 'ln5n1/5g1k1/3p1p1p1/p4bp1p/1pPsB2P1/4s1P1P/PP5N1/2GG2+rsK/LN6L b GSL3Pr2p 113'),
+('5g5f 5c5d 7i6h 8b5b 6h5g 3c3d 5g6f 5a6b 2g2f 6b7b 2f2e 2b3c 3i4h 3a4b 4h5g '
+ '4b5c 5g4f 5c4d 7g7f 7b8b 5i6h 7a7b 6h7h 9c9d 9g9f 6c6d 7f7e 7b6c 4i5i 5b7b '
+ '8g8f 7c7d 7e7d 6c7d 7h8g 6d6e 6f7g 4a5b 6i7h 5b6c 8h7i 8c8d P*7f 7b2b 3g3f '
+ '6a7b 1g1f 3c5a 7i5g 2a3c 7f7e 7d8c 7g7f 3c4e 5g4h 8a7c 8i7g 6c6d 5i6h 1c1d '
+ '2i3g 4e3g+ 4h3g 5a4b 3f3e 6d7e 7f7e 4b7e 4f5g N*4e 3g7c+ 7b7c 7g6e 7c7d 5g6f '
+ '7e6d P*7e 7d6e 6f6e 6d2h+ N*7d 8b9c G*8h R*5i 9i9h P*7c G*8b 7c7d 8b8c 9c8c '
+ '6e7d 8c7b N*4f 7b6b S*6c 6b5a 7d6e 4e5g+ 6h5g 5i5g+ 4f3d 2b9b N*6d S*6a 5f5e '
+ 'B*6i 6e7f G*6e 7f6e 5g6g G*7g 6g6e P*6b 6e6d 6b6a+ 5a6a 6c5d+ 6d6h P*6b 6a7a '
+ 'S*8c N*6e 8g9g 6e7g+ 7h6h G*8g', 
+ 'l1k5l/r2P5/1S3p1p1/pp2+SsN1p/2P1P1PP1/PP6P/Kg+n2P3/LG1G3+b1/3b4L b RPgs2n3p 127'),
+]
+
 class TestShogiPiece(unittest.TestCase):
   def test_to_string(self):
     self.assertEqual(shogi.piece.to_string(shogi.piece.DRAGON), '+R')
@@ -137,6 +159,14 @@ class TestShogiPosition(unittest.TestCase):
     self.assertEqual(p.is_legal(), False)
     p = Position('lnsg1gsnl/1r5b1/pppp1ppkp/4p2p1/8N/6P2/PPPPPP1PP/1B5R1/LNSGKGS1L b - 1')
     self.assertEqual(p.is_legal(), False)
+  def test_usi_games(self):
+    for usi_moves, final_sfen in USI_GAMES:
+      pos = Position()
+      for s in usi_moves.split():
+        m = pos.parse_usi_move(s)
+        self.assertEqual(s, m.usi_str())
+        pos.do_move(m)
+      self.assertEqual(final_sfen, pos.sfen())
 
 if __name__ == '__main__':
   unittest.main()

@@ -12,6 +12,8 @@ from . import move
 from . import piece
 from . import position
 
+from ._misc import iter_is_empty
+
 _KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
 _HEADER_MOVES_SEPARATOR = '手数----指手---------消費時間--'
 _RESULT_D = {
@@ -46,7 +48,6 @@ _KIFU_PIECES_D = _create_kifu_dict(_KIFU_PIECES, 1)
 def side_to_str(side: int) -> str:
   return "sente" if side > 0 else "gote"
 
-
 _KIFU_PROMOTED_SINGLE_CHAR_S = set([piece.TOKIN, piece.HORSE, piece.DRAGON])
 
 def kifu_piece(p: int) -> str:
@@ -73,11 +74,6 @@ def kifu_move(m: move.Move, prev: Optional[move.Move]) -> str:
   if m.from_piece == m.to_piece:
     return r + kifu_piece(m.to_piece) + t
   return r + kifu_piece(m.from_piece) + '成' + t
-
-def _iter_is_empty(it):
-  for _c in it:
-    return False
-  return True
 
 def _move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
   it = iter(s)
@@ -120,7 +116,7 @@ def _move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Op
       promoted = True
       t = next(it)
     if t == '打':
-      if promoted or (not _iter_is_empty(it)):
+      if promoted or (not iter_is_empty(it)):
         return None
       return move.Move(None, None, side_to_move * p, to_cell)
     if t != '(':
@@ -142,7 +138,7 @@ def _move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Op
     if t != ')':
       logging.debug("expected ')', but '%s' found", t)
       return None
-    if not _iter_is_empty(it):
+    if not iter_is_empty(it):
       logging.debug("extra data")
       return None
     row = int(row) - 1
