@@ -38,6 +38,9 @@ class GameResult:
     self.side_to_move_points = side_to_move_points
     self.description = description
 
+def game_result_by_jp(jp: str) -> GameResult:
+  return GameResult(_RESULT_D[jp])
+
 def _create_kifu_dict(s, offset = 0):
   return dict(map(lambda t: (t[1], t[0] + offset), filter(lambda t: t[1] != '?', enumerate(s))))
 
@@ -317,12 +320,12 @@ def _game_parse(game: str) -> Optional[Game]:
       if location_81dojo:
         if s == '*時間切れにて終局':
           #time over
-          game_result = GameResult(_RESULT_D['切れ負け'])
+          game_result = game_result_by_jp('切れ負け')
           break
         if s == '*反則手にて終局':
           if (not illegal_move_idx is None) and (ignored_moves == 0):
             #illegal previous move
-            game_result = GameResult(_RESULT_D['反則勝ち'])
+            game_result = game_result_by_jp('反則勝ち')
             break
       continue
     t = str(i+1)

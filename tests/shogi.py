@@ -7,6 +7,7 @@ import unittest
 import shogi
 from shogi.move import (IllegalMove, Move)
 from shogi.position import Position
+from shogi.openings import OPENINGS
 
 MODULE_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
@@ -167,6 +168,13 @@ class TestShogiPosition(unittest.TestCase):
         self.assertEqual(s, m.usi_str())
         pos.do_move(m)
       self.assertEqual(final_sfen, pos.sfen())
+  def test_openings(self):
+    for o in OPENINGS:
+      pos = Position()
+      for s in o.usi_moves.split():
+        m = pos.parse_usi_move(s)
+        self.assertEqual(s, m.usi_str())
+        pos.do_move(m)
 
 if __name__ == '__main__':
   unittest.main()

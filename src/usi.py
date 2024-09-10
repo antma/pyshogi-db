@@ -9,6 +9,8 @@ import time
 from typing import Optional
 
 import log
+from shogi import kifu, openings
+from shogi.position import Position
 
 _INFO_BOUND_L = ['lowerbound', 'upperbound']
 _INFO_SCORE_L = ['score.' + s for s in ['cp', 'mate']]
@@ -238,3 +240,49 @@ class USIEngine:
         log.raise_value_error('Last info message has not exact score')
       return (im, bestmove)
     return (None, bestmove)
+
+class _USIGame:
+  def __init__(self):
+    self.usi_moves = []
+    self.pos = Position()
+    self.parsed_moves = []
+    self.game_result = None
+  def do_usi_move(self, s: str):
+    self.usi_moves.append(s)
+    m = self.pos.parse_usi_move(s)
+    assert m.usi_str() == s
+    self.parsed_moves.append(m)
+    self.pos.do_move(m)
+  def set_result(self, jp: str):
+    self.game_result = kifu.game_result_by_jp(jp)
+
+def play_game(sente_engine: USIEngine, gote_engine: USIEngine, opening: openings.Opening, update_pos_callback = None, test_pv: bool = True) -> kifu.Game:
+  sente_engine.new_game()
+  gote_engine.new_game()
+  g = _USIGame()
+  for s in opening.usi_moves.split():
+    g.do_usi_move(s)
+  c = {}
+  while True:
+    sfen = g.pos.sfen(move_no = False)
+    i = c.get(sfen, 0)
+    if i >= 3:
+      g.set_result('千日手')
+      break
+    c[sfen] = i + 1
+    e = sente_engine if g.pos.side_to_move > 0 else gote_engine
+    info, best_move = e.analyse_position(None, g.usi_moves)
+    if best_move == 'resign':
+      g.set_result('投了')
+      break
+    if test_pv:
+      q = Position(g.pos.sfen())
+      for s in info.get('pv'):
+        m = q.parse_usi_move(s)
+        assert m.usi_str() == s
+        q.do_move(m)
+    g.do_usi_move(best_move)
+    if not update_pos_callback is None:
+      update_pos_callback(g.pos)
+  if not g.game_result is None:
+    logging.info('%s', g.game_result.result)
