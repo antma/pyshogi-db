@@ -82,8 +82,10 @@ class KifuDB:
     self._database = os.path.join(database_dir, filename)
     if not os.path.lexists(self._database):
       if not backup_dir is None:
-        logging.info("Copying database '%s' from backup directory '%s'", filename, backup_dir)
-        shutil.copyfile(os.path.join(backup_dir, filename), self._database)
+        backup_file = os.path.join(backup_dir, filename)
+        if os.path.lexists(backup_file):
+          logging.info("Copying database '%s' from backup directory '%s'", filename, backup_dir)
+          shutil.copyfile(os.path.join(backup_dir, filename), self._database)
     self._connection = None
     self._cached_player_with_most_games = None
   def __enter__(self):
