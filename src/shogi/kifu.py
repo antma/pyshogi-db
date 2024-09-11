@@ -273,6 +273,18 @@ def _strip_comment(t):
     return s
   return s[:i]
 
+_HEADER_JP_D = {
+  '開始日時': 'start_date',
+  '場所': 'location',
+  '持ち時間': 'time_control',
+  '手合割': 'handicap',
+  '先手': 'sente',
+  '後手': 'gote'
+}
+
+_HEADER_EN_D = dict((t[1], t[0]) for t in _HEADER_JP_D.items())
+_SIDE_S = set(['sente', 'gote'])
+
 def _game_parse(game: str) -> Optional[Game]:
   '''
   https://lishogi.org/explanation/kif
@@ -301,25 +313,25 @@ def _game_parse(game: str) -> Optional[Game]:
     if p is None:
       log.raise_value_error(f'Expected header section and moves section separator, but "{t}" found')
     key, value = p
-    if key == '開始日時':
-      year, month, day = value.split('/')
-      if year.isdigit() and month.isdigit() and day.isdigit():
-        d['start_date'] = datetime.date(int(year), int(month), int(day))
-    elif key == '場所':
-      d['location'] = value
-    elif key == '持ち時間':
-      tc = parse_time_control(value)
-      if tc is None:
-        log.raise_value_error(f"Can not parse time control '{value}'")
-      d['time_control'] = tc
-    elif key == '手合割':
-      if value == '平手':
-        value = None
-      d['handicap'] = value
-    elif key == '先手':
-      _parse_player_name(d, value, 'sente')
-    elif key == '後手':
-      _parse_player_name(d, value, 'gote')
+    key = _HEADER_JP_D.get(key)
+    if not key is None:
+      if key in _SIDE_S:
+        _parse_player_name(d, value, key)
+      elif key == 'start_date':
+        year, month, day = value.split('/')
+        if year.isdigit() and month.isdigit() and day.isdigit():
+          d[key] = datetime.date(int(year), int(month), int(day))
+      elif key == 'time_control':
+        tc = parse_time_control(value)
+        if tc is None:
+          log.raise_value_error(f"Can not parse time control '{value}'")
+        d[key] = tc
+      elif key == 'handicap':
+        if value == '平手':
+          value = None
+        d[key] = value
+      else:
+        d[key] = value
   comments = defaultdict(list)
   moves = []
   parsed_moves = []
