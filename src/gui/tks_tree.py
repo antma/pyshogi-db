@@ -5,7 +5,7 @@ import tkinter as tk
 from typing import Optional
 
 import kdb
-from shogi.kifu import Game, kifu_move
+from shogi.kifu import Game
 from shogi.move import Move
 from shogi.position import Position
 from . import table
@@ -75,7 +75,7 @@ class TableMovesWithStat:
       mv = Move.unpack_from_int(m.packed_move, pos.side_to_move)
       p = m.percent
       perf = round(m.performance())
-      t = (kifu_move(mv, prev_move), str(m.games), f'{p:.01f}%', str(perf))
+      t = (mv.kifu_str(prev_move), str(m.games), f'{p:.01f}%', str(perf))
       self.table.insert_row(t, columns_width)
     self.table.adjust_columns_width(columns_width)
     self.table.tree['height'] = len(moves)

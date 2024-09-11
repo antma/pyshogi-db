@@ -14,7 +14,6 @@ from . import position
 
 from ._misc import iter_is_empty
 
-_KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
 _HEADER_MOVES_SEPARATOR = '手数----指手---------消費時間--'
 _RESULT_D = {
   '中断': ('Aborted', None, 'Game was aborted.'),
@@ -47,37 +46,12 @@ def _create_kifu_dict(s, offset = 0):
 
 _KIFU_COLS_D = _create_kifu_dict(cell.KIFU_COLS)
 _KIFU_ROWS_D = _create_kifu_dict(cell.KIFU_ROWS)
-_KIFU_PIECES_D = _create_kifu_dict(_KIFU_PIECES, 1)
+_KIFU_PIECES_D = _create_kifu_dict(piece.KIFU_PIECES, 1)
 
 def side_to_str(side: int) -> str:
   return "sente" if side > 0 else "gote"
 
-_KIFU_PROMOTED_SINGLE_CHAR_S = set([piece.TOKIN, piece.HORSE, piece.DRAGON])
 
-def kifu_piece(p: int) -> str:
-  p = abs(p)
-  if piece.is_promoted(p) and not p in _KIFU_PROMOTED_SINGLE_CHAR_S:
-    return '成' + _KIFU_PIECES[piece.unpromote(p) - 1]
-  r = _KIFU_PIECES[p - 1]
-  assert r != '?'
-  return r
-
-def kifu_move(m: move.Move, prev: Optional[move.Move]) -> str:
-  ''' converts parsed move back to kifu '''
-  prev_to_cell = prev and prev.to_cell
-  if not m.from_cell is None:
-    t = '(' + cell.digital_str(m.from_cell) + ')'
-  else:
-    t = ''
-  if prev_to_cell == m.to_cell:
-    r = '同\u3000'
-  else:
-    r = cell.kifu_str(m.to_cell)
-  if m.from_cell is None:
-    return r + kifu_piece(m.to_piece) + '打' + t
-  if m.from_piece == m.to_piece:
-    return r + kifu_piece(m.to_piece) + t
-  return r + kifu_piece(m.from_piece) + '成' + t
 
 def _move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
   it = iter(s)

@@ -20,6 +20,8 @@ ASCII_PIECES = 'plnsgbrk'
 ASCII_LONG_NAMES = [None, 'pawn', 'lance', 'knight', 'silver', 'gold', 'bishop', 'rook', 'king', 'tokin', \
  'promotedlance', 'promotedknight', 'promotedsilver', None, 'horse', 'dragon']
 
+KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
+
 _UNPROMOTED_PIECES = set([FREE, GOLD, KING])
 
 def is_legal(piece: int) -> bool:
@@ -53,3 +55,12 @@ def unpromote(piece: int) -> int:
   if piece < -KING:
     return piece + PROMOTED
   return piece
+
+_KIFU_PROMOTED_SINGLE_CHAR_S = set([TOKIN, HORSE, DRAGON])
+def kifu_str(p: int) -> str:
+  p = abs(p)
+  if is_promoted(p) and not p in _KIFU_PROMOTED_SINGLE_CHAR_S:
+    return '成' + KIFU_PIECES[unpromote(p) - 1]
+  r = KIFU_PIECES[p - 1]
+  assert r != '?'
+  return r

@@ -78,6 +78,22 @@ class Move:
       assert piece.promote(self.from_piece) == self.to_piece
       s += '+'
     return s
+  def kifu_str(self, prev) -> str:
+    ''' converts parsed move back to kifu '''
+    prev_to_cell = prev and prev.to_cell
+    if not self.from_cell is None:
+      t = '(' + cell.digital_str(self.from_cell) + ')'
+    else:
+      t = ''
+    if prev_to_cell == self.to_cell:
+      r = '同\u3000'
+    else:
+      r = cell.kifu_str(self.to_cell)
+    if self.from_cell is None:
+      return r + piece.kifu_str(self.to_piece) + '打' + t
+    if self.from_piece == self.to_piece:
+      return r + piece.kifu_str(self.to_piece) + t
+    return r + piece.kifu_str(self.from_piece) + '成' + t
 
 class UndoMove:
   def __init__(self, taken_piece: int):

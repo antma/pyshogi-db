@@ -1,7 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from typing import Optional
-from . import kifu, move, position
+from . import move, position
 
 class PositionWithHistory(position.Position):
   def __init__(self, sfen: Optional[str] = None):
@@ -18,6 +18,6 @@ class PositionWithHistory(position.Position):
     a = []
     prev = None
     for m, _ in self.history:
-      a.append(kifu.kifu_move(m, prev))
+      a.append(m.kifu_str(prev))
       prev = m
     return ' '.join(("☗'" if (i & 1) == 0 else "☖'") + t for i, t in enumerate(a))

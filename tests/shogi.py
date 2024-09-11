@@ -132,8 +132,8 @@ class TestShogiPosition(unittest.TestCase):
     pos_sfen = pos.sfen()
     prev_move = None
     for (km, m) in zip(g.moves, g.parsed_moves):
-      #testing kifu.kifu_move
-      self.assertEqual(km.kifu, shogi.kifu.kifu_move(m, prev_move))
+      #testing Move.kifu_str
+      self.assertEqual(km.kifu, m.kifu_str(prev_move))
       #testing move packing
       packed_move = m.pack_to_int()
       self.assertEqual(m, Move.unpack_from_int(packed_move, pos.side_to_move))
