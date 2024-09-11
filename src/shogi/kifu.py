@@ -31,15 +31,16 @@ _REGEXP_CUM_MOVE_TIME = re.compile(r'(\d+):(\d+):(\d+)')
 _REGEXP_TIME_CONTROL = re.compile(r'(\d+)分?[+](\d+)秒?')
 
 class GameResult:
-  def __init__(self, p):
+  def __init__(self, p, jp: str):
     result, side_to_move_points, description = p
     logging.debug('GameResult.__init__(): result = %s, description = %s', result, description)
     self.result = result
     self.side_to_move_points = side_to_move_points
     self.description = description
+    self.jp = jp
 
 def game_result_by_jp(jp: str) -> GameResult:
-  return GameResult(_RESULT_D[jp])
+  return GameResult(_RESULT_D[jp], jp)
 
 def _create_kifu_dict(s, offset = 0):
   return dict(map(lambda t: (t[1], t[0] + offset), filter(lambda t: t[1] != '?', enumerate(s))))
@@ -50,8 +51,6 @@ _KIFU_PIECES_D = _create_kifu_dict(piece.KIFU_PIECES, 1)
 
 def side_to_str(side: int) -> str:
   return "sente" if side > 0 else "gote"
-
-
 
 def _move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
   it = iter(s)
@@ -189,6 +188,16 @@ class KifuMove:
   def parse(self, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
     return _move_parse(self.kifu, side_to_move, last_move)
 
+def player_with_rating_from_dict(d: dict, side:int) -> Optional[str]:
+  name = side_to_str(side)
+  player = d.get(name)
+  if player is None:
+    return None
+  rating = self.get_header_value(name + '_rating')
+  if rating is None:
+    return player
+  return f'{player}({rating})'
+
 class Game:
   def __init__(self, kifu_version, headers, moves, parsed_moves, result, comments, last_legal_sfen):
     logging.debug('KIFU headers = %s', headers)
@@ -209,14 +218,7 @@ class Game:
   def get_header_value(self, key: str):
     return self.headers.get(key)
   def player_with_rating(self, side: int) -> Optional[str]:
-    name = side_to_str(side)
-    player = self.get_header_value(name)
-    if player is None:
-      return None
-    rating = self.get_header_value(name + '_rating')
-    if rating is None:
-      return player
-    return f'{player}({rating})'
+    return player_with_rating_from_dict(self.headers, side)
   def get_row_values_from_headers(self, keys):
     return [self.headers.get(key) for key in keys]
   def sente_points(self) -> Optional[int]:
@@ -256,6 +258,7 @@ _HEADER_JP_D = {
   '後手': 'gote'
 }
 
+_HEADER_WRITE_ORDER_L = ['start_date', 'location', 'time_control', 'handicap', 'sente', 'gote']
 _HEADER_EN_D = dict((t[1], t[0]) for t in _HEADER_JP_D.items())
 _SIDE_S = set(['sente', 'gote'])
 
@@ -341,7 +344,7 @@ def _game_parse(game: str) -> Optional[Game]:
     p = _RESULT_D.get(km.kifu)
     if not p is None:
       logging.debug('Result %s', p)
-      game_result = GameResult(p)
+      game_result = GameResult(p, km.kifu)
       break
     mv = km.parse(side_to_move, prev_move)
     if mv is None:
@@ -358,3 +361,40 @@ def _game_parse(game: str) -> Optional[Game]:
     prev_move = mv
     side_to_move *= -1
   return Game(version, d, moves, parsed_moves, game_result, comments, pos.sfen())
+
+class KifuOutputFile:
+  def __init__(self, filename):
+    self._filename = filename
+    self._f = None
+    self.move_no = None
+  def __enter__(self):
+    self._f = open(self._filename, 'w', encoding = 'UTF8', buffering = 16384)
+    return self
+  def __exit__(self, exl_type, exc_value, traceback):
+    self._f.close()
+    self._f = None
+  def write(self, s: str):
+    if self._f is None:
+      logging.error("KifuMove.write method should be used inside with statement")
+    else:
+      self._f.write(s)
+  def write_headers(self, h):
+    for key in _HEADER_WRITE_ORDER_L:
+      p = h.get(key)
+      if not p is None:
+        if not isinstance(p, str):
+          p = str(p)
+        self.write(_HEADER_EN_D[key] + '：' + str(p) + '\n')
+    self.write(_HEADER_MOVES_SEPARATOR + '\n')
+  def write_moves(self, moves: list[move.Move]):
+    prev = None
+    self.move_no = 0
+    for m in moves:
+      self.move_no += 1
+      self.write(str(self.move_no) + ' ' + m.kifu_str(prev) + '\n')
+      prev = m
+  def write_result(self, r: Optional[GameResult]):
+    if r is None:
+      return
+    self.move_no += 1
+    self.write(str(self.move_no) + ' ' + r.jp + '\n')

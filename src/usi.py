@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 
+from datetime import datetime
 from itertools import chain
 import json
 import logging
@@ -256,7 +257,17 @@ class _USIGame:
   def set_result(self, jp: str):
     self.game_result = kifu.game_result_by_jp(jp)
 
-def play_game(sente_engine: USIEngine, gote_engine: USIEngine, opening: openings.Opening, update_pos_callback = None, test_pv: bool = True) -> kifu.Game:
+def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, gote_engine: USIEngine, opening: openings.Opening, update_pos_callback = None, test_pv: bool = True) -> kifu.Game:
+  if sente_engine.params.time_ms != gote_engine.params.time_ms:
+    log.raise_value_error('Engines have different thinking move settings')
+  s = sente_engine.params.time_ms // 1000
+  h = {
+    'sente': sente_engine.params.engine_name,
+    'gote': gote_engine.params.engine_name,
+    'start_date': datetime.today(),
+    'time_control': kifu.TimeControl(0, s),
+  }
+  output_kifu_file.write_headers(h)
   sente_engine.new_game()
   gote_engine.new_game()
   g = _USIGame()
@@ -284,5 +295,7 @@ def play_game(sente_engine: USIEngine, gote_engine: USIEngine, opening: openings
     g.do_usi_move(best_move)
     if not update_pos_callback is None:
       update_pos_callback(g.pos)
+  output_kifu_file.write_moves(g.parsed_moves)
   if not g.game_result is None:
     logging.info('%s', g.game_result.result)
+    output_kifu_file.write_result(g.game_result)
