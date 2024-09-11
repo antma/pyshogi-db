@@ -153,13 +153,16 @@ class TestShogiPosition(unittest.TestCase):
   def test_illegal_move_kifu(self):
     for t in ILLEGAL_MOVE_GAMES:
       self._check_kifu(t)
-  def test_is_check(self):
+  def test_is_legal(self):
     p = Position('l4+N+R1l/2ksg4/p2p1s3/2p1pp1N1/6S1p/2r2P3/PP1P1g2P/1G1S2+b2/LN1K4L b BGN3P4p 85')
-    self.assertEqual(p.is_legal(), True)
+    self.assertTrue(p.is_legal())
     p = Position('lnsg1gsnl/1r5b1/ppppkpppp/4p4/5N3/6P2/PPPPPP1PP/1B5R1/LNSGKGS1L b - 1')
-    self.assertEqual(p.is_legal(), False)
+    self.assertFalse(p.is_legal())
     p = Position('lnsg1gsnl/1r5b1/pppp1ppkp/4p2p1/8N/6P2/PPPPPP1PP/1B5R1/LNSGKGS1L b - 1')
-    self.assertEqual(p.is_legal(), False)
+    self.assertFalse(p.is_legal())
+  def test_is_check(self):
+    p = Position('ln4gkl/3s2+Ss1/2pp2np1/p5p1p/9/3P1PP1P/P1+r1PGNP1/3R2SK1/L4G2L w BG3Pbn2p 50')
+    self.assertTrue(p.is_check())
   def test_usi_games(self):
     for usi_moves, final_sfen in USI_GAMES:
       pos = Position()

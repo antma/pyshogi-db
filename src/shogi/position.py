@@ -221,6 +221,8 @@ class Position:
         raise ValueError("player takes his piece'")
   def is_legal(self) -> bool:
     return not self._king_under_check(-self.side_to_move)
+  def is_check(self) -> bool:
+    return self._king_under_check(self.side_to_move)
   def do_move(self, m: Move) -> Optional[UndoMove]:
     if m.legal < 0:
       raise IllegalMove()
