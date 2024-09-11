@@ -14,7 +14,7 @@ import shogi
 from shogi.history import PositionWithHistory
 from shogi.move import Move
 from shogi.position import Position
-from shogi.kifu import Game, side_to_str
+from shogi.kifu import Game, TimeControl, side_to_str
 import usi
 
 def _insert(table, a):
@@ -27,9 +27,6 @@ def _md5_digest(data):
 
 def _u64_to_i64(x):
   return x - 0x8000000000000000
-
-def _tc_to_str(initial: int, byoyomi: int) -> str:
-  return f"{initial}分+{byoyomi}秒"
 
 def _conditions_and_join(conds: list[str]) -> str:
   return ' AND '.join('(' + s + ')' for s in conds)
@@ -169,8 +166,8 @@ class KifuDB:
     return lzma.decompress(compressed_data).decode('UTF8')
   def find_game_by_kifu_md5(self, kifu_md5):
     return self._get_rowid('kifus', 'md5', kifu_md5)
-  def get_time_control_rowid(self, time_control: str, force = False) -> Optional[int]:
-    return self._get_rowid('time_controls', 'time_control', time_control, force)
+  def get_time_control_rowid(self, time_control: TimeControl, force = False) -> Optional[int]:
+    return self._get_rowid('time_controls', 'time_control', str(time_control), force)
   def _player_with_most_games(self, side: int) -> Optional[str]:
     side = side_to_str(side)
     return self._select_single_value(f'select {side}, count(*) as c from kifus group by {side} order by c desc limit 1')
@@ -215,7 +212,7 @@ class KifuDB:
     if not rowid is None:
       logging.info('KIFU file has been already inserted in DB (rowid = %d).', rowid)
       return False
-    g = shogi.kifu.Game.parse(data)
+    g = Game.parse(data)
     if g is None:
       logging.warning("Can not parse KIFU file '%s'", os.path.basename(filename))
       return False
@@ -349,7 +346,7 @@ ORDER BY b
       #l.append((t[0], n, percent, t[3] / n))
     c.close()
     return d
-  def build_histogram_data(self, player: str, time_control: str, step: int) -> dict[int, GameStat]:
+  def build_histogram_data(self, player: str, time_control: TimeControl, step: int) -> dict[int, GameStat]:
     tc = self.get_time_control_rowid(time_control, force = False)
     if tc is None:
       return {}
@@ -363,9 +360,7 @@ ORDER BY b
         #https://stackoverflow.com/questions/1047021/overriding-in-python-iadd-method
         sd[key] += value
     return sd
-  def player_time_control_stats(self, player: str, time_control: Tuple[int, int]) -> Optional[GameStat]:
-    initial, byoyomi = time_control
-    time_control = _tc_to_str(initial, byoyomi)
+  def player_time_control_stats(self, player: str, time_control: TimeControl) -> Optional[GameStat]:
     tc = self.get_time_control_rowid(time_control, force = False)
     if tc is None:
       logging.warning('Time control %s is absent in database', time_control)

@@ -29,6 +29,7 @@ _RESULT_D = {
 
 _REGEXP_MOVE_TIME = re.compile(r'(\d+):(\d+)')
 _REGEXP_CUM_MOVE_TIME = re.compile(r'(\d+):(\d+):(\d+)')
+_REGEXP_TIME_CONTROL = re.compile(r'(\d+)分?[+](\d+)秒?')
 
 class GameResult:
   def __init__(self, p):
@@ -191,6 +192,19 @@ def _parse_player_name(d: dict, s: str, key: str):
         return
   d[key] = s
 
+class TimeControl:
+  def __init__(self, initial: int, byoyomi: int):
+    self.initial = initial
+    self.byoyomi = byoyomi
+  def __str__(self):
+    return f"{self.initial}分+{self.byoyomi}秒"
+
+def parse_time_control(s: str) -> Optional[TimeControl]:
+  m = _REGEXP_TIME_CONTROL.fullmatch(s)
+  if m is None:
+    return None
+  return TimeControl(int(m.group(1)), int(m.group(2)))
+
 class KifuMove:
   def __init__(self, a: list[str]):
     self.kifu = a[1]
@@ -294,7 +308,10 @@ def _game_parse(game: str) -> Optional[Game]:
     elif key == '場所':
       d['location'] = value
     elif key == '持ち時間':
-      d['time_control'] = value
+      tc = parse_time_control(value)
+      if tc is None:
+        log.raise_value_error(f"Can not parse time control '{value}'")
+      d['time_control'] = tc
     elif key == '手合割':
       if value == '平手':
         value = None

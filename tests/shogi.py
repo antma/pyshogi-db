@@ -179,5 +179,13 @@ class TestShogiPosition(unittest.TestCase):
         self.assertEqual(s, m.usi_str())
         pos.do_move(m)
 
+class TestKifu(unittest.TestCase):
+  def test_time_control(self):
+    s = "15分+60秒"
+    tc = shogi.kifu.parse_time_control('15+60')
+    self.assertEqual(str(tc), s)
+    tc = shogi.kifu.parse_time_control(s)
+    self.assertEqual(str(tc), s)
+
 if __name__ == '__main__':
   unittest.main()
