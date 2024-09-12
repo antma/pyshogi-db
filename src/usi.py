@@ -15,7 +15,7 @@ from shogi.position import Position
 
 _INFO_BOUND_L = ['lowerbound', 'upperbound']
 _INFO_SCORE_L = ['score.' + s for s in ['cp', 'mate']]
-_INFO_INT_PARAM_S = set(['cp', 'depth', 'seldepth', 'multipv', 'nodes', 'nps', 'time'] + _INFO_SCORE_L)
+_INFO_INT_PARAM_S = set(['cp', 'depth', 'seldepth', 'multipv', 'nodes', 'nps', 'time', 'hashfull'] + _INFO_SCORE_L)
 _INFO_NO_PARAM_S = set(_INFO_BOUND_L)
 _BOOLEAN_S = set(['true','false'])
 _MATE_SCORE_I16 = 32000
@@ -173,7 +173,8 @@ class USIEngine:
     return a
   def __enter__(self):
     params = self.params
-    self._p = subprocess.Popen(params._args, stdin = subprocess.PIPE, stdout = subprocess.PIPE)
+    cwd = os.path.dirname(params._args[0])
+    self._p = subprocess.Popen(params._args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, cwd = cwd)
     self.send('usi')
     a = []
     while True:
@@ -221,7 +222,7 @@ class USIEngine:
         s += ' ' + m
     self.send(s)
     self.ping()
-    self.send(f'go movetime {self.params.time_ms}')
+    self.send(f'go byoyomi {self.params.time_ms}')
     infos = []
     bestmove = None
     while True:
