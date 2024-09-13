@@ -59,17 +59,28 @@ class USIEngineOption:
       return value in _BOOLEAN_S
     return True
 
+def _short_name(s: str) -> str:
+  r = ''
+  for c in s:
+    if c.isalpha():
+      r += c
+    else:
+      break
+  return r
+
 class USIEngineSearchParameters:
   def __init__(self, args: list[str], time_ms: int, hash_size: int, threads: int, extra_options):
     self._args = args
     self.engine_name = None
+    self.engine_short_name = None
     self.time_ms = time_ms
     self.hash_size = hash_size
     self.threads = threads
     self.extra_options = extra_options
   def set_engine_name(self, engine_name):
     logging.info('Engine %s', engine_name)
-    self.engine_name = engine_name
+    self.engine_name = ' '.join(engine_name)
+    self.engine_short_name = _short_name(self.engine_name)
 
 def _info_message_parse(message: str) -> dict:
   it = iter(message.split())
@@ -139,16 +150,17 @@ class InfoMessage:
     return 'm' + str(p * side_to_move)
 
 class USIEngine:
-  def __init__(self, params: USIEngineSearchParameters):
+  def __init__(self, params: USIEngineSearchParameters, logfile: bool = False):
     self.params = params
     self._p = None
+    self._logfile = logfile
   def send(self, cmd):
-    logging.debug('SEND %s', cmd)
+    logging.debug('SEND[%s] %s', self.params.engine_short_name, cmd)
     self._p.stdin.write((cmd + '\n').encode('ascii'))
     self._p.stdin.flush()
   def recv(self) -> str:
     s = self._p.stdout.readline().decode('ascii').rstrip('\n')
-    logging.debug('RECV %s', s)
+    logging.debug('RECV[%s] %s', self.params.engine_short_name, s)
     return s
   def quit(self, timeout = 5.0):
     if self._p is None:
@@ -174,7 +186,10 @@ class USIEngine:
   def __enter__(self):
     params = self.params
     cwd = os.path.dirname(params._args[0])
-    self._p = subprocess.Popen(params._args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, cwd = cwd)
+    stderr = None
+    if self._logfile:
+      stderr = open(params._args[0] + '.log', 'w')
+    self._p = subprocess.Popen(params._args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, cwd = cwd, stderr = stderr)
     self.send('usi')
     a = []
     while True:
@@ -185,17 +200,21 @@ class USIEngine:
     options = {}
     for s in a:
       b = s.split()
-      if len(b) == 3 and b[0] == 'id' and b[1] == 'name':
-        params.set_engine_name(b[2])
+      if len(b) >= 3 and b[0] == 'id' and b[1] == 'name':
+        params.set_engine_name(b[2:])
       elif (len(b) >= 3) and (b[0] == 'option'):
         o = USIEngineOption(b)
         options[o.name] = o
+    #p = options.get('USI_Hash')
+    #if p is None:
+    #  options['USI_Hash'] = USIEngineOption('USI_Hash type spin default 256 min 1 max 33554432'.split())
     for name, value in chain([('USI_Hash', params.hash_size), ('Threads', params.threads)], params.extra_options.items()):
       p = options.get(name)
       if p is None:
-        logging.warning("Skipping unknown USI option '%s'", name)
-        continue
-      if not p.check_value(value):
+        if not name.startswith('USI_'):
+          logging.warning("Skipping unknown USI option '%s'", name)
+          continue
+      elif not p.check_value(value):
         log.raise_value_error(f"Illegal value '{value}' for USI option '{name}'")
       cmd = f'setoption name {name}'
       if not value is None:
@@ -277,6 +296,7 @@ def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, go
   c = {}
   while True:
     sfen = g.pos.sfen(move_no = False)
+    logging.debug('%s', sfen)
     i = c.get(sfen, 0)
     if i >= 3:
       g.set_result('千日手')
