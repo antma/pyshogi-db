@@ -22,6 +22,7 @@ _MATE_SCORE_I16 = 32000
 
 class USIEngineOption:
   def __init__(self, a: list[str]):
+    logging.debug('Parsing option: %s', ' '.join(a))
     it = iter(a)
     if next(it) != 'option':
       log.raise_value_error("Expected 'option'")
@@ -38,7 +39,12 @@ class USIEngineOption:
       return
     if next(it) != 'default':
       log.raise_value_error("Expected 'default'")
-    self.default = next(it)
+    try:
+      self.default = next(it)
+    except StopIteration:
+      if self.type != 'string':
+        log.raise_value_error("Empty default allowed only for string option type")
+      return
     if self.type != 'spin':
       return
     self.default = int(self.default)
@@ -53,6 +59,8 @@ class USIEngineOption:
       return self.min <= value <= self.max
     if self.type == 'filename':
       return isinstance(value, str) and os.path.lexists(value)
+    if self.type == 'string':
+      return isinstance(value, str)
     if self.type == 'button':
       return value is None
     if self.type == 'check':
@@ -77,9 +85,14 @@ class USIEngineSearchParameters:
     self.hash_size = hash_size
     self.threads = threads
     self.extra_options = extra_options
-  def set_engine_name(self, engine_name):
-    logging.info('Engine %s', engine_name)
-    self.engine_name = ' '.join(engine_name)
+  def set_engine_name(self, engine_name, suffix_name):
+    if not suffix_name is None:
+      e = engine_name[:]
+      e.append(suffix_name)
+    else:
+      e = engine_name
+    logging.info('Engine %s', e)
+    self.engine_name = ' '.join(e)
     self.engine_short_name = _short_name(self.engine_name)
 
 def _info_message_parse(message: str) -> dict:
@@ -150,10 +163,11 @@ class InfoMessage:
     return 'm' + str(p * side_to_move)
 
 class USIEngine:
-  def __init__(self, params: USIEngineSearchParameters, logfile: bool = False):
+  def __init__(self, params: USIEngineSearchParameters, suffix_name: Optional[str] = None, logfile: bool = False):
     self.params = params
     self._p = None
     self._logfile = logfile
+    self._suffix_name = suffix_name
   def send(self, cmd):
     logging.debug('SEND[%s] %s', self.params.engine_short_name, cmd)
     self._p.stdin.write((cmd + '\n').encode('ascii'))
@@ -172,7 +186,10 @@ class USIEngine:
     except subprocess.TimeoutExpired:
       self._p.terminate()
     return False
-  def ping(self) -> list[str]:
+  def ping(self, weak: bool = True) -> list[str]:
+    if weak and self.params.engine_short_name == 'YaneuraOu':
+      logging.debug('Skip sending ping to YaneuraOu (it clears hash)')
+      return
     t = time.time()
     self.send('isready')
     a = []
@@ -201,7 +218,7 @@ class USIEngine:
     for s in a:
       b = s.split()
       if len(b) >= 3 and b[0] == 'id' and b[1] == 'name':
-        params.set_engine_name(b[2:])
+        params.set_engine_name(b[2:], self._suffix_name)
       elif (len(b) >= 3) and (b[0] == 'option'):
         o = USIEngineOption(b)
         options[o.name] = o
@@ -228,7 +245,7 @@ class USIEngine:
       self._p = None
   def new_game(self):
     self.send('usinewgame')
-    self.ping()
+    self.ping(False)
   def analyse_position(self, start_position_sfen: Optional[str], usi_moves: Optional[list[str]]):
     s = 'position '
     if start_position_sfen is None:
@@ -240,8 +257,8 @@ class USIEngine:
       for m in usi_moves:
         s += ' ' + m
     self.send(s)
-    self.ping()
-    self.send(f'go byoyomi {self.params.time_ms}')
+    self.ping(True)
+    self.send(f'go wtime 0 btime 0 byoyomi {self.params.time_ms}')
     infos = []
     bestmove = None
     while True:
