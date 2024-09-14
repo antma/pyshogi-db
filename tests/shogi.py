@@ -1,6 +1,9 @@
 # -*- coding: UTF8 -*-
+import csv
+import gzip
 import inspect
 import logging
+import math
 import os
 import unittest
 
@@ -186,6 +189,20 @@ class TestKifu(unittest.TestCase):
     self.assertEqual(str(tc), s)
     tc = shogi.kifu.parse_time_control(s)
     self.assertEqual(str(tc), s)
+
+class TestEvaluation(unittest.TestCase):
+  def test_winning_percentage(self):
+    with gzip.open(os.path.join(MODULE_DIR, 'eval.csv.gz'), 'rt', encoding = 'UTF8') as f:
+      r = csv.reader(f, delimiter='\t')
+      for i, t in enumerate(r):
+        score = float(t[1])
+        win_rate = shogi.evaluation.win_rate(score) * 100.0
+        if win_rate > 50.0:
+          e = math.floor(win_rate)
+        else:
+          e = math.ceil(win_rate)
+        e = round(shogi.evaluation.winning_percentage(score))
+        self.assertEqual(e, int(t[0]), msg = f'test #{i+1}: win_rate({score}) = {win_rate}')
 
 if __name__ == '__main__':
   unittest.main()
