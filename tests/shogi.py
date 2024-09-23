@@ -78,6 +78,42 @@ USI_GAMES = [
  'l1k5l/r2P5/1S3p1p1/pp2+SsN1p/2P1P1PP1/PP6P/Kg+n2P3/LG1G3+b1/3b4L b RPgs2n3p 127'),
 ]
 
+POSITIONS_IN_KIFU = [
+  ('ln5n1/5g1k1/3p1p1p1/p4bp1p/1pPsB2P1/4s1P1P/PP5N1/2GG2+rsK/LN6L b GSL3Pr2p 113',
+'''後手の持駒：飛 歩二
+  ９ ８ ７ ６ ５ ４ ３ ２ １
++---------------------------+
+|v香v桂 ・ ・ ・ ・ ・v桂 ・|一
+| ・ ・ ・ ・ ・v金 ・v玉 ・|二
+| ・ ・ ・v歩 ・v歩 ・v歩 ・|三
+|v歩 ・ ・ ・ ・v角v歩 ・v歩|四
+| ・v歩 歩v銀 角 ・ ・ 歩 ・|五
+| ・ ・ ・ ・v銀 ・ 歩 ・ 歩|六
+| 歩 歩 ・ ・ ・ ・ ・ 桂 ・|七
+| ・ ・ 金 金 ・ ・v龍v銀 玉|八
+| 香 桂 ・ ・ ・ ・ ・ ・ 香|九
++---------------------------+
+先手の持駒：金 銀 香 歩三
+'''),
+  ('1n7/R3l4/kpp2s3/1N3p3/6p2/l1PP+BP2p/pPS1PSP2/1K7/LN1G2GN1 w 2G5Prbslp 98',
+'''後手の持駒：飛 角 銀 香 歩
+  ９ ８ ７ ６ ５ ４ ３ ２ １
++---------------------------+
+| ・v桂 ・ ・ ・ ・ ・ ・ ・|一
+| 飛 ・ ・ ・v香 ・ ・ ・ ・|二
+|v玉v歩v歩 ・ ・v銀 ・ ・ ・|三
+| ・ 桂 ・ ・ ・v歩 ・ ・ ・|四
+| ・ ・ ・ ・ ・ ・v歩 ・ ・|五
+|v香 ・ 歩 歩 馬 歩 ・ ・v歩|六
+|v歩 歩 銀 ・ 歩 銀 歩 ・ ・|七
+| ・ 玉 ・ ・ ・ ・ ・ ・ ・|八
+| 香 桂 ・ 金 ・ ・ 金 桂 ・|九
++---------------------------+
+先手の持駒：金二 歩五
+後手番
+''')
+]
+
 class TestShogiPiece(unittest.TestCase):
   def test_to_string(self):
     self.assertEqual(shogi.piece.to_string(shogi.piece.DRAGON), '+R')
@@ -189,6 +225,10 @@ class TestKifu(unittest.TestCase):
     self.assertEqual(str(tc), s)
     tc = shogi.kifu.parse_time_control(s)
     self.assertEqual(str(tc), s)
+  def test_position_kifu_str(self):
+    for sfen, kifu in POSITIONS_IN_KIFU:
+      pos = Position(sfen)
+      self.assertEqual(pos.kifu_str(), kifu)
 
 class TestEvaluation(unittest.TestCase):
   def test_winning_percentage(self):

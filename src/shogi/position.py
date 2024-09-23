@@ -320,3 +320,44 @@ class Position:
     if not drop:
       to_piece = piece.promote(from_piece) if promotion else from_piece
     return Move(from_piece, from_cell, to_piece, to_cell)
+  def _kifu_pockets(self, side: int) -> str:
+    r, c = ('先', self.sente_pieces) if side > 0 else ('後', self.gote_pieces)
+    r += '手の持駒：'
+    s = ''
+    for i in reversed(range(piece.ROOK)):
+      k = c[i]
+      if k > 0:
+        if s != '':
+          s += ' '
+        s += piece.KIFU_PIECES[i]
+        u, v = divmod(k, 10)
+        if u > 0:
+          s += '十'
+        if v > 1:
+          s += cell.KIFU_ROWS[v-1]
+    if s == '':
+      s = 'なし'
+    return r + s + '\n'
+  def kifu_str(self):
+    r = self._kifu_pockets(-1)
+    hline = '+---------------------------+\n'
+    r += "  ９ ８ ７ ６ ５ ４ ３ ２ １\n"
+    r += hline
+    for i, n in enumerate(cell.KIFU_ROWS):
+      o = 9 * i
+      t = '|'
+      for j in reversed(range(9)):
+        v = self.board[o + j]
+        if v < 0:
+          v = -v
+          t += 'v'
+        else:
+          t += ' '
+        t += '・' if v == 0 else piece.KIFU_PIECES[v-1]
+      t += '|' + n + '\n'
+      r += t
+    r += hline
+    r += self._kifu_pockets(1)
+    if self.side_to_move < 0:
+      r += '後手番\n'
+    return r
