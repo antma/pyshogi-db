@@ -182,6 +182,8 @@ class Position:
       if sente_c[p-1] + gote_c[p-1] != 2:
         name = piece.ASCII_LONG_NAMES[p]
         log.raise_value_error(f'Position.__init__(sfen: {sfen}) illegal number of {name}s')
+    if not self.is_legal():
+      log.raise_value_error(f'Position.__init__(sfen: {sfen}) king under check')
   def sfen(self, move_no = True) -> str:
     s = ''
     for row in range(9):
