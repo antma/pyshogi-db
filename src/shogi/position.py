@@ -159,6 +159,29 @@ class Position:
           log.raise_value_error(f'Position.__init__(sfen: {sfen}) piece in hand should be alphabetic')
       if t != 0:
         log.raise_value_error(f'Position.__init__(sfen: {sfen}) after number in hand should be alphabetic character')
+    sente_c = self.sente_pieces[:]
+    sente_c.append(0)
+    gote_c = self.gote_pieces[:]
+    gote_c.append(0)
+    for p in self.board:
+      if p > 0:
+        sente_c[piece.unpromote(p) - 1] += 1
+      elif p < 0:
+        gote_c[piece.unpromote(-p) - 1] += 1
+    if sente_c[piece.KING-1] != 1:
+      log.raise_value_error(f'Position.__init__(sfen: {sfen}) illegal number of sente king')
+    if gote_c[piece.KING-1] != 1:
+      log.raise_value_error(f'Position.__init__(sfen: {sfen}) illegal number of gote king')
+    if sente_c[piece.PAWN-1] + gote_c[piece.PAWN-1] != 18:
+      log.raise_value_error(f'Position.__init__(sfen: {sfen}) illegal number of pawns')
+    for p in [piece.LANCE, piece.KNIGHT, piece.SILVER, piece.GOLD]:
+      if sente_c[p-1] + gote_c[p-1] != 4:
+        name = piece.ASCII_LONG_NAMES[p]
+        log.raise_value_error(f'Position.__init__(sfen: {sfen}) illegal number of {name}s')
+    for p in [piece.BISHOP, piece.ROOK]:
+      if sente_c[p-1] + gote_c[p-1] != 2:
+        name = piece.ASCII_LONG_NAMES[p]
+        log.raise_value_error(f'Position.__init__(sfen: {sfen}) illegal number of {name}s')
   def sfen(self, move_no = True) -> str:
     s = ''
     for row in range(9):
