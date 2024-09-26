@@ -258,7 +258,7 @@ _HEADER_JP_D = {
   '後手': 'gote'
 }
 
-_HEADER_WRITE_ORDER_L = ['start_date', 'location', 'time_control', 'handicap', 'sente', 'gote']
+_HEADER_WRITE_ORDER_L = ['start_sfen', 'start_date', 'location', 'time_control', 'handicap', 'sente', 'gote']
 _HEADER_EN_D = dict((t[1], t[0]) for t in _HEADER_JP_D.items())
 _SIDE_S = set(['sente', 'gote'])
 
@@ -382,9 +382,12 @@ class KifuOutputFile:
     for key in _HEADER_WRITE_ORDER_L:
       p = h.get(key)
       if not p is None:
-        if not isinstance(p, str):
-          p = str(p)
-        self.write(_HEADER_EN_D[key] + '：' + str(p) + '\n')
+        if key == 'start_sfen':
+          self.write(position.Position(p).kifu_str())
+        else:
+          if not isinstance(p, str):
+            p = str(p)
+          self.write(_HEADER_EN_D[key] + '：' + str(p) + '\n')
     self.write(_HEADER_MOVES_SEPARATOR + '\n')
   def write_moves(self, moves: list[move.Move]):
     prev = None

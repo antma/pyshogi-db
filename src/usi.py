@@ -280,9 +280,10 @@ class USIEngine:
     return (None, bestmove)
 
 class _USIGame:
-  def __init__(self):
+  def __init__(self, start_sfen: Optional[str]):
+    self.start_sfen = start_sfen
     self.usi_moves = []
-    self.pos = Position()
+    self.pos = Position(start_sfen)
     self.parsed_moves = []
     self.game_result = None
   def do_usi_move(self, s: str):
@@ -294,7 +295,7 @@ class _USIGame:
   def set_result(self, jp: str):
     self.game_result = kifu.game_result_by_jp(jp)
 
-def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, gote_engine: USIEngine, opening: openings.Opening, update_pos_callback = None, test_pv: bool = True) -> kifu.Game:
+def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, gote_engine: USIEngine, start_sfen: Optional[str], usi_moves: Optional[str], test_pv: bool = True):
   if sente_engine.params.time_ms != gote_engine.params.time_ms:
     log.raise_value_error('Engines have different thinking move settings')
   s = sente_engine.params.time_ms // 1000
@@ -304,12 +305,15 @@ def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, go
     'start_date': datetime.today(),
     'time_control': kifu.TimeControl(0, s),
   }
+  if not start_sfen is None:
+    h['start_sfen'] = start_sfen
   output_kifu_file.write_headers(h)
   sente_engine.new_game()
   gote_engine.new_game()
-  g = _USIGame()
-  for s in opening.usi_moves.split():
-    g.do_usi_move(s)
+  g = _USIGame(start_sfen)
+  if not usi_moves is None:
+    for s in usi_moves.split():
+      g.do_usi_move(s)
   c = {}
   while True:
     sfen = g.pos.sfen(move_no = False)
@@ -320,7 +324,7 @@ def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, go
       break
     c[sfen] = i + 1
     e = sente_engine if g.pos.side_to_move > 0 else gote_engine
-    info, best_move = e.analyse_position(None, g.usi_moves)
+    info, best_move = e.analyse_position(g.start_sfen, g.usi_moves)
     if best_move == 'resign':
       g.set_result('投了')
       break
@@ -331,8 +335,6 @@ def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, go
         assert m.usi_str() == s
         q.do_move(m)
     g.do_usi_move(best_move)
-    if not update_pos_callback is None:
-      update_pos_callback(g.pos)
   output_kifu_file.write_moves(g.parsed_moves)
   if not g.game_result is None:
     logging.info('%s', g.game_result.result)
