@@ -5,7 +5,9 @@ from itertools import chain
 import json
 import logging
 import os
+from queue import Queue, Empty
 import subprocess
+from threading import Thread
 import time
 from typing import Optional
 
@@ -162,6 +164,14 @@ class InfoMessage:
     p = self._d['score.mate']
     return 'm' + str(p * side_to_move)
 
+def enqueue_output(engine):
+  try:
+    for line in engine._p.stdout:
+      engine._queue.put(line.decode('ascii').rstrip('\n'))
+    engine._queue.put(0)
+  except IOError as e:
+    engine._queue.put(e.errno)
+
 class USIEngine:
   def __init__(self, params: USIEngineSearchParameters, suffix_name: Optional[str] = None, logfile: bool = False):
     self.params = params
@@ -173,9 +183,20 @@ class USIEngine:
     self._p.stdin.write((cmd + '\n').encode('ascii'))
     self._p.stdin.flush()
   def recv(self) -> str:
-    s = self._p.stdout.readline().decode('ascii').rstrip('\n')
+    s = self._queue.get()
+    if isinstance(s, int):
+      s = os.strerror(s)
     logging.debug('RECV[%s] %s', self.params.engine_short_name, s)
     return s
+  def recv_nowait(self) -> Optional[str]:
+    try:
+      s = self._queue.get_nowait()
+      if isinstance(s, int):
+        s = os.strerror(s)
+      logging.debug('RECV_NW[%s] %s', self.params.engine_short_name, s)
+      return s
+    except Empty:
+      return None
   def quit(self, timeout = 5.0):
     if self._p is None:
       return None
@@ -206,7 +227,11 @@ class USIEngine:
     stderr = None
     if self._logfile:
       stderr = open(params._args[0] + '.log', 'w')
+    self._queue = Queue()
     self._p = subprocess.Popen(params._args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, cwd = cwd, stderr = stderr)
+    self._thread = Thread(target = enqueue_output, args = (self, ))
+    self._thread.daemon = True
+    self._thread.start()
     self.send('usi')
     a = []
     while True:
@@ -242,6 +267,8 @@ class USIEngine:
   def __exit__(self, exl_type, exc_value, traceback):
     if not self._p is None:
       self.quit()
+      self._thread.join()
+      self._thread = None
       self._p = None
   def new_game(self):
     self.send('usinewgame')
