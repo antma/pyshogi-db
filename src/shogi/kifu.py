@@ -193,7 +193,7 @@ def player_with_rating_from_dict(d: dict, side:int) -> Optional[str]:
   player = d.get(name)
   if player is None:
     return None
-  rating = self.get_header_value(name + '_rating')
+  rating = d.get(name + '_rating')
   if rating is None:
     return player
   return f'{player}({rating})'
