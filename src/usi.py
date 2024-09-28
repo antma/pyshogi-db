@@ -12,7 +12,7 @@ import time
 from typing import Optional
 
 import log
-from shogi import kifu, openings
+from shogi import kifu
 from shogi.position import Position
 
 _INFO_BOUND_L = ['lowerbound', 'upperbound']
@@ -165,12 +165,7 @@ class InfoMessage:
     return 'm' + str(p * side_to_move)
 
 def enqueue_output(engine):
-  try:
-    for line in engine._p.stdout:
-      engine._queue.put(line.decode('ascii').rstrip('\n'))
-    engine._queue.put(0)
-  except IOError as e:
-    engine._queue.put(e.errno)
+  engine.enqueue_output()
 
 class USIEngine:
   def __init__(self, params: USIEngineSearchParameters, suffix_name: Optional[str] = None, logfile: bool = False):
@@ -178,6 +173,15 @@ class USIEngine:
     self._p = None
     self._logfile = logfile
     self._suffix_name = suffix_name
+    self._thread = None
+    self._queue = None
+  def enqueue_output(self):
+    try:
+      for line in self._p.stdout:
+        self._queue.put(line.decode('ascii').rstrip('\n'))
+      self._queue.put(0)
+    except IOError as e:
+      self._queue.put(e.errno)
   def send(self, cmd):
     logging.debug('SEND[%s] %s', self.params.engine_short_name, cmd)
     self._p.stdin.write((cmd + '\n').encode('ascii'))
@@ -210,7 +214,7 @@ class USIEngine:
   def ping(self, weak: bool = True) -> list[str]:
     if weak and self.params.engine_short_name == 'YaneuraOu':
       logging.debug('Skip sending ping to YaneuraOu (it clears hash)')
-      return
+      return []
     t = time.time()
     self.send('isready')
     a = []
@@ -226,7 +230,7 @@ class USIEngine:
     cwd = os.path.dirname(params._args[0])
     stderr = None
     if self._logfile:
-      stderr = open(params._args[0] + '.log', 'w')
+      stderr = open(params._args[0] + '.log', 'w', encoding = 'UTF8')
     self._queue = Queue()
     self._p = subprocess.Popen(params._args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, cwd = cwd, stderr = stderr)
     self._thread = Thread(target = enqueue_output, args = (self, ))
