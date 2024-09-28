@@ -14,6 +14,7 @@ from typing import Optional
 import log
 from shogi import kifu
 from shogi.position import Position
+from shogi.result import GameResult
 
 _INFO_BOUND_L = ['lowerbound', 'upperbound']
 _INFO_SCORE_L = ['score.' + s for s in ['cp', 'mate']]
@@ -323,8 +324,8 @@ class _USIGame:
     assert m.usi_str() == s
     self.parsed_moves.append(m)
     self.pos.do_move(m)
-  def set_result(self, jp: str):
-    self.game_result = kifu.game_result_by_jp(jp)
+  def set_result(self, game_result: GameResult):
+    self.game_result = game_result
 
 def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, gote_engine: USIEngine, start_sfen: Optional[str], usi_moves: Optional[str], test_pv: bool = True):
   if sente_engine.params.time_ms != gote_engine.params.time_ms:
@@ -351,13 +352,13 @@ def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, go
     logging.debug('%s', sfen)
     i = c.get(sfen, 0)
     if i >= 3:
-      g.set_result('千日手')
+      g.set_result(GameResult.REPETITION)
       break
     c[sfen] = i + 1
     e = sente_engine if g.pos.side_to_move > 0 else gote_engine
     info, best_move = e.analyse_position(g.start_sfen, g.usi_moves)
     if best_move == 'resign':
-      g.set_result('投了')
+      g.set_result(GameResult.RESIGNATION)
       break
     if test_pv:
       q = Position(g.pos.sfen())

@@ -11,36 +11,15 @@ from . import cell
 from . import move
 from . import piece
 from . import position
+from . import result
 
 from ._misc import iter_is_empty
 
 _HEADER_MOVES_SEPARATOR = '手数----指手---------消費時間--'
-_RESULT_D = {
-  '中断': ('Aborted', None, 'Game was aborted.'),
-  '投了': ('Resignation', -1, 'The player whose turn it was, is the one who resigned. Time that it took the player to resign can also be noted.'),
-  '千日手': ('Repetition', 0, 'Four-fold repetition.'),
-  '詰み': ('Checkmate', -1, 'Checkmate or stalemate. The player whose turn it was, is the one who is checkmated.'),
-  '切れ負け': ('Time', -1, 'Losing on time. The player whose turn it was, is the one who ran out of time. Some sites use "Time-up" instead.'),
-  '反則勝ち': ('IllegalPrecedingMove', 1, 'Indicates that the immediately preceding move was illegal.'),
-  '反則負け': ('IllegalMove', -1, 'Indicates that the player whose turn this was supposed to be somehow lost by illegality.'),
-  '入玉勝ち': ('EnteringKing', 1, 'Indicates that the player whose it was, declared win by entering king.')
-}
 
 _REGEXP_MOVE_TIME = re.compile(r'(\d+):(\d+)')
 _REGEXP_CUM_MOVE_TIME = re.compile(r'(\d+):(\d+):(\d+)')
 _REGEXP_TIME_CONTROL = re.compile(r'(\d+)分?[+](\d+)秒?')
-
-class GameResult:
-  def __init__(self, p, jp: str):
-    result, side_to_move_points, description = p
-    logging.debug('GameResult.__init__(): result = %s, description = %s', result, description)
-    self.result = result
-    self.side_to_move_points = side_to_move_points
-    self.description = description
-    self.jp = jp
-
-def game_result_by_jp(jp: str) -> GameResult:
-  return GameResult(_RESULT_D[jp], jp)
 
 def _create_kifu_dict(s, offset = 0):
   return dict(map(lambda t: (t[1], t[0] + offset), filter(lambda t: t[1] != '?', enumerate(s))))
@@ -199,13 +178,13 @@ def player_with_rating_from_dict(d: dict, side:int) -> Optional[str]:
   return f'{player}({rating})'
 
 class Game:
-  def __init__(self, kifu_version, headers, moves, parsed_moves, result, comments, last_legal_sfen):
+  def __init__(self, kifu_version, headers, moves, parsed_moves, game_result, comments, last_legal_sfen):
     logging.debug('KIFU headers = %s', headers)
     self.kifu_version = kifu_version
     self.headers = headers
     self.moves = moves
     self.parsed_moves = parsed_moves
-    self.result = result
+    self.result = game_result
     self.comments = comments
     self.last_legal_sfen = last_legal_sfen
   @staticmethod
@@ -222,7 +201,7 @@ class Game:
   def get_row_values_from_headers(self, keys):
     return [self.headers.get(key) for key in keys]
   def sente_points(self) -> Optional[int]:
-    p = self.result.side_to_move_points
+    p = result.side_to_move_points(self.result)
     if p is None:
       return None
     if (len(self.parsed_moves) % 2) != 0:
@@ -326,12 +305,12 @@ def _game_parse(game: str) -> Optional[Game]:
       if location_81dojo:
         if s == '*時間切れにて終局':
           #time over
-          game_result = game_result_by_jp('切れ負け')
+          game_result = result.GameResult.TIME
           break
         if s == '*反則手にて終局':
           if (not illegal_move_idx is None) and (ignored_moves == 0):
             #illegal previous move
-            game_result = game_result_by_jp('反則勝ち')
+            game_result = result.GameResult.ILLEGAL_PRECEDING_MOVE
             break
       continue
     t = str(i+1)
@@ -341,10 +320,8 @@ def _game_parse(game: str) -> Optional[Game]:
     km = KifuMove(a)
     moves.append(km)
     logging.debug('Move %s', km.kifu)
-    p = _RESULT_D.get(km.kifu)
-    if not p is None:
-      logging.debug('Result %s', p)
-      game_result = GameResult(p, km.kifu)
+    game_result = result.game_result_by_jp(km.kifu)
+    if not game_result is None:
       break
     mv = km.parse(side_to_move, prev_move)
     if mv is None:
@@ -396,8 +373,8 @@ class KifuOutputFile:
       self.move_no += 1
       self.write(str(self.move_no) + ' ' + m.kifu_str(prev) + '\n')
       prev = m
-  def write_result(self, r: Optional[GameResult]):
+  def write_result(self, r: Optional[result.GameResult]):
     if r is None:
       return
     self.move_no += 1
-    self.write(str(self.move_no) + ' ' + r.jp + '\n')
+    self.write(str(self.move_no) + ' ' + result.japan_str(r) + '\n')
