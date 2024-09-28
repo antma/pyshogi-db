@@ -24,6 +24,7 @@ _ATTACK_UP_NEAR_S = set(itertools.chain(_ATTACK_UP_FAR_S, _GENERAL_L, [piece.PAW
 _ATTACK_DIAG_UP_NEAR_S = set(itertools.chain(_BISHOP_L, _GENERAL_L))
 _ATTACK_ROOK_NEAR_S = set(itertools.chain(_ROOK_L, _GOLD_L))
 _ATTACK_BISHOP_NEAR_S = set(itertools.chain(_BISHOP_L, [piece.SILVER]))
+_FIVE_POINTS_S = set(itertools.chain(_BISHOP_L, _ROOK_L))
 
 del _GOLD_L
 del _ROOK_L
@@ -386,3 +387,24 @@ class Position:
     if self.side_to_move < 0:
       r += '後手番\n'
     return r
+  def fesa_impasse_points(self) -> bool:
+    s = self.side_to_move
+    king_in_zone, pieces_in_zone, points = False, 0, 0
+    for p in self.board[0:27] if s > 0 else self.board[54:]:
+      if p * s <= 0:
+        continue
+      p = abs(p)
+      if p == piece.KING:
+        king_in_zone = True
+      else:
+        pieces_in_zone += 1
+        points += 5 if p in _FIVE_POINTS_S else 1
+    if (not king_in_zone) or (pieces_in_zone < 10):
+      return False
+    for i, v in enumerate(self.sente_pieces if s > 0 else self.gote_pieces):
+      if v == 0:
+        continue
+      p = i + 1
+      points += (5 if p in _FIVE_POINTS_S else 1) * v
+    threshold = 28 if s > 0 else 27
+    return points >= threshold
