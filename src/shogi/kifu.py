@@ -230,6 +230,7 @@ def _strip_comment(t):
 
 _HEADER_JP_D = {
   '開始日時': 'start_date',
+  '終了日時': 'end_date',
   '場所': 'location',
   '持ち時間': 'time_control',
   '手合割': 'handicap',
@@ -237,7 +238,7 @@ _HEADER_JP_D = {
   '後手': 'gote'
 }
 
-_HEADER_WRITE_ORDER_L = ['start_sfen', 'start_date', 'location', 'time_control', 'handicap', 'sente', 'gote']
+_HEADER_WRITE_ORDER_L = ['start_sfen', 'start_date', 'end_date', 'location', 'time_control', 'handicap', 'sente', 'gote']
 _HEADER_EN_D = dict((t[1], t[0]) for t in _HEADER_JP_D.items())
 _SIDE_S = set(['sente', 'gote'])
 
@@ -273,7 +274,7 @@ def _game_parse(game: str) -> Optional[Game]:
     if not key is None:
       if key in _SIDE_S:
         _parse_player_name(d, value, key)
-      elif key == 'start_date':
+      elif key.endswith('_date'):
         year, month, day = value.split('/')
         if year.isdigit() and month.isdigit() and day.isdigit():
           d[key] = datetime.date(int(year), int(month), int(day))
