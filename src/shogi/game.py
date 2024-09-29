@@ -45,8 +45,9 @@ class Game:
       self.set_result(GameResult.RESIGNATION)
       return
     m = self.pos.parse_usi_move(usi_move)
-    u = self.pos.do_move(m)
-    if u is None:
+    try:
+      self.pos.do_move(m)
+    except IllegalMove:
       self.set_result(GameResult.ILLEGAL_MOVE)
       return
     self.moves.append(m)
