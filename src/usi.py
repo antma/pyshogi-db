@@ -181,27 +181,27 @@ class USIEngine:
   def enqueue_output(self):
     try:
       for line in self._p.stdout:
-        self._queue.put(line.decode('ascii').rstrip('\n'))
-      self._queue.put(0)
+        self._queue.put((line.decode('ascii').rstrip('\n'), time.time()))
+      self._queue.put((0, time.time()))
     except IOError as e:
       self._queue.put(e.errno)
   def send(self, cmd):
     logging.debug('SEND[%s] %s', self.params.engine_short_name, cmd)
     self._p.stdin.write((cmd + '\n').encode('ascii'))
     self._p.stdin.flush()
-  def recv(self) -> str:
-    s = self._queue.get()
+  def recv(self) -> tuple[str, float]:
+    s, t = self._queue.get()
     if isinstance(s, int):
       s = os.strerror(s)
     logging.debug('RECV[%s] %s', self.params.engine_short_name, s)
-    return s
-  def recv_nowait(self) -> Optional[str]:
+    return (s, t)
+  def recv_nowait(self) -> Optional[tuple[str, float]]:
     try:
-      s = self._queue.get_nowait()
+      s, t = self._queue.get_nowait()
       if isinstance(s, int):
         s = os.strerror(s)
       logging.debug('RECV_NW[%s] %s', self.params.engine_short_name, s)
-      return s
+      return (s, t)
     except Empty:
       return None
   def quit(self, timeout = 5.0):
@@ -222,7 +222,7 @@ class USIEngine:
     self.send('isready')
     a = []
     while True:
-      s = self.recv()
+      s, _ = self.recv()
       if s == 'readyok':
         break
       a.append(s)
@@ -242,7 +242,7 @@ class USIEngine:
     self.send('usi')
     a = []
     while True:
-      s = self.recv()
+      s, _ = self.recv()
       if s == 'usiok':
         break
       a.append(s)
@@ -296,7 +296,7 @@ class USIEngine:
     infos = []
     bestmove = None
     while True:
-      s = self.recv()
+      s, _ = self.recv()
       if s.startswith('info '):
         infos.append(s)
       elif s.startswith('bestmove '):
@@ -343,6 +343,7 @@ class USIGame:
   def is_complete(self):
     return self.state == self.STATE.COMPLETE
   def _on_complete(self):
+    self.state = self.STATE.COMPLETE
     if self._output_kifu_filename is None:
       return
     with kifu.KifuOutputFile(self._output_kifu_filename) as f:
@@ -350,6 +351,9 @@ class USIGame:
       f.write_headers(self._headers)
       f.write_moves(self.game.moves)
       f.write_result(self.game.game_result)
+  def _time_off(self):
+    self.game.set_result(GameResult.TIME)
+    self._on_complete()
   def step(self):
     if self.is_complete():
       return
@@ -358,17 +362,25 @@ class USIGame:
       s = e.params.time_ms
       e.send(self.game.usi_position_command())
       e.send(f'go btime {s} wtime {s} byoyomi {s}')
+      self._start_thinking_time = time.time()
       self.state = self.STATE.ENGINE_THINKING
+      self._last_info = None
       return
     assert self.state == self.STATE.ENGINE_THINKING
+    if time.time() - self._start_thinking_time > self._thinking_seconds + 1.0:
+      self._time_off()
+      return
     best_move = None
     while True:
-      line = e.recv_nowait()
-      if line is None:
+      p = e.recv_nowait()
+      if p is None:
         break
+      line, t = p
+      if t - self._start_thinking_time > self._thinking_seconds + 0.1:
+        self._time_off()
+        return
       if line.startswith('info '):
-        #TODO: handle info
-        pass
+        self._last_info = line
       elif line.startswith('bestmove '):
         a = line.split()
         assert a[0] == 'bestmove'
@@ -378,11 +390,12 @@ class USIGame:
         log.raise_value_error(f'Unknown engine line: {line}')
     if best_move is None:
       return
+    if isinstance(self._last_info, str):
+      im = InfoMessage(self._last_info)
     self.game.do_usi_move(best_move)
     if self.game.has_result():
       logging.debug('Result: %s', description(self.game.game_result))
       self._on_complete()
-      self.state = self.STATE.COMPLETE
     else:
       self.state = self.STATE.IDLE
   def run(self, sleep_ms: int):
