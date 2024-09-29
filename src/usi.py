@@ -1,6 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from datetime import datetime
+from enum import IntEnum
 from itertools import chain
 import json
 import logging
@@ -13,6 +14,7 @@ from typing import Optional
 
 import log
 from shogi import kifu
+from shogi.game import Game
 from shogi.position import Position
 from shogi.result import GameResult
 
@@ -311,6 +313,80 @@ class USIEngine:
       return (im, bestmove)
     return (None, bestmove)
 
+class USIGame:
+  '''for running game between two engine with tkinter (single threaded)'''
+  STATE = IntEnum('STATE', ['IDLE', 'ENGINE_THINKING', 'COMPLETE'])
+  def __init__(self, sente_engine: USIEngine, gote_engine: USIEngine, start_sfen: Optional[str], usi_moves: Optional[str], output_kifu_filename: Optional[str]):
+    if sente_engine.params.time_ms != gote_engine.params.time_ms:
+      log.raise_value_error('Engines have different thinking move settings')
+    self._sente_engine = sente_engine
+    self._gote_engine = gote_engine
+    self._output_kifu_filename = output_kifu_filename
+    self.game = Game(start_sfen)
+    if isinstance(usi_moves, str):
+      for s in usi_moves.split():
+        self.game.do_usi_move(s)
+    self._thinking_seconds = sente_engine.params.time_ms // 1000
+    self._headers = {
+      'sente': sente_engine.params.engine_name,
+      'gote': gote_engine.params.engine_name,
+      'start_date': datetime.today(),
+      'time_control': kifu.TimeControl(0, self._thinking_seconds),
+    }
+    if not start_sfen is None:
+      self._headers['start_sfen'] = start_sfen
+    sente_engine.new_game()
+    gote_engine.new_game()
+    self.state = self.STATE.IDLE
+  def _on_complete(self):
+    if self._output_kifu_filename is None:
+      return
+    with kifu.KifuOutputFile(self._output_kifu_filename) as f:
+      self._headers['end_date'] = datetime.today()
+      f.write_headers(self._headers)
+      f.write_moves(self.game.moves)
+      f.write_result(self.game.game_result)
+  def step(self):
+    if self.state == self.STATE.COMPLETE:
+      return
+    e = self._sente_engine if self.game.pos.side_to_move > 0 else self._gote_engine
+    if self.state == self.STATE.IDLE:
+      e.send(self.game.usi_position_command())
+      e.send(f'go wtime 0 btime 0 byoyomi {e.params.time_ms}')
+      self.state = self.STATE.ENGINE_THINKING
+      return
+    assert self.state == self.STATE.ENGINE_THINKING
+    best_move = None
+    while True:
+      line = e.recv_nowait()
+      if line is None:
+        break
+      if line.startswith('info '):
+        #TODO: handle info
+        pass
+      elif line.startswith('bestmove '):
+        a = line.split()
+        assert a[0] == 'bestmove'
+        best_move = a[1]
+        break
+      else:
+        log.raise_value_error(f'Unknown engine line: {line}')
+    if best_move is None:
+      return
+    self.game.do_usi_move(best_move)
+    if self.game.has_result():
+      self._on_complete()
+      self.state = self.STATE.COMPLETE
+    else:
+      self.state = self.STATE.IDLE
+  def run(self, sleep_ms: int):
+    '''run game in console'''
+    s = 0.001 * sleep_ms
+    while self.state != self.STATE.COMPLETE:
+      time.sleep(s)
+      self.step()
+
+#deprecated code
 class _USIGame:
   def __init__(self, start_sfen: Optional[str]):
     self.start_sfen = start_sfen
