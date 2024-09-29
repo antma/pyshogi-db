@@ -3,7 +3,7 @@
 from collections import defaultdict
 from typing import List, MutableMapping, Optional
 
-from .move import Move
+from .move import Move, IllegalMove
 from .position import Position
 from .result import GameResult
 
@@ -16,6 +16,10 @@ class Game:
   game_result: Optional[GameResult] = None
   def has_result(self) -> bool:
     return not self.game_result is None
+  def last_move(self) -> Optional[Move]:
+    if not self.moves:
+      return None
+    return self.moves[-1]
   def set_result(self, game_result: GameResult):
     if self.game_result is None:
       self.game_result = game_result

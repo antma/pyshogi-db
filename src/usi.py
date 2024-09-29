@@ -16,7 +16,7 @@ import log
 from shogi import kifu
 from shogi.game import Game
 from shogi.position import Position
-from shogi.result import GameResult
+from shogi.result import GameResult, description
 
 _INFO_BOUND_L = ['lowerbound', 'upperbound']
 _INFO_SCORE_L = ['score.' + s for s in ['cp', 'mate']]
@@ -338,6 +338,10 @@ class USIGame:
     sente_engine.new_game()
     gote_engine.new_game()
     self.state = self.STATE.IDLE
+  def is_idle(self):
+    return self.state == self.STATE.IDLE
+  def is_complete(self):
+    return self.state == self.STATE.COMPLETE
   def _on_complete(self):
     if self._output_kifu_filename is None:
       return
@@ -347,12 +351,13 @@ class USIGame:
       f.write_moves(self.game.moves)
       f.write_result(self.game.game_result)
   def step(self):
-    if self.state == self.STATE.COMPLETE:
+    if self.is_complete():
       return
     e = self._sente_engine if self.game.pos.side_to_move > 0 else self._gote_engine
     if self.state == self.STATE.IDLE:
+      s = e.params.time_ms
       e.send(self.game.usi_position_command())
-      e.send(f'go wtime 0 btime 0 byoyomi {e.params.time_ms}')
+      e.send(f'go btime {s} wtime {s} byoyomi {s}')
       self.state = self.STATE.ENGINE_THINKING
       return
     assert self.state == self.STATE.ENGINE_THINKING
@@ -375,6 +380,7 @@ class USIGame:
       return
     self.game.do_usi_move(best_move)
     if self.game.has_result():
+      logging.debug('Result: %s', description(self.game.game_result))
       self._on_complete()
       self.state = self.STATE.COMPLETE
     else:
