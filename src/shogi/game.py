@@ -1,19 +1,13 @@
 # -*- coding: UTF8 -*-
 
 from collections import defaultdict
-from typing import List, MutableMapping, Optional
+from typing import Optional
 
 from .move import Move, IllegalMove
 from .position import Position
 from .result import GameResult
 
 class Game:
-  moves: List[Move] = []
-  start_pos: Optional[str]
-  pos: Position
-  c: MutableMapping[str, List[int]]
-  checks: List[bool]
-  game_result: Optional[GameResult] = None
   def has_result(self) -> bool:
     return not self.game_result is None
   def last_move(self) -> Optional[Move]:
@@ -39,6 +33,8 @@ class Game:
       #https://lishogi.org/explanation/impasse
       self.set_result(GameResult.ENTERING_KING)
   def __init__(self, start_pos = None):
+    self.moves = []
+    self.game_result = None
     self.start_pos = start_pos
     self.pos = Position(start_pos)
     self.c = defaultdict(list)
