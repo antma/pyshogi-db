@@ -19,13 +19,13 @@ class Game:
       self.game_result = game_result
   def _insert_sfen(self):
     sfen = self.pos.sfen(move_no = False)
-    l = self.c[sfen]
-    l.append(len(self.checks))
+    l = self._repetitions_dict[sfen]
+    l.append(len(self._checks))
     check = self.pos.is_check()
-    self.checks.append(check)
+    self._checks.append(check)
     if len(l) >= 4:
       u, v = l[0], l[-1]
-      if check and all(self.checks[u:v:2]):
+      if check and all(self._checks[u:v:2]):
         self.set_result(GameResult.ILLEGAL_PRECEDING_MOVE)
       else:
         self.set_result(GameResult.REPETITION)
@@ -34,13 +34,17 @@ class Game:
       self.set_result(GameResult.ENTERING_KING)
   def __init__(self, start_pos = None):
     self.moves = []
+    self.comments = {}
     self.game_result = None
     self.start_pos = start_pos
     self.pos = Position(start_pos)
-    self.c = defaultdict(list)
-    self.checks = []
+    self._repetitions_dict = defaultdict(list)
+    self._checks = []
     self._insert_sfen()
-  def do_usi_move(self, usi_move: str):
+  def do_usi_move(self, usi_move: str, comment: Optional[str] = None):
+    if not comment is None:
+      move_no = len(self.moves)
+      self.comments[move_no] = comment
     if usi_move == 'resign':
       self.set_result(GameResult.RESIGNATION)
       return

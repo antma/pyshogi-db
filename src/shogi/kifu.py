@@ -4,7 +4,7 @@ from collections import defaultdict
 import datetime
 import logging
 import re
-from typing import (Optional, Tuple)
+from typing import Mapping, Optional, Tuple
 
 import log
 from . import cell
@@ -367,12 +367,15 @@ class KifuOutputFile:
             p = str(p)
           self.write(_HEADER_EN_D[key] + '：' + str(p) + '\n')
     self.write(_HEADER_MOVES_SEPARATOR + '\n')
-  def write_moves(self, moves: list[move.Move]):
+  def write_moves(self, moves: list[move.Move], comments: Mapping[int, str]):
     prev = None
     self.move_no = 0
-    for m in moves:
+    for i, m in enumerate(moves):
       self.move_no += 1
       self.write(str(self.move_no) + ' ' + m.kifu_str(prev) + '\n')
+      p = comments.get(i)
+      if not p is None:
+        self.write('* ' + p + '\n')
       prev = m
   def write_result(self, r: Optional[result.GameResult]):
     if r is None:

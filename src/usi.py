@@ -316,7 +316,7 @@ class USIEngine:
 class USIGame:
   '''for running game between two engine with tkinter (single threaded)'''
   STATE = IntEnum('STATE', ['IDLE', 'ENGINE_THINKING', 'COMPLETE'])
-  def __init__(self, sente_engine: USIEngine, gote_engine: USIEngine, start_sfen: Optional[str], usi_moves: Optional[str], output_kifu_filename: Optional[str]):
+  def __init__(self, sente_engine: USIEngine, gote_engine: USIEngine, start_sfen: Optional[str], usi_moves: Optional[str], output_kifu_filename: Optional[str], resign_score: Optional[int]):
     if sente_engine.params.time_ms != gote_engine.params.time_ms:
       log.raise_value_error('Engines have different thinking move settings')
     self._sente_engine = sente_engine
@@ -338,6 +338,7 @@ class USIGame:
     sente_engine.new_game()
     gote_engine.new_game()
     self.state = self.STATE.IDLE
+    self._resign_score = resign_score
   def is_idle(self):
     return self.state == self.STATE.IDLE
   def is_complete(self):
@@ -349,8 +350,9 @@ class USIGame:
     with kifu.KifuOutputFile(self._output_kifu_filename) as f:
       self._headers['end_date'] = datetime.today()
       f.write_headers(self._headers)
-      f.write_moves(self.game.moves)
-      f.write_result(self.game.game_result)
+      game = self.game
+      f.write_moves(game.moves, game.comments)
+      f.write_result(game.game_result)
   def _time_off(self):
     self.game.set_result(GameResult.TIME)
     self._on_complete()
@@ -390,9 +392,13 @@ class USIGame:
         log.raise_value_error(f'Unknown engine line: {line}')
     if best_move is None:
       return
-    if isinstance(self._last_info, str):
+    if isinstance(self._last_info, str) and (not self._resign_score is None):
       im = InfoMessage(self._last_info)
-    self.game.do_usi_move(best_move)
+      score = im.score_i16()
+      if score < self._resign_score:
+        logging.info('RESIGN[%s]: engine score %d is below resign score %d', self.params.engine_short_name, score, self._resign_score)
+        best_move = 'resign'
+    self.game.do_usi_move(best_move, self._last_info)
     if self.game.has_result():
       logging.debug('Result: %s', description(self.game.game_result))
       self._on_complete()
