@@ -7,6 +7,7 @@ from  tkinter import font
 from typing import Optional
 
 import kdb
+import shogi
 from shogi.kifu import Game
 from shogi.move import Move
 from shogi.position import Position
@@ -75,6 +76,10 @@ class TableMoves:
       t = (str(i + 1), m.kifu_str(prev), _timedelta_to_seconds_str(m.time), _timedelta_to_str(m.cum_time), s)
       self.table.insert_row(t, cw)
       prev = m
+    if not game.game_result is None:
+      t = (str(len(game.moves) + 1), shogi.result.japan_str(game.game_result), '', '', '')
+      self.table.insert_row(t, cw)
+
     self.table.adjust_columns_width(cw)
     self.table.tree.pack(side = tk.LEFT, anchor = tk.N + tk.E, expand = tk.YES, fill = tk.BOTH)
     self.table.tree.bind('<<TreeviewSelect>>', self._select_event)
