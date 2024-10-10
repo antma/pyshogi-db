@@ -11,10 +11,11 @@ from typing import (Optional, Tuple)
 
 from elo_rating import performance
 import shogi
+from shogi.game import Game
 from shogi.history import PositionWithHistory
 from shogi.move import Move
 from shogi.position import Position
-from shogi.kifu import Game, TimeControl, side_to_str
+from shogi.kifu import TimeControl, game_parse, side_to_str
 import usi
 
 def _insert(table, a):
@@ -212,13 +213,13 @@ class KifuDB:
     if not rowid is None:
       logging.info('KIFU file has been already inserted in DB (rowid = %d).', rowid)
       return False
-    g = Game.parse(data)
+    g = game_parse(data)
     if g is None:
       logging.warning("Can not parse KIFU file '%s'", os.path.basename(filename))
       return False
     data = lzma.compress(b)
     fields = ['sente', 'gote', 'start_date', 'sente_rating', 'gote_rating', 'time_control']
-    v = g.get_row_values_from_headers(fields)
+    v = g.get_row_values_from_tags(fields)
     tc = v.pop()
     if tc is None:
       tc = ''
@@ -237,7 +238,7 @@ class KifuDB:
     assert not rowid is None
     pos = shogi.position.Position()
     vals = []
-    for m in g.parsed_moves:
+    for m in g.moves:
       sfen = pos.sfen()
       try:
         pos.do_move(m)
@@ -391,7 +392,7 @@ ORDER BY b
     kifu = self.find_data_by_game_id(game_id)
     if kifu is None:
       return None
-    return Game.parse(kifu)
+    return game_parse(kifu)
   def make_player_and_tc_filter(self, game: Game) -> Optional[PlayerAndTimeControlFilter]:
     player = self.player_with_most_games()
     if player is None:
@@ -436,7 +437,7 @@ LIMIT 1'''
     engine.new_game()
     pos = PositionWithHistory()
     usi_moves = []
-    for m in game.parsed_moves:
+    for m in game.moves:
       usi_moves.append(m.usi_str())
       pos.do_move(m)
     while len(usi_moves) > 0:
@@ -478,7 +479,7 @@ LIMIT 1'''
   def load_game_analysis(self, game: Game):
     a = []
     pos = Position()
-    for m in game.parsed_moves:
+    for m in game.moves:
       pos.do_move(m)
       r = self._get_position_analysis(pos)
       if r is None:
