@@ -53,7 +53,7 @@ class Game:
     self._repetitions_dict = defaultdict(list)
     self._checks = []
     self._insert_sfen()
-  def set_move_comments(self, comment: List[str]):
+  def set_move_comments(self, comment: Optional[List[str]]):
     if comment:
       self.comments[len(self.moves)] = comment
   def do_move(self, m: Move):
@@ -64,7 +64,7 @@ class Game:
       return
     self.moves.append(m)
     self._insert_sfen()
-  def do_usi_move(self, usi_move: str, comment: List[str] = []):
+  def do_usi_move(self, usi_move: str, comment: Optional[List[str]] = None):
     self.set_move_comments(comment)
     if usi_move == 'resign':
       self.set_result(GameResult.RESIGNATION)
