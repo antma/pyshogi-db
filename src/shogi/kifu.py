@@ -1,6 +1,5 @@
 # -*- coding: UTF8 -*-
 
-from collections import defaultdict
 import datetime
 import logging
 import re
@@ -203,7 +202,7 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   p = _parse_key_value(a[1], '=')
   if (p is None) or (p[0] != 'version'):
     log.raise_value_error(f'Expected "version", but "{a[1]}" found')
-  version = p[1]
+  _version = p[1]
   p = _parse_key_value(a[2], '=')
   if (p is None) or (p[0] != 'encoding'):
     log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
