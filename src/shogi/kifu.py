@@ -163,68 +163,6 @@ def game_parse(s: str) -> Optional[Game]:
     logging.debug(repr(err))
     return None
 
-'''
-class KifuMove:
-  def __init__(self, a: list[str]):
-    self.kifu = a[1]
-    self.time = None
-    self.cum_time = None
-    if len(a) >= 3:
-      self.time, self.cum_time = _parse_move_times(a[2])
-  def parse(self, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
-    return _move_parse(self.kifu, side_to_move, last_move)
-
-def player_with_rating_from_dict(d: dict, side:int) -> Optional[str]:
-  name = side_to_str(side)
-  player = d.get(name)
-  if player is None:
-    return None
-  rating = d.get(name + '_rating')
-  if rating is None:
-    return player
-  return f'{player}({rating})'
-
-class Game:
-  def __init__(self, kifu_version, headers, moves, parsed_moves, game_result, comments, last_legal_sfen):
-    logging.debug('KIFU headers = %s', headers)
-    self.kifu_version = kifu_version
-    self.headers = headers
-    self.moves = moves
-    self.parsed_moves = parsed_moves
-    self.result = game_result
-    self.comments = comments
-    self.last_legal_sfen = last_legal_sfen
-  @staticmethod
-  def parse(s: str):
-    try:
-      return _game_parse(s)
-    except ValueError as err:
-      logging.debug(repr(err))
-      return None
-  def get_header_value(self, key: str):
-    return self.headers.get(key)
-  def player_with_rating(self, side: int) -> Optional[str]:
-    return player_with_rating_from_dict(self.headers, side)
-  def get_row_values_from_headers(self, keys):
-    return [self.headers.get(key) for key in keys]
-  def sente_points(self) -> Optional[int]:
-    p = result.side_to_move_points(self.result)
-    if p is None:
-      return None
-    if (len(self.parsed_moves) % 2) != 0:
-      p *= -1
-    return p
-  def text_result(self) -> Optional[int]:
-    p = self.sente_points()
-    if p is None:
-      return None
-    if p > 0:
-      return "1-0"
-    if p < 0:
-      return "0-1"
-    return "1/2"
-'''
-
 def _strip_comment(t):
   """Everything after '#' will be ignored by parsers."""
   line, s = t
@@ -270,7 +208,6 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   if (p is None) or (p[0] != 'encoding'):
     log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
   _encoding = p[1]
-  #d = {}
   while True:
     t = next(it)
     if t == _HEADER_MOVES_SEPARATOR:
@@ -304,7 +241,6 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   for s in it:
     if s.startswith('*'):
       comments.append(s[1:])
-      #comments[i].append(s)
       if location_81dojo:
         if s == '*時間切れにて終局':
           #time over
@@ -323,8 +259,6 @@ def _game_parse(game_kif: str) -> Optional[Game]:
     if (len(a) < 2) or (t != a[0]):
       break
     km = a[1]
-    #moves.append(km)
-    #logging.debug('Move %s', km.kifu)
     game_result = result.game_result_by_jp(km)
     if not game_result is None:
       game.set_result(game_result)
