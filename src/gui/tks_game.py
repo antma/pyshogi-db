@@ -47,9 +47,9 @@ class _Positions:
       pos = Position(self._sfens[i])
     cur_move = i
     for j in range(i, move_no):
-      if j >= len(self._game.parsed_moves):
+      if j >= len(self._game.moves):
         break
-      m = self._game.parsed_moves[j]
+      m = self._game.moves[j]
       pos.do_move(m)
       cur_move = j + 1
     self._sfens[cur_move] = pos.sfen()
@@ -65,14 +65,16 @@ class TableMoves:
     columns = ('move_no', 'kifu', 'time', 'cum_time', 'score')
     self.table = table.Table(parent, 'TableMoves', columns, view_font, tk.BROWSE)
     cw = self.table.make_columns_width()
+    prev = None
     for i, m in enumerate(game.moves):
       if (i > 0) and (i < len(game_window.analysis)):
         logging.debug("%s", game_window.analysis[i-1]._d)
         s = game_window.analysis[i-1].score_to_short_str(1 - (i % 2) * 2)
       else:
         s = ''
-      t = (str(i + 1), m.kifu, _timedelta_to_seconds_str(m.time), _timedelta_to_str(m.cum_time), s)
+      t = (str(i + 1), m.kifu_str(prev), _timedelta_to_seconds_str(m.time), _timedelta_to_str(m.cum_time), s)
       self.table.insert_row(t, cw)
+      prev = m
     self.table.adjust_columns_width(cw)
     self.table.tree.pack(side = tk.LEFT, anchor = tk.N + tk.E, expand = tk.YES, fill = tk.BOTH)
     self.table.tree.bind('<<TreeviewSelect>>', self._select_event)
@@ -88,7 +90,7 @@ class TableMoves:
     m = None
     if move_no > 0:
       try:
-        m = self._game_window.game.parsed_moves[move_no - 1]
+        m = self._game_window.game.moves[move_no - 1]
       except IndexError:
         pass
     self._game_window.set_last_move(m)
@@ -112,7 +114,7 @@ class TableHeaders:
       gote = '-'
     a.append(('Gote', gote))
     for title, key in [ ('Date', 'start_date'), ('Time control', 'time_control')]:
-      p = game.get_header_value(key)
+      p = game.get_tag(key)
       if p is None:
         continue
       if not isinstance(p, str):

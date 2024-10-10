@@ -29,8 +29,6 @@ _KIFU_COLS_D = _create_kifu_dict(cell.KIFU_COLS)
 _KIFU_ROWS_D = _create_kifu_dict(cell.KIFU_ROWS)
 _KIFU_PIECES_D = _create_kifu_dict(piece.KIFU_PIECES, 1)
 
-def side_to_str(side: int) -> str:
-  return "sente" if side > 0 else "gote"
 
 def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
   it = iter(s)

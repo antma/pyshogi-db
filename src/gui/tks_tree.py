@@ -67,7 +67,7 @@ class TableMovesWithStat:
     prev_move = None
     if move_no > 0:
       try:
-        prev_move = game.parsed_moves[move_no - 1]
+        prev_move = game.moves[move_no - 1]
       except IndexError:
         pass
     columns_width = self.table.make_columns_width()

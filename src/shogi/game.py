@@ -3,6 +3,7 @@
 from collections import defaultdict
 from typing import List, Optional
 
+from . import side_to_str
 from .move import Move, IllegalMove
 from .position import Position
 from .result import GameResult, side_to_move_points

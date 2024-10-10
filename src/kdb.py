@@ -15,7 +15,7 @@ from shogi.game import Game
 from shogi.history import PositionWithHistory
 from shogi.move import Move
 from shogi.position import Position
-from shogi.kifu import TimeControl, game_parse, side_to_str
+from shogi.kifu import TimeControl, game_parse
 import usi
 
 def _insert(table, a):
@@ -170,7 +170,7 @@ class KifuDB:
   def get_time_control_rowid(self, time_control: TimeControl, force = False) -> Optional[int]:
     return self._get_rowid('time_controls', 'time_control', str(time_control), force)
   def _player_with_most_games(self, side: int) -> Optional[str]:
-    side = side_to_str(side)
+    side = shogi.side_to_str(side)
     return self._select_single_value(f'select {side}, count(*) as c from kifus group by {side} order by c desc limit 1')
   def player_with_most_games(self) -> Optional[str]:
     if not self._cached_player_with_most_games is None:
@@ -265,8 +265,8 @@ ORDER BY c DESC'''
       return l
     name, side = player_and_tc.player
     time_control = player_and_tc.time_control
-    player_side = side_to_str(side)
-    oside = side_to_str(-side)
+    player_side = shogi.side_to_str(side)
+    oside = shogi.side_to_str(-side)
     orating = f'kifus.{oside}_rating'
     hash1, hash2 = sfen_hashes(pos.sfen())
     values = [hash1, hash2, name]
@@ -321,8 +321,8 @@ ORDER BY c DESC
       return d
     name, side = player_and_tc.player
     time_control = player_and_tc.time_control
-    player_side = side_to_str(side)
-    oside = side_to_str(-side)
+    player_side = shogi.side_to_str(side)
+    oside = shogi.side_to_str(-side)
     orating = f'{oside}_rating'
     conds = [f'{player_side} == ?']
     values = [name]
@@ -368,8 +368,8 @@ ORDER BY b
       return None
     gs = []
     for side in (-1, 1):
-      player_side = side_to_str(side)
-      opponent_side = side_to_str(-side)
+      player_side = shogi.side_to_str(side)
+      opponent_side = shogi.side_to_str(-side)
       opponent_rating = opponent_side + '_rating'
       cond = _conditions_and_join(['time_control == ?', f'{player_side} == ?', f'{opponent_rating} > 0'])
       values = (tc, player)
@@ -397,14 +397,14 @@ ORDER BY b
     player = self.player_with_most_games()
     if player is None:
       return None
-    time_control = game.get_header_value('time_control')
+    time_control = game.get_tag('time_control')
     if not time_control is None:
       time_control = self.get_time_control_rowid(time_control, force = False)
       if time_control is None:
         return None
-    if player == game.get_header_value('sente'):
+    if player == game.get_tag('sente'):
       return PlayerAndTimeControlFilter(player, 1, time_control)
-    if player == game.get_header_value('gote'):
+    if player == game.get_tag('gote'):
       return PlayerAndTimeControlFilter(player, -1, time_control)
     return None
   def _position_already_analysed_by_engine_id(self, engine_id, hashes):
