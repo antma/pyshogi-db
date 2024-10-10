@@ -24,6 +24,8 @@ class Move:
     #0: wasn't validated
     #1: legal
     self.legal = 0
+    self.time = None
+    self.cum_time = None
   def __eq__(self, other):
     if not isinstance(other, Move):
       return False

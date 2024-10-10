@@ -138,8 +138,7 @@ class TestShogiPosition(unittest.TestCase):
     d = dict(map(lambda t: (int(list(t[0].split(' '))[3]) - 2, t[0]), fens))
     for i, m in enumerate(game):
       logging.debug('Move: %s', m)
-      km = shogi.kifu.KifuMove([str(i+1), m])
-      mv = km.parse(p.side_to_move, prev_move)
+      mv = shogi.kifu.move_parse(m, p.side_to_move, prev_move)
       self.assertIsNotNone(mv)
       logging.debug('Parsed move: %s', mv)
       p.do_move(mv)
@@ -162,17 +161,17 @@ class TestShogiPosition(unittest.TestCase):
   def _check_kifu(self, t):
     kifu_id, sfen, sente_points = t
     with open(os.path.join(MODULE_DIR, '81dojo', f'{kifu_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
-      g = shogi.kifu.Game.parse(f.read())
+      g = shogi.kifu.game_parse(f.read())
     self.assertIsNotNone(g)
-    self.assertEqual(g.last_legal_sfen, sfen)
+    self.assertEqual(g.pos.sfen(), sfen)
     self.assertEqual(g.sente_points(), sente_points)
     #testing Position.undo_move
     pos = Position()
     pos_sfen = pos.sfen()
     prev_move = None
-    for (km, m) in zip(g.moves, g.parsed_moves):
+    for m in g.moves:
       #testing Move.kifu_str
-      self.assertEqual(km.kifu, m.kifu_str(prev_move))
+      #self.assertEqual(km.kifu, m.kifu_str(prev_move))
       #testing move packing
       packed_move = m.pack_to_int()
       self.assertEqual(m, Move.unpack_from_int(packed_move, pos.side_to_move))

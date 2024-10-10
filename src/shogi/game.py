@@ -1,11 +1,21 @@
 # -*- coding: UTF8 -*-
 
 from collections import defaultdict
-from typing import Optional
+from typing import List, Optional
 
 from .move import Move, IllegalMove
 from .position import Position
-from .result import GameResult
+from .result import GameResult, side_to_move_points
+
+def player_with_rating_from_dict(d: dict, side:int) -> Optional[str]:
+  name = side_to_str(side)
+  player = d.get(name)
+  if player is None:
+    return None
+  rating = d.get(name + '_rating')
+  if rating is None:
+    return player
+  return f'{player}({rating})'
 
 class Game:
   def has_result(self) -> bool:
@@ -33,6 +43,7 @@ class Game:
       #https://lishogi.org/explanation/impasse
       self.set_result(GameResult.ENTERING_KING)
   def __init__(self, start_pos = None):
+    self.tags = {}
     self.moves = []
     self.comments = {}
     self.game_result = None
@@ -41,14 +52,10 @@ class Game:
     self._repetitions_dict = defaultdict(list)
     self._checks = []
     self._insert_sfen()
-  def do_usi_move(self, usi_move: str, comment: Optional[str] = None):
-    if not comment is None:
-      move_no = len(self.moves)
-      self.comments[move_no] = comment
-    if usi_move == 'resign':
-      self.set_result(GameResult.RESIGNATION)
-      return
-    m = self.pos.parse_usi_move(usi_move)
+  def set_move_comments(self, comment: List[str]):
+    if comment:
+      self.comments[len(self.moves)] = comment
+  def do_move(self, m: Move):
     try:
       self.pos.do_move(m)
     except IllegalMove:
@@ -56,6 +63,12 @@ class Game:
       return
     self.moves.append(m)
     self._insert_sfen()
+  def do_usi_move(self, usi_move: str, comment: List[str] = []):
+    self.set_move_comments(comment)
+    if usi_move == 'resign':
+      self.set_result(GameResult.RESIGNATION)
+      return
+    self.do_move(self.pos.parse_usi_move(usi_move))
   def usi_position_command(self) -> str:
     s = 'position '
     if self.start_pos is None:
@@ -65,3 +78,27 @@ class Game:
     if len(self.moves) > 0:
       s += ' moves ' + ' '.join(m.usi_str() for m in self.moves)
     return s
+  def get_tag(self, key: str):
+    return self.tags.get(key)
+  def set_tag(self, key: str, value):
+    self.tags[key] = value
+  def get_row_values_from_tags(self, keys):
+    return [self.get_tag(key) for key in keys]
+  def player_with_rating(self, side: int) -> Optional[str]:
+    return player_with_rating_from_dict(self.tags, side)
+  def sente_points(self) -> Optional[int]:
+    p = side_to_move_points(self.game_result)
+    if p is None:
+      return None
+    if self.pos.side_to_move < 0:
+      p *= -1
+    return p
+  def text_result(self) -> Optional[int]:
+    p = self.sente_points()
+    if p is None:
+      return None
+    if p > 0:
+      return "1-0"
+    if p < 0:
+      return "0-1"
+    return "1/2"

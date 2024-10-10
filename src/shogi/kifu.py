@@ -12,6 +12,7 @@ from . import move
 from . import piece
 from . import position
 from . import result
+from .game import Game
 
 from ._misc import iter_is_empty
 
@@ -31,7 +32,7 @@ _KIFU_PIECES_D = _create_kifu_dict(piece.KIFU_PIECES, 1)
 def side_to_str(side: int) -> str:
   return "sente" if side > 0 else "gote"
 
-def _move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
+def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
   it = iter(s)
   try:
     t = next(it)
@@ -133,16 +134,16 @@ def _parse_move_times(s: Optional[str]) -> Tuple[Optional[datetime.timedelta], O
   v = datetime.timedelta(hours = int(m.group(1)), minutes = int(m.group(2)), seconds = int(m.group(3)))
   return (u, v)
 
-def _parse_player_name(d: dict, s: str, key: str):
+def _parse_player_name(game: Game, s: str, key: str):
   if s.endswith(')'):
     i = s.rfind('(')
     if i >= 0:
       t = s[i+1:len(s)-1]
       if (len(t) > 0) and t.isdigit():
-        d[key] = s[:i]
-        d[key + '_rating'] = int(t)
+        game.set_tag(key, s[:i])
+        game.set_tag(key + '_rating', int(t))
         return
-  d[key] = s
+  game.set_tag(key, s)
 
 class TimeControl:
   def __init__(self, initial: int, byoyomi: int):
@@ -157,6 +158,14 @@ def parse_time_control(s: str) -> Optional[TimeControl]:
     return None
   return TimeControl(int(m.group(1)), int(m.group(2)))
 
+def game_parse(s: str) -> Optional[Game]:
+  try:
+    return _game_parse(s)
+  except ValueError as err:
+    logging.debug(repr(err))
+    return None
+
+'''
 class KifuMove:
   def __init__(self, a: list[str]):
     self.kifu = a[1]
@@ -216,6 +225,7 @@ class Game:
     if p < 0:
       return "0-1"
     return "1/2"
+'''
 
 def _strip_comment(t):
   """Everything after '#' will be ignored by parsers."""
@@ -242,11 +252,12 @@ _HEADER_WRITE_ORDER_L = ['start_sfen', 'start_date', 'end_date', 'location', 'ti
 _HEADER_EN_D = dict((t[1], t[0]) for t in _HEADER_JP_D.items())
 _SIDE_S = set(['sente', 'gote'])
 
-def _game_parse(game: str) -> Optional[Game]:
+def _game_parse(game_kif: str) -> Optional[Game]:
   '''
   https://lishogi.org/explanation/kif
   '''
-  it = filter(lambda t: t != '', map(_strip_comment, enumerate(game.split('\n'))))
+  it = filter(lambda t: t != '', map(_strip_comment, enumerate(game_kif.split('\n'))))
+  game = Game()
   t = next(it)
   a = list(t.split())
   if len(a) != 3:
@@ -261,7 +272,7 @@ def _game_parse(game: str) -> Optional[Game]:
   if (p is None) or (p[0] != 'encoding'):
     log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
   _encoding = p[1]
-  d = {}
+  #d = {}
   while True:
     t = next(it)
     if t == _HEADER_MOVES_SEPARATOR:
@@ -273,72 +284,63 @@ def _game_parse(game: str) -> Optional[Game]:
     key = _HEADER_JP_D.get(key)
     if not key is None:
       if key in _SIDE_S:
-        _parse_player_name(d, value, key)
+        _parse_player_name(game, value, key)
       elif key.endswith('_date'):
         year, month, day = value.split('/')
         if year.isdigit() and month.isdigit() and day.isdigit():
-          d[key] = datetime.date(int(year), int(month), int(day))
+          game.set_tag(key, datetime.date(int(year), int(month), int(day)))
       elif key == 'time_control':
         tc = parse_time_control(value)
         if tc is None:
           log.raise_value_error(f"Can not parse time control '{value}'")
-        d[key] = tc
+        game.set_tag(key, tc)
       elif key == 'handicap':
         if value == '平手':
           value = None
-        d[key] = value
+        game.set_tag(key, value)
       else:
-        d[key] = value
-  comments = defaultdict(list)
-  moves = []
-  parsed_moves = []
+        game.set_tag(key, value)
   prev_move = None
-  side_to_move = 1
-  game_result = None
-  location_81dojo = d.get('location') == '81Dojo'
-  pos = position.Position()
-  illegal_move_idx = None
-  ignored_moves = 0
+  location_81dojo = game.get_tag('location') == '81Dojo'
+  comments = []
   for s in it:
-    i = len(moves)
     if s.startswith('*'):
-      comments[i].append(s)
+      comments.append(s[1:])
+      #comments[i].append(s)
       if location_81dojo:
         if s == '*時間切れにて終局':
           #time over
-          game_result = result.GameResult.TIME
+          game.set_result(result.GameResult.TIME)
           break
         if s == '*反則手にて終局':
-          if (not illegal_move_idx is None) and (ignored_moves == 0):
-            #illegal previous move
-            game_result = result.GameResult.ILLEGAL_PRECEDING_MOVE
+          if not game.has_result():
+            game.set_result(result.GameResult.ILLEGAL_PRECEDING_MOVE)
             break
       continue
-    t = str(i+1)
+    if comments:
+      game.set_move_comments(comments)
+      comments = []
+    t = str(game.pos.move_no)
     a = list(filter(lambda t: t != '', s.split(' ')))
     if (len(a) < 2) or (t != a[0]):
       break
-    km = KifuMove(a)
-    moves.append(km)
-    logging.debug('Move %s', km.kifu)
-    game_result = result.game_result_by_jp(km.kifu)
+    km = a[1]
+    #moves.append(km)
+    #logging.debug('Move %s', km.kifu)
+    game_result = result.game_result_by_jp(km)
     if not game_result is None:
+      game.set_result(game_result)
       break
-    mv = km.parse(side_to_move, prev_move)
+    mv = move_parse(km, game.pos.side_to_move, prev_move)
     if mv is None:
+      return None
+    if len(a) > 2:
+      mv.time, mv.cum_time = _parse_move_times(a[2])
+    game.do_move(mv)
+    if game.has_result():
       break
-    if illegal_move_idx is None:
-      parsed_moves.append(mv)
-      try:
-        pos.do_move(mv)
-      except move.IllegalMove as err:
-        logging.debug("Move #%s %s is illegal. %s", t, a[1], repr(err))
-        illegal_move_idx = len(moves) - 1
-    else:
-      ignored_moves += 1
     prev_move = mv
-    side_to_move *= -1
-  return Game(version, d, moves, parsed_moves, game_result, comments, pos.sfen())
+  return game
 
 class KifuOutputFile:
   def __init__(self, filename):
