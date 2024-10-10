@@ -64,3 +64,6 @@ def kifu_str(p: int) -> str:
   r = KIFU_PIECES[p - 1]
   assert r != '?'
   return r
+
+def side_to_str(side: int) -> str:
+  return "sente" if side > 0 else "gote"

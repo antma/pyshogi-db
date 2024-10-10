@@ -16,6 +16,7 @@ from shogi.history import PositionWithHistory
 from shogi.move import Move
 from shogi.position import Position
 from shogi.kifu import TimeControl, game_parse
+from shogi.piece import side_to_str
 import usi
 
 def _insert(table, a):
@@ -170,7 +171,7 @@ class KifuDB:
   def get_time_control_rowid(self, time_control: TimeControl, force = False) -> Optional[int]:
     return self._get_rowid('time_controls', 'time_control', str(time_control), force)
   def _player_with_most_games(self, side: int) -> Optional[str]:
-    side = shogi.side_to_str(side)
+    side = side_to_str(side)
     return self._select_single_value(f'select {side}, count(*) as c from kifus group by {side} order by c desc limit 1')
   def player_with_most_games(self) -> Optional[str]:
     if not self._cached_player_with_most_games is None:
@@ -265,8 +266,8 @@ ORDER BY c DESC'''
       return l
     name, side = player_and_tc.player
     time_control = player_and_tc.time_control
-    player_side = shogi.side_to_str(side)
-    oside = shogi.side_to_str(-side)
+    player_side = side_to_str(side)
+    oside = side_to_str(-side)
     orating = f'kifus.{oside}_rating'
     hash1, hash2 = sfen_hashes(pos.sfen())
     values = [hash1, hash2, name]
@@ -321,8 +322,8 @@ ORDER BY c DESC
       return d
     name, side = player_and_tc.player
     time_control = player_and_tc.time_control
-    player_side = shogi.side_to_str(side)
-    oside = shogi.side_to_str(-side)
+    player_side = side_to_str(side)
+    oside = side_to_str(-side)
     orating = f'{oside}_rating'
     conds = [f'{player_side} == ?']
     values = [name]
@@ -368,8 +369,8 @@ ORDER BY b
       return None
     gs = []
     for side in (-1, 1):
-      player_side = shogi.side_to_str(side)
-      opponent_side = shogi.side_to_str(-side)
+      player_side = side_to_str(side)
+      opponent_side = side_to_str(-side)
       opponent_rating = opponent_side + '_rating'
       cond = _conditions_and_join(['time_control == ?', f'{player_side} == ?', f'{opponent_rating} > 0'])
       values = (tc, player)
