@@ -50,6 +50,7 @@ class Game:
     self.game_result = None
     self.start_pos = start_pos
     self.pos = Position(start_pos)
+    self.first_move_no = self.pos.move_no
     self._repetitions_dict = defaultdict(list)
     self._checks = []
     self._insert_sfen()

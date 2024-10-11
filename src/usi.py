@@ -15,7 +15,6 @@ from typing import Optional
 import log
 from shogi import kifu
 from shogi.game import Game
-from shogi.position import Position
 from shogi.result import GameResult, description
 
 _INFO_BOUND_L = ['lowerbound', 'upperbound']
@@ -317,28 +316,30 @@ class USIGame:
   '''for running game between two engine with tkinter (single threaded)'''
   STATE = IntEnum('STATE', ['IDLE', 'ENGINE_THINKING', 'COMPLETE'])
   def __init__(self, sente_engine: USIEngine, gote_engine: USIEngine, start_sfen: Optional[str], usi_moves: Optional[str], output_kifu_filename: Optional[str], resign_score: Optional[int]):
+    assert (resign_score is None) or (resign_score > 1000)
     if sente_engine.params.time_ms != gote_engine.params.time_ms:
       log.raise_value_error('Engines have different thinking move settings')
     self._sente_engine = sente_engine
     self._gote_engine = gote_engine
     self._output_kifu_filename = output_kifu_filename
-    self.game = Game(start_sfen)
+    game = Game(start_sfen)
+    self.game = game
     if isinstance(usi_moves, str):
       for s in usi_moves.split():
-        self.game.do_usi_move(s)
+        game.do_usi_move(s)
     self._thinking_seconds = sente_engine.params.time_ms // 1000
-    self._headers = {
-      'sente': sente_engine.params.engine_name,
-      'gote': gote_engine.params.engine_name,
-      'start_date': datetime.today(),
-      'time_control': kifu.TimeControl(0, self._thinking_seconds),
-    }
+    game.set_tag('sente', sente_engine.params.engine_name)
+    game.set_tag('gote', gote_engine.params.engine_name)
+    game.set_tag('start_date', 'datetime.today()')
+    game.set_tag('time_control', kifu.TimeControl(0, self._thinking_seconds))
     if not start_sfen is None:
-      self._headers['start_sfen'] = start_sfen
+      game.set_tag('start_sfen', start_sfen)
     sente_engine.new_game()
     gote_engine.new_game()
     self.state = self.STATE.IDLE
-    self._resign_score = resign_score
+    self._resign_score = -resign_score
+    self._start_thinking_time = None
+    self._last_info = None
   def is_idle(self):
     return self.state == self.STATE.IDLE
   def is_complete(self):
@@ -347,12 +348,9 @@ class USIGame:
     self.state = self.STATE.COMPLETE
     if self._output_kifu_filename is None:
       return
-    with kifu.KifuOutputFile(self._output_kifu_filename) as f:
-      self._headers['end_date'] = datetime.today()
-      f.write_headers(self._headers)
-      game = self.game
-      f.write_moves(game.moves, game.comments)
-      f.write_result(game.game_result)
+    self.game.set_tag('end_date', datetime.today())
+    with open(self._output_kifu_filename, 'w', encoding = 'UTF8') as f:
+      kifu.game_write_to_file(self.game, f)
   def _time_off(self):
     self.game.set_result(GameResult.TIME)
     self._on_complete()
@@ -396,7 +394,7 @@ class USIGame:
       im = InfoMessage(self._last_info)
       score = im.score_i16()
       if score < self._resign_score:
-        logging.info('RESIGN[%s]: engine score %d is below resign score %d', self.params.engine_short_name, score, self._resign_score)
+        logging.info('RESIGN[%s]: engine score %d is below resign score %d', e.params.engine_short_name, score, self._resign_score)
         best_move = 'resign'
     self.game.do_usi_move(best_move, self._last_info)
     if self.game.has_result():
@@ -410,65 +408,3 @@ class USIGame:
     while self.state != self.STATE.COMPLETE:
       time.sleep(s)
       self.step()
-
-#deprecated code
-class _USIGame:
-  def __init__(self, start_sfen: Optional[str]):
-    self.start_sfen = start_sfen
-    self.usi_moves = []
-    self.pos = Position(start_sfen)
-    self.parsed_moves = []
-    self.game_result = None
-  def do_usi_move(self, s: str):
-    self.usi_moves.append(s)
-    m = self.pos.parse_usi_move(s)
-    assert m.usi_str() == s
-    self.parsed_moves.append(m)
-    self.pos.do_move(m)
-  def set_result(self, game_result: GameResult):
-    self.game_result = game_result
-
-def play_game(output_kifu_file: kifu.KifuOutputFile, sente_engine: USIEngine, gote_engine: USIEngine, start_sfen: Optional[str], usi_moves: Optional[str], test_pv: bool = True):
-  if sente_engine.params.time_ms != gote_engine.params.time_ms:
-    log.raise_value_error('Engines have different thinking move settings')
-  s = sente_engine.params.time_ms // 1000
-  h = {
-    'sente': sente_engine.params.engine_name,
-    'gote': gote_engine.params.engine_name,
-    'start_date': datetime.today(),
-    'time_control': kifu.TimeControl(0, s),
-  }
-  if not start_sfen is None:
-    h['start_sfen'] = start_sfen
-  output_kifu_file.write_headers(h)
-  sente_engine.new_game()
-  gote_engine.new_game()
-  g = _USIGame(start_sfen)
-  if not usi_moves is None:
-    for s in usi_moves.split():
-      g.do_usi_move(s)
-  c = {}
-  while True:
-    sfen = g.pos.sfen(move_no = False)
-    logging.debug('%s', sfen)
-    i = c.get(sfen, 0)
-    if i >= 3:
-      g.set_result(GameResult.REPETITION)
-      break
-    c[sfen] = i + 1
-    e = sente_engine if g.pos.side_to_move > 0 else gote_engine
-    info, best_move = e.analyse_position(g.start_sfen, g.usi_moves)
-    if best_move == 'resign':
-      g.set_result(GameResult.RESIGNATION)
-      break
-    if test_pv:
-      q = Position(g.pos.sfen())
-      for s in info.get('pv'):
-        m = q.parse_usi_move(s)
-        assert m.usi_str() == s
-        q.do_move(m)
-    g.do_usi_move(best_move)
-  output_kifu_file.write_moves(g.parsed_moves)
-  if not g.game_result is None:
-    logging.info('%s', g.game_result.result)
-    output_kifu_file.write_result(g.game_result)

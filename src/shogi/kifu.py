@@ -273,45 +273,33 @@ def _game_parse(game_kif: str) -> Optional[Game]:
     prev_move = mv
   return game
 
-class KifuOutputFile:
-  def __init__(self, filename):
-    self._filename = filename
-    self._f = None
-    self.move_no = None
-  def __enter__(self):
-    self._f = open(self._filename, 'w', encoding = 'UTF8', buffering = 16384)
-    return self
-  def __exit__(self, exl_type, exc_value, traceback):
-    self._f.close()
-    self._f = None
-  def write(self, s: str):
-    if self._f is None:
-      logging.error("KifuMove.write method should be used inside with statement")
-    else:
-      self._f.write(s)
-  def write_headers(self, h):
-    for key in _HEADER_WRITE_ORDER_L:
-      p = h.get(key)
-      if not p is None:
-        if key == 'start_sfen':
-          self.write(position.Position(p).kifu_str())
-        else:
-          if not isinstance(p, str):
-            p = str(p)
-          self.write(_HEADER_EN_D[key] + '：' + str(p) + '\n')
-    self.write(_HEADER_MOVES_SEPARATOR + '\n')
-  def write_moves(self, moves: list[move.Move], comments: Mapping[int, str]):
-    prev = None
-    self.move_no = 0
-    for i, m in enumerate(moves):
-      self.move_no += 1
-      self.write(str(self.move_no) + ' ' + m.kifu_str(prev) + '\n')
-      p = comments.get(i)
-      if not p is None:
-        self.write('* ' + p + '\n')
-      prev = m
-  def write_result(self, r: Optional[result.GameResult]):
-    if r is None:
-      return
-    self.move_no += 1
-    self.write(str(self.move_no) + ' ' + result.japan_str(r) + '\n')
+def _game_write_tags(g: Game, f):
+  for key in _HEADER_WRITE_ORDER_L:
+    p = g.get_tag(key)
+    if not p is None:
+      if key == 'start_sfen':
+        self.write(position.Position(p).kifu_str())
+      else:
+        if not isinstance(p, str):
+          p = str(p)
+        f.write(_HEADER_EN_D[key] + '：' + str(p) + '\n')
+  f.write(_HEADER_MOVES_SEPARATOR + '\n')
+
+def _game_write_moves(g: Game, f):
+  prev = None
+  move_no = g.first_move_no
+  for i, m in enumerate(g.moves):
+    f.write(str(move_no) + ' ' + m.kifu_str(prev) + '\n')
+    p = g.comments.get(i)
+    if p:
+      for s in p:
+        f.write('*' + s + '\n')
+    prev = m
+    move_no += 1
+  #game result
+  if not g.game_result is None:
+    f.write(str(move_no) + ' ' + result.japan_str(g.game_result) + '\n')
+
+def game_write_to_file(g: Game, f):
+  _game_write_tags(g, f)
+  _game_write_moves(g, f)
