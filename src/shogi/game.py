@@ -55,6 +55,8 @@ class Game:
     self._checks = []
     self._insert_sfen()
   def set_move_comments(self, comment: Optional[List[str]]):
+    if isinstance(comment, str):
+      comment = [comment]
     if comment:
       self.comments[len(self.moves)] = comment
   def do_move(self, m: Move):

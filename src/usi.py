@@ -330,7 +330,7 @@ class USIGame:
     self._thinking_seconds = sente_engine.params.time_ms // 1000
     game.set_tag('sente', sente_engine.params.engine_name)
     game.set_tag('gote', gote_engine.params.engine_name)
-    game.set_tag('start_date', 'datetime.today()')
+    game.set_tag('start_date', datetime.today())
     game.set_tag('time_control', kifu.TimeControl(0, self._thinking_seconds))
     if not start_sfen is None:
       game.set_tag('start_sfen', start_sfen)
@@ -396,7 +396,7 @@ class USIGame:
       if score < self._resign_score:
         logging.info('RESIGN[%s]: engine score %d is below resign score %d', e.params.engine_short_name, score, self._resign_score)
         best_move = 'resign'
-    self.game.do_usi_move(best_move, self._last_info)
+    self.game.do_usi_move(best_move, [self._last_info])
     if self.game.has_result():
       logging.debug('Result: %s', description(self.game.game_result))
       self._on_complete()
