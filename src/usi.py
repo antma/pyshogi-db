@@ -10,10 +10,10 @@ from queue import Queue, Empty
 import subprocess
 from threading import Thread
 import time
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import log
-from shogi import kifu
+from shogi import evaluation, kifu
 from shogi.game import Game
 from shogi.position import Position
 from shogi.result import GameResult, description
@@ -160,6 +160,14 @@ class InfoMessage:
     p = self._d['score.mate']
     assert abs(p) < 100
     return p + _MATE_SCORE_I16 if p > 0 else p - _MATE_SCORE_I16
+  def win_rate(self) -> float:
+    p = self._d.get('score.cp')
+    if not p is None:
+      return evaluation.win_rate(p)
+    p = self._d['score.mate']
+    if p > 0:
+      return 1.0
+    return 0.0
   def get(self, key: str):
     return self._d.get(key)
   def score_to_short_str(self, side_to_move: int) -> str:
@@ -429,3 +437,19 @@ class USIGame:
     while self.state != self.STATE.COMPLETE:
       time.sleep(s)
       self.step()
+
+def game_win_rates(game: Game) -> List[Tuple[int, float]]:
+  d = {}
+  for move_no, l in game.comments.items():
+    for s in l:
+      if s.startswith('%[info ') and s.endswith(']'):
+        im = InfoMessage(s[2:-1])
+        if im.has_score():
+          wr = im.win_rate()
+          if game.move_no_to_side_to_move(move_no) < 0:
+            wr = 1.0 - wr
+          d[move_no] = wr
+          break
+  a = list(d.items())
+  a.sort()
+  return a

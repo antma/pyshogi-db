@@ -3,6 +3,7 @@
 from collections import defaultdict
 from typing import Optional
 
+import log
 from .move import Move, IllegalMove
 from .piece import side_to_str
 from .position import Position
@@ -43,6 +44,10 @@ class Game:
     if (not check) and self.pos.fesa_impasse_points():
       #https://lishogi.org/explanation/impasse
       self.set_result(GameResult.ENTERING_KING)
+  def move_no_to_side_to_move(self, move_no: int) -> int:
+    if move_no < self.start_move_no:
+      log.raise_value_error('move number is too small')
+    return self.start_side_to_move * pow(-1, move_no - self.start_move_no)
   def __init__(self, start_pos = None):
     self.tags = {}
     self.moves = []
@@ -52,7 +57,8 @@ class Game:
     self.game_result = None
     self.start_pos = start_pos
     self.pos = Position(start_pos)
-    self.first_move_no = self.pos.move_no
+    self.start_move_no = self.pos.move_no
+    self.start_side_to_move = self.pos.side_to_move
     self._repetitions_dict = defaultdict(list)
     self._checks = []
     self._insert_sfen()

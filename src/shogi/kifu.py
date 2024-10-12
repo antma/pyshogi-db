@@ -283,7 +283,7 @@ def _game_write_tags(g: Game, f):
 
 def _game_write_moves(g: Game, f):
   prev = None
-  move_no = g.first_move_no
+  move_no = g.start_move_no
   for m in g.moves:
     f.write(str(move_no) + ' ' + m.kifu_str(prev) + '\n')
     move_no += 1
