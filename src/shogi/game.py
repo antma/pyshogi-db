@@ -46,7 +46,7 @@ class Game:
   def __init__(self, start_pos = None):
     self.tags = {}
     self.moves = []
-    self.comments = {}
+    self.comments = defaultdict(list)
     self.game_result = None
     self.start_pos = start_pos
     self.pos = Position(start_pos)
@@ -54,6 +54,10 @@ class Game:
     self._repetitions_dict = defaultdict(list)
     self._checks = []
     self._insert_sfen()
+  def append_comment_before_move(self, move_no: int, s: str):
+    k = move_no - self.first_move_no - 1
+    if k >= 0:
+      self.comments[k].append(s)
   def set_move_comments(self, comment: Optional[List[str]]):
     if isinstance(comment, str):
       comment = [comment]

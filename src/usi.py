@@ -15,6 +15,7 @@ from typing import Optional
 import log
 from shogi import kifu
 from shogi.game import Game
+from shogi.position import Position
 from shogi.result import GameResult, description
 
 _INFO_BOUND_L = ['lowerbound', 'upperbound']
@@ -130,7 +131,9 @@ def _info_message_parse(message: str) -> dict:
 
 class InfoMessage:
   def __init__(self, param):
+    self.s = None
     if isinstance(param, str):
+      self.s = param
       self._d = _info_message_parse(param)
     else:
       assert isinstance(param, dict)
@@ -165,6 +168,10 @@ class InfoMessage:
       return str(p * side_to_move)
     p = self._d['score.mate']
     return 'm' + str(p * side_to_move)
+  def kifu_str(self) -> str:
+    if self.s is None:
+      log.raise_value_error('InfoMessage.s original engine output is not set')
+    return '%[' + self.s + ']'
 
 def enqueue_output(engine):
   engine.enqueue_output()
@@ -279,6 +286,8 @@ class USIEngine:
   def new_game(self):
     self.send('usinewgame')
     self.ping(False)
+  def send_go_with_byoyomi(self):
+    self.send(f'go wtime 0 btime 0 byoyomi {self.params.time_ms}')
   def analyse_position(self, start_position_sfen: Optional[str], usi_moves: Optional[list[str]]):
     s = 'position '
     if start_position_sfen is None:
@@ -291,7 +300,7 @@ class USIEngine:
         s += ' ' + m
     self.send(s)
     self.ping(True)
-    self.send(f'go wtime 0 btime 0 byoyomi {self.params.time_ms}')
+    self.send_go_with_byoyomi()
     infos = []
     bestmove = None
     while True:
@@ -311,6 +320,15 @@ class USIEngine:
         log.raise_value_error('Last info message has not exact score')
       return (im, bestmove)
     return (None, bestmove)
+  def analyse_game(self, game: Game):
+    self.new_game()
+    usi_moves = []
+    pos = Position(game.start_pos)
+    for i, m in enumerate(game.moves):
+      pos.do_move(m)
+      usi_moves.append(m.usi_str())
+      im, bm = self.analyse_position(game.start_pos, usi_moves)
+      game.append_comment_before_move(pos.move_no, im.kifu_str())
 
 class USIGame:
   '''for running game between two engine with tkinter (single threaded)'''
@@ -359,9 +377,9 @@ class USIGame:
       return
     e = self._sente_engine if self.game.pos.side_to_move > 0 else self._gote_engine
     if self.state == self.STATE.IDLE:
-      s = e.params.time_ms
       e.send(self.game.usi_position_command())
-      e.send(f'go btime {s} wtime {s} byoyomi {s}')
+      #e.send(f'go btime {s} wtime {s} byoyomi {s}')
+      e.send_go_with_byoyomi()
       self._start_thinking_time = time.time()
       self.state = self.STATE.ENGINE_THINKING
       self._last_info = None
