@@ -3,7 +3,7 @@
 import datetime
 import logging
 import re
-from typing import Mapping, Optional, Tuple
+from typing import Optional, Tuple
 
 import log
 from . import cell
@@ -236,23 +236,19 @@ def _game_parse(game_kif: str) -> Optional[Game]:
         game.set_tag(key, value)
   prev_move = None
   location_81dojo = game.get_tag('location') == '81Dojo'
-  comments = []
   for s in it:
     if s.startswith('*'):
-      comments.append(s[1:])
+      game.append_comment_before_move(game.pos.move_no, s[1:])
       if location_81dojo:
         if s == '*時間切れにて終局':
           #time over
           game.set_result(result.GameResult.TIME)
           break
         if s == '*反則手にて終局':
-          if not game.has_result():
-            game.set_result(result.GameResult.ILLEGAL_PRECEDING_MOVE)
-            break
+          assert not game.has_result()
+          game.set_result(result.GameResult.ILLEGAL_PRECEDING_MOVE)
+          break
       continue
-    if comments:
-      game.set_move_comments(comments)
-      comments = []
     t = str(game.pos.move_no)
     a = list(filter(lambda t: t != '', s.split(' ')))
     if (len(a) < 2) or (t != a[0]):
@@ -278,7 +274,7 @@ def _game_write_tags(g: Game, f):
     p = g.get_tag(key)
     if not p is None:
       if key == 'start_sfen':
-        self.write(position.Position(p).kifu_str())
+        f.write(position.Position(p).kifu_str())
       else:
         if not isinstance(p, str):
           p = str(p)
@@ -288,14 +284,14 @@ def _game_write_tags(g: Game, f):
 def _game_write_moves(g: Game, f):
   prev = None
   move_no = g.first_move_no
-  for i, m in enumerate(g.moves):
+  for m in g.moves:
     f.write(str(move_no) + ' ' + m.kifu_str(prev) + '\n')
-    p = g.comments.get(i)
+    move_no += 1
+    p = g.comments.get(move_no)
     if p:
       for s in p:
         f.write('*' + s + '\n')
     prev = m
-    move_no += 1
   #game result
   if not g.game_result is None:
     f.write(str(move_no) + ' ' + result.japan_str(g.game_result) + '\n')

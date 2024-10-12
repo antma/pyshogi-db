@@ -324,10 +324,10 @@ class USIEngine:
     self.new_game()
     usi_moves = []
     pos = Position(game.start_pos)
-    for i, m in enumerate(game.moves):
+    for m in game.moves:
       pos.do_move(m)
       usi_moves.append(m.usi_str())
-      im, bm = self.analyse_position(game.start_pos, usi_moves)
+      im, _ = self.analyse_position(game.start_pos, usi_moves)
       game.append_comment_before_move(pos.move_no, im.kifu_str())
 
 class USIGame:
@@ -408,13 +408,16 @@ class USIGame:
         log.raise_value_error(f'Unknown engine line: {line}')
     if best_move is None:
       return
+    im = None
     if isinstance(self._last_info, str) and (not self._resign_score is None):
       im = InfoMessage(self._last_info)
       score = im.score_i16()
       if score < self._resign_score:
         logging.info('RESIGN[%s]: engine score %d is below resign score %d', e.params.engine_short_name, score, self._resign_score)
         best_move = 'resign'
-    self.game.do_usi_move(best_move, [self._last_info])
+    if im:
+      self.game.append_comment_before_move(self.game.pos.move_no, im.kifu_str())
+    self.game.do_usi_move(best_move)
     if self.game.has_result():
       logging.debug('Result: %s', description(self.game.game_result))
       self._on_complete()

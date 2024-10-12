@@ -1,7 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from collections import defaultdict
-from typing import List, Optional
+from typing import Optional
 
 from .move import Move, IllegalMove
 from .piece import side_to_str
@@ -46,6 +46,8 @@ class Game:
   def __init__(self, start_pos = None):
     self.tags = {}
     self.moves = []
+    #comments: move_no -> List[str]
+    #comments before move
     self.comments = defaultdict(list)
     self.game_result = None
     self.start_pos = start_pos
@@ -55,14 +57,7 @@ class Game:
     self._checks = []
     self._insert_sfen()
   def append_comment_before_move(self, move_no: int, s: str):
-    k = move_no - self.first_move_no - 1
-    if k >= 0:
-      self.comments[k].append(s)
-  def set_move_comments(self, comment: Optional[List[str]]):
-    if isinstance(comment, str):
-      comment = [comment]
-    if comment:
-      self.comments[len(self.moves)] = comment
+    self.comments[move_no].append(s)
   def do_move(self, m: Move):
     try:
       self.pos.do_move(m)
@@ -71,8 +66,7 @@ class Game:
       return
     self.moves.append(m)
     self._insert_sfen()
-  def do_usi_move(self, usi_move: str, comment: Optional[List[str]] = None):
-    self.set_move_comments(comment)
+  def do_usi_move(self, usi_move: str):
     if usi_move == 'resign':
       self.set_result(GameResult.RESIGNATION)
       return
