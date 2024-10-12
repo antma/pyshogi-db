@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import subprocess
 from typing import Optional
 
 import requests
@@ -96,3 +97,5 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         assert t[0] <= t[1]
         draw.rectangle((bar_xleft, bar_ytop + t[0], bar_xleft + bar_width - 1, bar_ytop + t[1]), fill = ((0,1,0)))
       im.save(frame_filename)
+  command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, 'out.mp4')]
+  subprocess.run(command, check = True, shell = False)
