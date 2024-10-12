@@ -10,7 +10,7 @@ from queue import Queue, Empty
 import subprocess
 from threading import Thread
 import time
-from typing import List, Optional, Tuple
+from typing import Mapping, Optional
 
 import log
 from shogi import evaluation, kifu
@@ -438,7 +438,7 @@ class USIGame:
       time.sleep(s)
       self.step()
 
-def game_win_rates(game: Game) -> List[Tuple[int, float]]:
+def game_win_rates(game: Game) -> Mapping[int, float]:
   d = {}
   for move_no, l in game.comments.items():
     for s in l:
@@ -450,6 +450,4 @@ def game_win_rates(game: Game) -> List[Tuple[int, float]]:
             wr = 1.0 - wr
           d[move_no] = wr
           break
-  a = list(d.items())
-  a.sort()
-  return a
+  return d

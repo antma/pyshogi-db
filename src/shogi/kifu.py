@@ -28,7 +28,6 @@ _KIFU_COLS_D = _create_kifu_dict(cell.KIFU_COLS)
 _KIFU_ROWS_D = _create_kifu_dict(cell.KIFU_ROWS)
 _KIFU_PIECES_D = _create_kifu_dict(piece.KIFU_PIECES, 1)
 
-
 def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Optional[move.Move]:
   it = iter(s)
   try:
@@ -228,10 +227,6 @@ def _game_parse(game_kif: str) -> Optional[Game]:
         if tc is None:
           log.raise_value_error(f"Can not parse time control '{value}'")
         game.set_tag(key, tc)
-      elif key == 'handicap':
-        if value == '平手':
-          value = None
-        game.set_tag(key, value)
       else:
         game.set_tag(key, value)
   prev_move = None
@@ -297,5 +292,6 @@ def _game_write_moves(g: Game, f):
     f.write(str(move_no) + ' ' + result.japan_str(g.game_result) + '\n')
 
 def game_write_to_file(g: Game, f):
+  f.write('#KIF version=2.0 encoding=UTF-8\n')
   _game_write_tags(g, f)
   _game_write_moves(g, f)
