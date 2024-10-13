@@ -5,6 +5,8 @@ import logging
 import os
 import subprocess
 from typing import Optional
+import numpy as np
+import matplotlib.pyplot as plt
 
 import requests
 from PIL import Image, ImageSequence, ImageDraw
@@ -53,6 +55,26 @@ def lishogi_gif(game: Game, flip_orientation: bool, delay: int, output_gif_filen
     with open(output_gif_filename, 'wb') as f:
       f.write(r.content)
 
+def matplotlib_graph(e, width, height, output_filename):
+  a = list(e.items())
+  a.sort()
+  x, y = [], []
+  for u, v in a:
+    x.append(u)
+    y.append(v * 100.0)
+  px = 1/plt.rcParams['figure.dpi']  # pixel in inches
+  f, ax = plt.subplots(figsize=(width*px, height*px))
+  plt.plot(x,y)
+  ax.set_xlabel('moves')
+  ax.set_ylabel('percent')
+  ax.set_ylim(ymin = 0, ymax = 101)
+  ax.set_yticks(np.arange(0, 110, 10))
+  #ax.spines['top'].set_visible(False)
+  #ax.spines['right'].set_visible(False)
+  #ax.spines['bottom'].set_visible(False)
+  #ax.spines['left'].set_visible(False)
+  plt.savefig(output_filename)
+
 def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
   lishogi_gif(game, flip_orientation, delay, gif_filename, lishogi_gif_server)
@@ -60,6 +82,8 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
   bar_xleft = None
   bar_ytop = None
   bar_height = None
+  figure_width = None
+  figure_height = None
   grey = 15
   e = game_win_rates(game)
   with Image.open(gif_filename) as im:
@@ -72,6 +96,8 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
       h, w = frame.height, frame.width
       im = frame.copy()
       if bar_xleft is None:
+        figure_width = w
+        figure_height = h
         for y in range(h):
           s = 0
           for x in range(w - 1, -1, -1):
@@ -103,3 +129,4 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
       im.save(frame_filename)
   command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, 'out.mp4')]
   subprocess.run(command, check = True, shell = False)
+  matplotlib_graph(e, figure_width, figure_height, os.path.join(working_dir, 'graph.png'))
