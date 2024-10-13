@@ -9,6 +9,7 @@ from typing import Optional
 import requests
 from PIL import Image, ImageSequence, ImageDraw
 
+from shogi import cell
 from shogi.game import Game
 from shogi.position import Position
 from usi import game_win_rates
@@ -33,7 +34,10 @@ def game_to_lishogi_gif_post_query(game: Game, flip_orientation: bool, delay: in
   frames = [ {"sfen": start_pos}]
   for m in game.moves:
     pos.do_move(m)
-    frames.append({"sfen": pos.sfen(), "lastMove": m.usi_str()})
+    fd = {"sfen": pos.sfen(), "lastMove": m.usi_str()}
+    if pos.is_check():
+      fd['check'] = cell.usi_str(pos.find_king(pos.side_to_move))
+    frames.append(fd)
   d['frames'] = frames
   res = json.dumps(d)
   logging.debug("%s", res)
@@ -49,7 +53,7 @@ def lishogi_gif(game: Game, flip_orientation: bool, delay: int, output_gif_filen
     with open(output_gif_filename, 'wb') as f:
       f.write(r.content)
 
-def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, lishogi_gif_server: Optional[str] = None):
+def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
   lishogi_gif(game, flip_orientation, delay, gif_filename, lishogi_gif_server)
   bar_width = 16
@@ -97,5 +101,5 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         assert t[0] <= t[1]
         draw.rectangle((bar_xleft, bar_ytop + t[0], bar_xleft + bar_width - 1, bar_ytop + t[1]), fill = ((0,1,0)))
       im.save(frame_filename)
-  command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, 'out.mp4')]
+  command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, 'out.mp4')]
   subprocess.run(command, check = True, shell = False)

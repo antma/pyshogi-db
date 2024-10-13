@@ -273,6 +273,10 @@ def _game_write_tags(g: Game, f):
       else:
         if not isinstance(p, str):
           p = str(p)
+        if key == 'sente':
+          p = g.player_with_rating(1)
+        if key == 'gote':
+          p = g.player_with_rating(-1)
         f.write(_HEADER_EN_D[key] + '：' + str(p) + '\n')
   f.write(_HEADER_MOVES_SEPARATOR + '\n')
 

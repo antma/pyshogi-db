@@ -40,7 +40,7 @@ class Position:
       self.board[9 * row + col] = p
     else:
       log.raise_value_error(f'Position._set_cell(): illegal cell ({row+1}, {col+1})')
-  def _find_king(self, side: int) -> Optional[int]:
+  def find_king(self, side: int) -> Optional[int]:
     if side > 0:
       for i in range(80, -1, -1):
         if self.board[i] == piece.KING:
@@ -74,7 +74,7 @@ class Position:
         return False
   def _king_under_check(self, side: int) -> bool:
     s = side
-    (rk, ck) = divmod(self._find_king(s), 9)
+    (rk, ck) = divmod(self.find_king(s), 9)
     if self._scan_board(-s, rk, ck, -s, 0, _ATTACK_UP_FAR_S, _ATTACK_UP_NEAR_S) or \
        self._scan_board(-s, rk, ck, -s, -1, _BISHOP_S, _ATTACK_DIAG_UP_NEAR_S) or \
        self._scan_board(-s, rk, ck, -s, 1, _BISHOP_S, _ATTACK_DIAG_UP_NEAR_S) or \
