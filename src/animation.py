@@ -86,6 +86,7 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
   figure_height = None
   grey = 15
   e = game_win_rates(game)
+  last_index = None
   with Image.open(gif_filename) as im:
     for index, frame in enumerate(ImageSequence.Iterator(im)):
       move_no = index + game.start_move_no
@@ -127,6 +128,8 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         assert t[0] <= t[1]
         draw.rectangle((bar_xleft, bar_ytop + t[0], bar_xleft + bar_width - 1, bar_ytop + t[1]), fill = ((0,1,0)))
       im.save(frame_filename)
+      last_index = index
+  last_index += 1
+  matplotlib_graph(e, figure_width, figure_height, os.path.join(working_dir, f'frame{last_index:04d}.png'))
   command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, 'out.mp4')]
   subprocess.run(command, check = True, shell = False)
-  matplotlib_graph(e, figure_width, figure_height, os.path.join(working_dir, 'graph.png'))
