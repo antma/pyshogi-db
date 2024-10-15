@@ -25,6 +25,9 @@ _ATTACK_DIAG_UP_NEAR_S = set(itertools.chain(_BISHOP_L, _GENERAL_L))
 _ATTACK_ROOK_NEAR_S = set(itertools.chain(_ROOK_L, _GOLD_L))
 _ATTACK_BISHOP_NEAR_S = set(itertools.chain(_BISHOP_L, [piece.SILVER]))
 _FIVE_POINTS_S = set(itertools.chain(_BISHOP_L, _ROOK_L))
+_GOLD_S = set(_GOLD_L)
+_COULD_BE_PROMOTED_S = set([piece.PAWN, piece.LANCE, piece.KNIGHT, piece.SILVER, piece.BISHOP, piece.ROOK])
+_UNIQUE_S = set([piece.KING, piece.LANCE])
 
 del _GOLD_L
 del _ROOK_L
@@ -408,3 +411,80 @@ class Position:
       points += (5 if p in _FIVE_POINTS_S else 1) * v
     threshold = 28 if s > 0 else 27
     return points >= threshold
+  def _not_unique_piece(self, p: int, to_cell: int, moves) -> bool:
+    s = 1 if p < 0 else -1
+    r, c = divmod(to_cell, 9)
+    t = 0
+    for dr, dc in moves:
+      y, x = r + s * dr, c + s * dc
+      if (0 <= y < 9) and (0 <= x < 9):
+        if self.board[9 * y + x] == p:
+          t += 1
+          if t >= 2:
+            return True
+    assert t == 1
+    return False
+  def _not_unique_scan(self, from_piece, r, c, dr, dc, k) -> bool:
+    for _ in range(k):
+      r += dr
+      if (r < 0) or (r > 8):
+        return 0
+      c += dc
+      if (c < 0) or (c > 8):
+        return 0
+      p = self.board[9 * r + c]
+      if p != piece.FREE:
+        return p == from_piece
+    return False
+  def not_unique_move(self, m: Move) -> bool:
+    p = m.from_piece
+    ap = abs(p)
+    assert p
+    if ap in _GOLD_S:
+      return self._not_unique_piece(p, m.to_cell, piece.GOLD_MOVES)
+    if ap in _UNIQUE_S:
+      return False
+    if ap == piece.SILVER:
+      return self._not_unique_piece(p, m.to_cell, piece.SILVER_MOVES)
+    if ap == piece.KNIGHT:
+      return self._not_unique_piece(p, m.to_cell, piece.KNIGHT_MOVES)
+    r, c = divmod(m.to_cell, 9)
+    t = 0
+    for dr in range(-1, 2):
+      for dc in range(-1, 2):
+        if (dr == 0) and (dc == 0):
+          continue
+        if abs(dr) == abs(dc):
+          if ap in _BISHOP_S:
+            k = 10
+          elif ap == piece.DRAGON:
+            k = 1
+          else:
+            k = 0
+        else:
+          if ap in _ROOK_S:
+            k = 10
+          elif ap == piece.HORSE:
+            k = 1
+          else:
+            k = 0
+        if (k > 0) and (self._not_unique_scan(m.from_piece, r, c, dr, dc, k)):
+          t += 1
+          if t >= 2:
+            return True
+    assert t == 1
+    return False
+  def western_move_str(self, m: Move) -> str:
+    if m.is_drop():
+      return piece.to_string(abs(m.to_piece)) + '*' + cell.usi_str(m.to_cell)
+    s = piece.to_string(abs(m.from_piece))
+    if self.not_unique_move(m):
+      s += cell.usi_str(m.from_cell)
+    s += '-' if self.board[m.to_cell] == piece.FREE else 'x'
+    s += cell.usi_str(m.to_cell)
+    p = m.from_piece
+    if abs(p) in _COULD_BE_PROMOTED_S:
+      pz = piece.PromotionZone(p)
+      if (m.from_cell in pz) or (m.to_cell in pz):
+        s += '=' if m.from_piece == m.to_piece else '+'
+    return s

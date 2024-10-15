@@ -24,6 +24,12 @@ KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
 
 _UNPROMOTED_PIECES = set([FREE, GOLD, KING])
 
+_GENERAL_MOVES = [(-1, -1), (-1, 0), (-1, 1)]
+GOLD_MOVES = _GENERAL_MOVES + [(0, -1), (0, 1), (1, 0)]
+SILVER_MOVES = _GENERAL_MOVES + [(1, -1), (1, 1)]
+KNIGHT_MOVES = [(-2, -1), (-2, 1)]
+del _GENERAL_MOVES
+
 def is_legal(piece: int) -> bool:
   return abs(piece) <= DRAGON
 
@@ -67,3 +73,12 @@ def kifu_str(p: int) -> str:
 
 def side_to_str(side: int) -> str:
   return "sente" if side > 0 else "gote"
+
+class PromotionZone:
+  def __init__(self, side: int):
+    if side > 0:
+      self._f = lambda k: k < 27
+    else:
+      self._f = lambda k: k >= 54
+  def __contains__(self, k: int) -> bool:
+    return self._f(k)

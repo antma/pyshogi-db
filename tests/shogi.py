@@ -114,6 +114,21 @@ POSITIONS_IN_KIFU = [
 ''')
 ]
 
+WESTERN_MOVE_TESTS = [
+  ('l6nl/1r1gk1gs1/4pp1p1/p1pps1P1p/1p1n5/P1PP3RP/1P2PPN2/2GSK1S2/LN3G2L w B2Pb 38', 'B*4d', 'B*4d'),
+  ('l7l/5kgs1/3gpp1p1/p1pN2P1p/3pP1n2/P1P1N1B1P/1+r4+s2/7R1/2G2GK1L b BSPsnl5p 101', '3f6c+', 'Bx6c+'),
+  ('l7l/5kgs1/3+Bpp1p1/p1pN2Plp/3pP1n2/P1P1N3P/1+r7/9/2G2GK1L w BG2SPrsn5p 106', '8g3g', '+R-3g'),
+  ('lr6l/3gk1gs1/4pp1p1/p1p3P1p/3p1n3/P1P1PS2P/1P+s2P+pR1/4K1S2/+b1G2G2L b B2N2Pnlp 73', '3h3g', 'S3hx3g'),
+  ('ln1g1g1nl/1ks2r3/1pp1p1spp/p2p1pp2/9/2PS1SPP1/PP1PPPN1P/2GK1G1R1/LN6L w Bb 26', '4a5b', 'G4a-5b'),
+  ('5+RB1l/2g6/1s1k1pnp1/2pp2p1p/4B4/LpP3PPP/1P1P1PN2/K1G6/2G5L b RGNL2P3sn2p 87', '3a6d+', 'B3ax6d+'),
+  ('ln3g2l/2r1g1k2/3pppnpp/p5S2/1p3P3/2sPn1P1P/PPp3NP1/4R1SK1/L+b1G1G2L w B2Psp 64', '7f6g', 'S-6g='),
+  ('lnsgkg1+R1/5s1+R+P/p1pppp2p/6p2/9/2P6/P2PPPP1P/9/2+pGKGSNL b BNLPbsnlp 23', '2b1a', '+R2b-1a'),
+  ('ln1g1g1+B+B/1rks1s3/pppppp1pp/6p2/9/2P6/PP1PPPPPP/7R1/LNSGKGSNL b NL 11', '2a2b', '+B2a-2b'),
+  ('ln2kgsnl/2s1g2b1/p1ppppppp/9/1P5P1/P8/2PPPPP1P/1B1R3R1/LNSGKGSNL b P 13', '2h4h', 'R2h-4h'),
+  ('lnsgknsnl/1r3g3/pppppp1pp/6p2/9/2P6/PPBPPPPPP/2S1K2R1/L2G1GSNL w B 10', '4a3c', 'N4a-3c'),
+  ('l2gg1bnl/1rsk1s3/p1nppppGp/1pp6/9/P5P1P/1PPPPP1P1/1B5R1/LNSGK1SNL b P 19', '2c3b', 'G-3b'),
+]
+
 class TestShogiPiece(unittest.TestCase):
   def test_to_string(self):
     self.assertEqual(shogi.piece.to_string(shogi.piece.DRAGON), '+R')
@@ -216,6 +231,11 @@ class TestShogiPosition(unittest.TestCase):
         m = pos.parse_usi_move(s)
         self.assertEqual(s, m.usi_str())
         pos.do_move(m)
+  def test_western_move_str(self):
+    for (fen, usi_move, expected) in WESTERN_MOVE_TESTS:
+      pos = Position(fen)
+      m = pos.parse_usi_move(usi_move)
+      self.assertEqual(pos.western_move_str(m), expected)
 
 class TestKifu(unittest.TestCase):
   def test_time_control(self):
