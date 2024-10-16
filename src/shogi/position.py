@@ -27,7 +27,7 @@ _ATTACK_BISHOP_NEAR_S = set(itertools.chain(_BISHOP_L, [piece.SILVER]))
 _FIVE_POINTS_S = set(itertools.chain(_BISHOP_L, _ROOK_L))
 _GOLD_S = set(_GOLD_L)
 _COULD_BE_PROMOTED_S = set([piece.PAWN, piece.LANCE, piece.KNIGHT, piece.SILVER, piece.BISHOP, piece.ROOK])
-_UNIQUE_S = set([piece.KING, piece.LANCE])
+_UNIQUE_S = set([piece.PAWN, piece.LANCE, piece.KING])
 
 del _GOLD_L
 del _ROOK_L

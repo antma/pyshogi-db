@@ -127,6 +127,7 @@ WESTERN_MOVE_TESTS = [
   ('ln2kgsnl/2s1g2b1/p1ppppppp/9/1P5P1/P8/2PPPPP1P/1B1R3R1/LNSGKGSNL b P 13', '2h4h', 'R2h-4h'),
   ('lnsgknsnl/1r3g3/pppppp1pp/6p2/9/2P6/PPBPPPPPP/2S1K2R1/L2G1GSNL w B 10', '4a3c', 'N4a-3c'),
   ('l2gg1bnl/1rsk1s3/p1nppppGp/1pp6/9/P5P1P/1PPPPP1P1/1B5R1/LNSGK1SNL b P 19', '2c3b', 'G-3b'),
+  ('lnsgkgsnl/1r5b1/ppppppppp/9/9/2P6/PP1PPPPPP/1B5R1/LNSGKGSNL w - 2', '8c8d', 'P-8d'),
 ]
 
 class TestShogiPiece(unittest.TestCase):
