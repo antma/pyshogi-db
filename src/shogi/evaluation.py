@@ -1,6 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from math import exp
+from typing import Optional
 
 def _sigmoid(x: float) -> float:
   return 1.0 / (1.0 + exp(-x))
@@ -18,6 +19,17 @@ def win_rate_to_centipawns(rate: float) -> int:
     else:
       v = mid
   return u
+
+def win_rate_delta_to_str(delta: float) -> Optional[str]:
+  if delta > 0.4:
+    return 'Blunder'
+  if delta > 0.3:
+    return 'Serious mistake'
+  if delta > 0.2:
+    return 'Mistake'
+  if delta > 0.1:
+    return 'Inaccuracy'
+  return None
 
 def winning_percentage(value: float) -> int:
   return round(win_rate(value) * 100.0)

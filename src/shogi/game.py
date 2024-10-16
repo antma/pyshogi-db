@@ -47,7 +47,7 @@ class Game:
   def move_no_to_side_to_move(self, move_no: int) -> int:
     if move_no < self.start_move_no:
       log.raise_value_error('move number is too small')
-    return self.start_side_to_move * pow(-1, move_no - self.start_move_no)
+    return self.start_side_to_move * pow(-1, (move_no - self.start_move_no) & 1)
   def __init__(self, start_pos = None):
     self.tags = {}
     self.moves = []
