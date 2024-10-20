@@ -1,7 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from collections import defaultdict
-from typing import Optional
+from typing import Mapping, Optional
 
 import log
 from .move import Move, IllegalMove
@@ -110,3 +110,10 @@ class Game:
     if p < 0:
       return "0-1"
     return "1/2"
+  def positions(self) -> Mapping[int, str]:
+    pos = Position(self.start_pos)
+    d = {pos.move_no: pos.sfen()}
+    for m in self.moves:
+      pos.do_move(m)
+      d[pos.move_no] = pos.sfen()
+    return d

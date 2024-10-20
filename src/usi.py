@@ -10,7 +10,7 @@ from queue import Queue, Empty
 import subprocess
 from threading import Thread
 import time
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Tuple
 
 import log
 from shogi import evaluation, kifu
@@ -438,7 +438,8 @@ class USIGame:
       time.sleep(s)
       self.step()
 
-def game_win_rates(game: Game) -> Mapping[int, float]:
+def game_win_rates(game: Game) -> Mapping[int, Tuple[float, str]]:
+  p = game.positions()
   d = {}
   for move_no, l in game.comments.items():
     for s in l:
@@ -448,6 +449,15 @@ def game_win_rates(game: Game) -> Mapping[int, float]:
           wr = im.win_rate()
           if game.move_no_to_side_to_move(move_no) < 0:
             wr = 1.0 - wr
-          d[move_no] = wr
+          best_move = None
+          pv = im.get('pv')
+          if pv:
+            sfen = p.get(move_no)
+            if sfen:
+              pos = Position(sfen)
+              logging.debug('%s: %s', pos.sfen(), pv[0])
+              m = pos.parse_usi_move(pv[0])
+              best_move = pos.western_move_str(m)
+          d[move_no] = (wr, best_move)
           break
   return d

@@ -7,11 +7,12 @@ import subprocess
 from typing import Optional
 import numpy as np
 import matplotlib.pyplot as plt
+from shutil import copyfile
 
 import requests
 from PIL import Image, ImageSequence, ImageDraw
 
-from shogi import cell
+from shogi import cell, evaluation
 from shogi.game import Game
 from shogi.position import Position
 from usi import game_win_rates
@@ -61,7 +62,7 @@ def matplotlib_graph(e, width, height, output_filename):
   x, y = [], []
   for u, v in a:
     x.append(u)
-    y.append(v * 100.0)
+    y.append(v[0] * 100.0)
   px = 1/plt.rcParams['figure.dpi']  # pixel in inches
   f, ax = plt.subplots(figsize=(width*px, height*px))
   plt.plot(x,y)
@@ -75,7 +76,10 @@ def matplotlib_graph(e, width, height, output_filename):
   #ax.spines['left'].set_visible(False)
   plt.savefig(output_filename)
 
-def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, lishogi_gif_server: Optional[str] = None):
+def _frame(working_dir: str, index: int) -> str:
+  return os.path.join(working_dir, f'frame{index:04d}.png')
+
+def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: str, lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
   lishogi_gif(game, flip_orientation, delay, gif_filename, lishogi_gif_server)
   bar_width = 16
@@ -87,13 +91,13 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
   grey = 15
   e = game_win_rates(game)
   last_index = None
+  dft = (0.5, None)
   with Image.open(gif_filename) as im:
     for index, frame in enumerate(ImageSequence.Iterator(im)):
       move_no = index + game.start_move_no
       if move_no > game.pos.move_no:
         break
-      wr = e.get(move_no, 0.5)
-      frame_filename = os.path.join(working_dir, f"frame{index:04d}.png")
+      frame_filename = _frame(working_dir, index)
       h, w = frame.height, frame.width
       im = frame.copy()
       if bar_xleft is None:
@@ -116,8 +120,17 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
           if im.getpixel((bar_xleft, y)) != 2:
             bar_height = y - bar_ytop
         logging.debug('bar_xleft = %d, bar_ytop = %d, bar_height = %d', bar_xleft, bar_ytop, bar_height)
+      wr, _ = e.get(move_no, dft)
+      old_wr, bm = e.get(move_no - 1, dft)
+      side = game.move_no_to_side_to_move(move_no)
+      delta = (wr - old_wr) * side
+      assert delta > -0.05
       draw = ImageDraw.Draw(im)
       draw.rectangle((bar_xleft, bar_ytop, bar_xleft + bar_width - 1, bar_ytop + bar_height - 1), fill = ((255,255,255)))
+      msg = evaluation.win_rate_delta_to_str(delta)
+      if not msg is None:
+        msg = f'{msg} ({old_wr * 100.0:.0f}% → {wr * 100.0:.0f}%). Best move: {bm}'
+        logging.info(msg)
       black_height = round(wr * bar_height)
       logging.debug('Frame %d: wr = %s, black_h = %d, bar_h = %d', index, wr, black_height, bar_height)
       if black_height > 0:
@@ -129,7 +142,8 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         draw.rectangle((bar_xleft, bar_ytop + t[0], bar_xleft + bar_width - 1, bar_ytop + t[1]), fill = ((0,1,0)))
       im.save(frame_filename)
       last_index = index
-  last_index += 1
-  matplotlib_graph(e, figure_width, figure_height, os.path.join(working_dir, f'frame{last_index:04d}.png'))
+  copyfile(_frame(working_dir, last_index), _frame(working_dir, last_index+1))
+  last_index += 2
+  matplotlib_graph(e, figure_width, figure_height, _frame(working_dir, last_index))
   command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, 'out.mp4')]
   subprocess.run(command, check = True, shell = False)
