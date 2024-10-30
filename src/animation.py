@@ -79,16 +79,50 @@ def matplotlib_graph(e, width, height, output_filename):
 def _frame(working_dir: str, index: int) -> str:
   return os.path.join(working_dir, f'frame{index:04d}.png')
 
+class _FrameLayout:
+  def __init__(self, frame, flip_orientation: bool, bar_width: int = 16):
+    h, w = frame.height, frame.width
+    grey = 15
+    self.figure_height = h
+    self.figure_width = w
+    self.bar_width = bar_width
+    self.flip_orientation = flip_orientation
+    for y in range(h):
+      s = 0
+      for x in range(w - 1, -1, -1):
+        p = frame.getpixel((x, y)) 
+        if (s == 0) and (p == grey):
+          s += 1
+        elif (s == 1) and (p != grey):
+          s += 1 
+          bar_ytop = y
+          bar_xleft = x
+          break
+      if s == 2:
+        break
+    for y in range(bar_ytop + 1, h):
+      if frame.getpixel((bar_xleft, y)) != 2:
+        bar_height = y - bar_ytop
+    logging.debug('bar_xleft = %d, bar_ytop = %d, bar_height = %d', bar_xleft, bar_ytop, bar_height)
+    self.bar_ytop = bar_ytop
+    self.bar_xleft = bar_xleft
+    self.bar_height = bar_height
+  def draw_bar(self, im, win_rate: float):
+    draw = ImageDraw.Draw(im)
+    draw.rectangle((self.bar_xleft, self.bar_ytop, self.bar_xleft + self.bar_width - 1, self.bar_ytop + self.bar_height - 1), fill = ((255,255,255)))
+    black_height = round(win_rate * self.bar_height)
+    if black_height > 0:
+      if self.flip_orientation:
+        t = (0, black_height - 1)
+      else:
+        t = (self.bar_height - black_height, self.bar_height - 1)
+      assert t[0] <= t[1]
+      draw.rectangle((self.bar_xleft, self.bar_ytop + t[0], self.bar_xleft + self.bar_width - 1, self.bar_ytop + t[1]), fill = ((0,1,0)))
+
 def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: str, lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
   lishogi_gif(game, flip_orientation, delay, gif_filename, lishogi_gif_server)
-  bar_width = 16
-  bar_xleft = None
-  bar_ytop = None
-  bar_height = None
-  figure_width = None
-  figure_height = None
-  grey = 15
+  layout = None
   e = game_win_rates(game)
   last_index = None
   dft = (0.5, None)
@@ -98,52 +132,21 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
       if move_no > game.pos.move_no:
         break
       frame_filename = _frame(working_dir, index)
-      h, w = frame.height, frame.width
+      #h, w = frame.height, frame.width
       im = frame.copy()
-      if bar_xleft is None:
-        figure_width = w
-        figure_height = h
-        for y in range(h):
-          s = 0
-          for x in range(w - 1, -1, -1):
-            p = im.getpixel((x, y)) 
-            if (s == 0) and (p == grey):
-              s += 1
-            elif (s == 1) and (p != grey):
-              s += 1 
-              bar_ytop = y
-              bar_xleft = x
-              break
-          if s == 2:
-            break
-        for y in range(bar_ytop + 1, h):
-          if im.getpixel((bar_xleft, y)) != 2:
-            bar_height = y - bar_ytop
-        logging.debug('bar_xleft = %d, bar_ytop = %d, bar_height = %d', bar_xleft, bar_ytop, bar_height)
+      if layout is None:
+        layout = _FrameLayout(im, flip_orientation)
       wr, _ = e.get(move_no, dft)
       old_wr, bm = e.get(move_no - 1, dft)
       side = game.move_no_to_side_to_move(move_no)
-      delta = (wr - old_wr) * side
-      assert delta > -0.05
-      draw = ImageDraw.Draw(im)
-      draw.rectangle((bar_xleft, bar_ytop, bar_xleft + bar_width - 1, bar_ytop + bar_height - 1), fill = ((255,255,255)))
-      msg = evaluation.win_rate_delta_to_str(delta)
+      msg = evaluation.mistake_str(side, old_wr, wr, bm)
       if not msg is None:
-        msg = f'{msg} ({old_wr * 100.0:.0f}% → {wr * 100.0:.0f}%). Best move: {bm}'
         logging.info(msg)
-      black_height = round(wr * bar_height)
-      logging.debug('Frame %d: wr = %s, black_h = %d, bar_h = %d', index, wr, black_height, bar_height)
-      if black_height > 0:
-        if flip_orientation:
-          t = (0, black_height - 1)
-        else:
-          t = (bar_height - black_height, bar_height - 1)
-        assert t[0] <= t[1]
-        draw.rectangle((bar_xleft, bar_ytop + t[0], bar_xleft + bar_width - 1, bar_ytop + t[1]), fill = ((0,1,0)))
+      layout.draw_bar(im, wr)
       im.save(frame_filename)
       last_index = index
   copyfile(_frame(working_dir, last_index), _frame(working_dir, last_index+1))
   last_index += 2
-  matplotlib_graph(e, figure_width, figure_height, _frame(working_dir, last_index))
+  matplotlib_graph(e, layout.figure_width, layout.figure_height, _frame(working_dir, last_index))
   command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, 'out.mp4')]
   subprocess.run(command, check = True, shell = False)

@@ -1,7 +1,10 @@
 # -*- coding: UTF8 -*-
 
+from enum import IntEnum
 from math import exp
 from typing import Optional
+
+from .move import Move
 
 def _sigmoid(x: float) -> float:
   return 1.0 / (1.0 + exp(-x))
@@ -20,16 +23,36 @@ def win_rate_to_centipawns(rate: float) -> int:
       v = mid
   return u
 
-def win_rate_delta_to_str(delta: float) -> Optional[str]:
+class MistakeType(IntEnum):
+  INACCURACY = 1
+  MISTAKE = 2
+  SERIOUS_MISTAKE = 3
+  BLUNDER = 4
+  def __str__(self) -> str:
+    match self.value:
+      case MistakeType.INACCURACY: return 'Inaccuracy'
+      case MistakeType.MISTAKE: return 'Mistake'
+      case MistakeType.SERIOUS_MISTAKE: return 'Serious mistake'
+      case MistakeType.BLUNDER: return 'Blunder'
+
+def win_rate_delta_to_mistake_type(delta: float) -> Optional[MistakeType]:
   if delta > 0.4:
-    return 'Blunder'
+    return MistakeType.BLUNDER
   if delta > 0.3:
-    return 'Serious mistake'
+    return MistakeType.SERIOUS_MISTAKE
   if delta > 0.2:
-    return 'Mistake'
+    return MistakeType.MISTAKE
   if delta > 0.1:
-    return 'Inaccuracy'
+    return MistakeType.INACCURACY
   return None
+
+def mistake_str(side: int, old_win_rate: float, new_win_rate: float, bm: Move) -> Optional[str]:
+  delta = (new_win_rate - old_win_rate) * side
+  mt = win_rate_delta_to_mistake_type(delta)
+  if mt is None:
+    return None
+  sbm = 'Best move'
+  return f'{mt} ({old_win_rate * 100.0:.0f}% → {new_win_rate * 100.0:.0f}%). {sbm}: {bm}'
 
 def winning_percentage(value: float) -> int:
   return round(win_rate(value) * 100.0)
