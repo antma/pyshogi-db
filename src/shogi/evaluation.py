@@ -47,7 +47,7 @@ def win_rate_delta_to_mistake_type(delta: float) -> Optional[MistakeType]:
   return None
 
 def mistake_str(side: int, old_win_rate: float, new_win_rate: float, bm: Move) -> Optional[str]:
-  delta = (new_win_rate - old_win_rate) * side
+  delta = (old_win_rate - new_win_rate) * side
   mt = win_rate_delta_to_mistake_type(delta)
   if mt is None:
     return None

@@ -5,13 +5,13 @@ import json
 import logging
 import os
 import subprocess
-from typing import Optional
+from typing import Optional, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 from shutil import copyfile
 
 import requests
-from PIL import Image, ImageSequence, ImageDraw
+from PIL import Image, ImageSequence, ImageDraw, ImageFont
 
 from shogi import cell, evaluation
 from shogi.game import Game
@@ -91,8 +91,9 @@ def _scan_column(frame, col: int):
   return a
 
 class _FrameLayout:
-  def __init__(self, frame, flip_orientation: bool, bar_width: int = 16):
+  def __init__(self, frame, flip_orientation: bool, ttf: Tuple[str,int], bar_width: int = 16):
     h, w = frame.height, frame.width
+    self.font = ImageFont.truetype(ttf[0], ttf[1])
     self.figure_height = h
     self.figure_width = w
     self.bar_width = bar_width
@@ -109,8 +110,7 @@ class _FrameLayout:
     center = lambda t: t[0] + (t[1] // 2)
     self.top_row_center = center(lc[0])
     self.bottom_row_center = center(lc[2])
-  def draw_bar(self, im, win_rate: float):
-    draw = ImageDraw.Draw(im)
+  def draw_bar(self, draw, win_rate: float):
     draw.rectangle((self.bar_xleft, self.bar_ytop, self.bar_xleft + self.bar_width - 1, self.bar_ytop + self.bar_height - 1), fill = ((255,255,255)))
     black_height = round(win_rate * self.bar_height)
     if black_height > 0:
@@ -120,8 +120,12 @@ class _FrameLayout:
         t = (self.bar_height - black_height, self.bar_height - 1)
       assert t[0] <= t[1]
       draw.rectangle((self.bar_xleft, self.bar_ytop + t[0], self.bar_xleft + self.bar_width - 1, self.bar_ytop + t[1]), fill = ((0,1,0)))
+  def draw_text(self, draw, side: int, msg: str):
+    sente = (side > 0) ^ self.flip_orientation 
+    y = self.bottom_row_center if sente else self.top_row_center
+    draw.text((self.bar_xleft - 1, y), msg, font = self.font, fill = (255,255,255), anchor = 'rm')
 
-def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: str, lishogi_gif_server: Optional[str] = None):
+def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: Tuple[str,int], lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
   lishogi_gif(game, flip_orientation, delay, gif_filename, lishogi_gif_server)
   layout = None
@@ -137,14 +141,16 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
       #h, w = frame.height, frame.width
       im = frame.copy()
       if layout is None:
-        layout = _FrameLayout(im, flip_orientation)
+        layout = _FrameLayout(im, flip_orientation, ttf)
       wr, _ = e.get(move_no, dft)
       old_wr, bm = e.get(move_no - 1, dft)
-      side = game.move_no_to_side_to_move(move_no)
+      side = -game.move_no_to_side_to_move(move_no)
       msg = evaluation.mistake_str(side, old_wr, wr, bm)
+      draw = ImageDraw.Draw(im)
+      layout.draw_bar(draw, wr)
       if not msg is None:
-        logging.info(msg)
-      layout.draw_bar(im, wr)
+        layout.draw_text(draw, side, msg)
+        logging.info("%s: %s (side = %d)", frame_filename, msg, side)
       im.save(frame_filename)
       last_index = index
   copyfile(_frame(working_dir, last_index), _frame(working_dir, last_index+1))
