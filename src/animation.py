@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 
+import itertools
 import json
 import logging
 import os
@@ -79,34 +80,35 @@ def matplotlib_graph(e, width, height, output_filename):
 def _frame(working_dir: str, index: int) -> str:
   return os.path.join(working_dir, f'frame{index:04d}.png')
 
+def _scan_column(frame, col: int):
+  h, w = frame.height, frame.width
+  x = 0
+  a = []
+  for color, g in itertools.groupby([frame.getpixel((col, row)) for row in range(h)]):
+    l = len(list(g))
+    a.append((x, l, color))
+    x += l
+  return a
+
 class _FrameLayout:
   def __init__(self, frame, flip_orientation: bool, bar_width: int = 16):
     h, w = frame.height, frame.width
-    grey = 15
     self.figure_height = h
     self.figure_width = w
     self.bar_width = bar_width
     self.flip_orientation = flip_orientation
-    for y in range(h):
-      s = 0
-      for x in range(w - 1, -1, -1):
-        p = frame.getpixel((x, y)) 
-        if (s == 0) and (p == grey):
-          s += 1
-        elif (s == 1) and (p != grey):
-          s += 1 
-          bar_ytop = y
-          bar_xleft = x
-          break
-      if s == 2:
+    grey = 15
+    lc = _scan_column(frame, w-1)
+    assert ([t[2] for t in lc] == [2, grey, 2])
+    self.bar_ytop, self.bar_height, _ = lc[1]
+    for x in range(w - 1, -1, -1):
+      if frame.getpixel((x, self.bar_ytop)) != grey:
+        bar_xleft = x
         break
-    for y in range(bar_ytop + 1, h):
-      if frame.getpixel((bar_xleft, y)) != 2:
-        bar_height = y - bar_ytop
-    logging.debug('bar_xleft = %d, bar_ytop = %d, bar_height = %d', bar_xleft, bar_ytop, bar_height)
-    self.bar_ytop = bar_ytop
     self.bar_xleft = bar_xleft
-    self.bar_height = bar_height
+    center = lambda t: t[0] + (t[1] // 2)
+    self.top_row_center = center(lc[0])
+    self.bottom_row_center = center(lc[2])
   def draw_bar(self, im, win_rate: float):
     draw = ImageDraw.Draw(im)
     draw.rectangle((self.bar_xleft, self.bar_ytop, self.bar_xleft + self.bar_width - 1, self.bar_ytop + self.bar_height - 1), fill = ((255,255,255)))
