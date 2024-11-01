@@ -163,6 +163,7 @@ def game_parse(s: str) -> Optional[Game]:
 
 def _strip_comment(t):
   """Everything after '#' will be ignored by parsers."""
+  logging.debug('%s', t)
   line, s = t
   s = s.rstrip()
   if line == 0:
@@ -253,6 +254,7 @@ def _game_parse(game_kif: str) -> Optional[Game]:
     if not game_result is None:
       game.set_result(game_result)
       break
+    logging.debug("%s", km)
     mv = move_parse(km, game.pos.side_to_move, prev_move)
     if mv is None:
       return None

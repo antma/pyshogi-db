@@ -3,18 +3,20 @@
 import itertools
 import json
 import logging
+import math
 import os
 import subprocess
+from shutil import copyfile
 from typing import Optional, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
-from shutil import copyfile
 
 import requests
 from PIL import Image, ImageSequence, ImageDraw, ImageFont
 
-from shogi import cell, evaluation
+from shogi import cell, evaluation, piece
 from shogi.game import Game
+from shogi.move import Move
 from shogi.position import Position
 from usi import game_win_rates
 
@@ -52,7 +54,7 @@ def lishogi_gif(game: Game, flip_orientation: bool, delay: int, output_gif_filen
     server = '127.0.0.1:6175'
   data = game_to_lishogi_gif_post_query(game, flip_orientation, delay)
   url = 'http://' + server + '/game.gif'
-  r = requests.post(url, data = data)
+  r = requests.post(url, data = data, timeout = 1.0)
   if r.status_code == 200:
     with open(output_gif_filename, 'wb') as f:
       f.write(r.content)
@@ -65,7 +67,7 @@ def matplotlib_graph(e, width, height, output_filename):
     x.append(u)
     y.append(v[0] * 100.0)
   px = 1/plt.rcParams['figure.dpi']  # pixel in inches
-  f, ax = plt.subplots(figsize=(width*px, height*px))
+  _, ax = plt.subplots(figsize=(width*px, height*px))
   plt.plot(x,y)
   ax.set_xlabel('moves')
   ax.set_ylabel('percent')
@@ -81,14 +83,44 @@ def _frame(working_dir: str, index: int) -> str:
   return os.path.join(working_dir, f'frame{index:04d}.png')
 
 def _scan_column(frame, col: int):
-  h, w = frame.height, frame.width
   x = 0
   a = []
-  for color, g in itertools.groupby([frame.getpixel((col, row)) for row in range(h)]):
+  for color, g in itertools.groupby([frame.getpixel((col, row)) for row in range(frame.height)]):
     l = len(list(g))
     a.append((x, l, color))
     x += l
   return a
+
+def _scan_row(frame, row: int):
+  x = 0
+  a = []
+  for color, g in itertools.groupby([frame.getpixel((col, row)) for col in range(frame.width)]):
+    l = len(list(g))
+    a.append((x, l, color))
+    x += l
+  return a
+
+def _draw_arrow(draw, src: Tuple[int, int], dest: Tuple[int, int], r: float, alpha: float, color = (255, 0, 0), width = 2):
+  draw.line([src, dest], fill = color, width = width)
+  alpha = math.radians(alpha)
+  sa = math.sin(alpha)
+  ca = math.cos(alpha)
+  dx = src[0] - dest[0]
+  dy = src[1] - dest[1]
+  inv = r / math.hypot(dx, dy)
+  dx *= inv
+  dy *= inv
+  a = [dest]
+  cb = ca
+  for sign in [-1, 1]:
+    sb = sign * sa
+    x = cb * dx - sb * dy + dest[0]
+    y = sb * dx + cb * dy + dest[1]
+    a.append((round(x), round(y)))
+  draw.polygon(a, fill = color)
+
+def _center(t):
+  return t[0] + (t[1] // 2)
 
 class _FrameLayout:
   def __init__(self, frame, flip_orientation: bool, ttf: Tuple[str,int], bar_width: int = 16):
@@ -107,9 +139,18 @@ class _FrameLayout:
         bar_xleft = x
         break
     self.bar_xleft = bar_xleft
-    center = lambda t: t[0] + (t[1] // 2)
-    self.top_row_center = center(lc[0])
-    self.bottom_row_center = center(lc[2])
+    self.top_row_center = _center(lc[0])
+    self.bottom_row_center = _center(lc[2])
+    lr = _scan_row(frame, self.bar_ytop)
+    logging.debug('lr = %s', lr)
+    assert ([t[2] for t in lr] == [15, 0, 15])
+    self.cell_xleft = lr[1][0] + 1
+    self.cell_width = (lr[1][1] - 2) // 9
+    self.cell_ytop = self.bar_ytop + 1
+    self.cell_height = (self.bar_height - 2) // 9
+    logging.debug('cell sizes = %dx%d', self.cell_width, self.cell_height)
+    self.sente_xcenter = _center(lr[2])
+    self.gote_xcenter = _center(lr[0])
   def draw_bar(self, draw, win_rate: float):
     draw.rectangle((self.bar_xleft, self.bar_ytop, self.bar_xleft + self.bar_width - 1, self.bar_ytop + self.bar_height - 1), fill = ((255,255,255)))
     black_height = round(win_rate * self.bar_height)
@@ -121,9 +162,26 @@ class _FrameLayout:
       assert t[0] <= t[1]
       draw.rectangle((self.bar_xleft, self.bar_ytop + t[0], self.bar_xleft + self.bar_width - 1, self.bar_ytop + t[1]), fill = ((0,1,0)))
   def draw_text(self, draw, side: int, msg: str):
-    sente = (side > 0) ^ self.flip_orientation 
+    sente = (side > 0) ^ self.flip_orientation
     y = self.bottom_row_center if sente else self.top_row_center
     draw.text((self.bar_xleft - 1, y), msg, font = self.font, fill = (255,255,255), anchor = 'rm')
+  def cell_coords(self, c: int) -> Tuple[int, int]:
+    row, col = divmod(c, 9)
+    col = 8 - col
+    if self.flip_orientation:
+      row, col = 8 - row, 8 - col
+    return (self.cell_xleft + round((col + 0.5) * self.cell_width), self.cell_ytop + round((row + 0.5) * self.cell_height))
+  def draw_move(self, draw, m: Move):
+    dest = self.cell_coords(m.to_cell)
+    if m.is_drop():
+      p = round(((piece.ROOK - abs(m.to_piece)) + 0.5) * self.cell_height)
+      if (m.to_piece > 0) != self.flip_orientation:
+        src = (self.sente_xcenter, self.bar_ytop + self.bar_height - 2 - p)
+      else:
+        src = (self.gote_xcenter, self.bar_ytop + p)
+    else:
+      src = self.cell_coords(m.from_cell)
+    _draw_arrow(draw, src, dest, self.cell_width * 0.2, 30.0)
 
 def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: Tuple[str,int], lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
@@ -145,16 +203,17 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
       wr, _ = e.get(move_no, dft)
       old_wr, bm = e.get(move_no - 1, dft)
       side = -game.move_no_to_side_to_move(move_no)
-      msg = evaluation.mistake_str(side, old_wr, wr, bm)
+      msg = evaluation.mistake_str(side, old_wr, wr, bm and bm[1])
       draw = ImageDraw.Draw(im)
       layout.draw_bar(draw, wr)
       if not msg is None:
         layout.draw_text(draw, side, msg)
         logging.info("%s: %s (side = %d)", frame_filename, msg, side)
+        layout.draw_move(draw, bm[0])
       im.save(frame_filename)
       last_index = index
   copyfile(_frame(working_dir, last_index), _frame(working_dir, last_index+1))
   last_index += 2
   matplotlib_graph(e, layout.figure_width, layout.figure_height, _frame(working_dir, last_index))
-  command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, 'out.mp4')]
+  command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, output_mp4_filename)]
   subprocess.run(command, check = True, shell = False)

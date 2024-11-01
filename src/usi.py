@@ -15,6 +15,7 @@ from typing import Mapping, Optional, Tuple
 import log
 from shogi import evaluation, kifu
 from shogi.game import Game
+from shogi.move import Move
 from shogi.position import Position
 from shogi.result import GameResult, description
 
@@ -337,6 +338,7 @@ class USIEngine:
       usi_moves.append(m.usi_str())
       im, _ = self.analyse_position(game.start_pos, usi_moves)
       game.append_comment_before_move(pos.move_no, im.kifu_str())
+      logging.info('%d. %s (%d%%)', pos.move_no - 1, usi_moves[-1], round(100.0 * im.win_rate()))
 
 class USIGame:
   '''for running game between two engine with tkinter (single threaded)'''
@@ -438,7 +440,7 @@ class USIGame:
       time.sleep(s)
       self.step()
 
-def game_win_rates(game: Game) -> Mapping[int, Tuple[float, str]]:
+def game_win_rates(game: Game) -> Mapping[int, Tuple[float, Optional[Tuple[Move, str]]]]:
   p = game.positions()
   d = {}
   for move_no, l in game.comments.items():
@@ -457,7 +459,7 @@ def game_win_rates(game: Game) -> Mapping[int, Tuple[float, str]]:
               pos = Position(sfen)
               logging.debug('%s: %s', pos.sfen(), pv[0])
               m = pos.parse_usi_move(pv[0])
-              best_move = pos.western_move_str(m)
+              best_move = (m, pos.western_move_str(m))
           d[move_no] = (wr, best_move)
           break
   return d
