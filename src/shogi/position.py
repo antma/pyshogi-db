@@ -488,3 +488,12 @@ class Position:
       if (m.from_cell in pz) or (m.to_cell in pz):
         s += '=' if m.from_piece == m.to_piece else '+'
     return s
+  @classmethod
+  def private_init(cls, board, side_to_move, move_no, sente_pieces, gote_pieces):
+    self = cls.__new__(cls)
+    self.board = board
+    self.side_to_move = side_to_move
+    self.move_no = move_no
+    self.sente_pieces = sente_pieces
+    self.gote_pieces = gote_pieces
+    return self

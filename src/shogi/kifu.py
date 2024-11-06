@@ -1,9 +1,10 @@
 # -*- coding: UTF8 -*-
 
 import datetime
+import itertools
 import logging
 import re
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import log
 from . import cell
@@ -187,6 +188,65 @@ _HEADER_WRITE_ORDER_L = ['start_sfen', 'start_date', 'end_date', 'location', 'ti
 _HEADER_EN_D = dict((t[1], t[0]) for t in _HEADER_JP_D.items())
 _SIDE_S = set(['sente', 'gote'])
 
+def _pieces_parse(s: str) -> List[int]:
+  p = [0] * piece.ROOK
+  if s == 'なし':
+    return p
+  last_piece = None
+  t = None
+  for c in (s + ' '):
+    if last_piece is None:
+      last_piece = _KIFU_PIECES_D.get(c)
+      t = 0
+    else:
+      if c.isspace():
+        p[last_piece - 1] = max(1, t)
+        last_piece = None
+        t = None
+      elif c == '十':
+        t += 10
+      else:
+        t += _KIFU_ROWS_D[c] + 1
+  return p
+
+def _board_parse(s: List[str]) -> List[int]:
+  if s[0] != '  ９ ８ ７ ６ ５ ４ ３ ２ １':
+    log.raise_value_error('_board_parse: expected column numbers')
+  sep = '+---------------------------+'
+  if s[1] != sep:
+    log.raise_value_error('_board_parse: expected board separator')
+  b = [None] * 81
+  for row in range(9):
+    t = list(s[row + 2])
+    if t[0] != '|':
+      log.raise_value_error(f'_board_parse: expected left board separator at row {row+1}')
+    k = 1
+    for col in reversed(range(9)):
+      if t[k] == 'v':
+        side = -1
+      else:
+        if t[k] != ' ':
+          log.raise_value_error(f'_board_parse: expected space at row {row+1}, column {col+1}')
+        side = 1
+      k += 1
+      p = _KIFU_PIECES_D.get(t[k])
+      n = 9 * row + col
+      if p is None:
+        if t[k] != '・':
+          log.raise_value_error(f'_board_parse: expected empty cell character at {row+1}, column {col+1}')
+        b[n] = piece.FREE
+      else:
+        b[n] = p * side
+      k += 1
+    if t[k] != '|':
+      log.raise_value_error(f'_board_parse: expected right board separator at row {row+1}')
+    k += 1
+    if _KIFU_ROWS_D.get(t[k]) != row:
+      log.raise_value_error(f'_board_parse: expected row number at row {row+1}')
+  if s[11] != sep:
+    log.raise_value_error('_board_parse: expected board separator')
+  return b
+
 def _game_parse(game_kif: str) -> Optional[Game]:
   '''
   https://lishogi.org/explanation/kif
@@ -207,6 +267,7 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   if (p is None) or (p[0] != 'encoding'):
     log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
   _encoding = p[1]
+  start_pos = None
   while True:
     t = next(it)
     if t == _HEADER_MOVES_SEPARATOR:
@@ -216,7 +277,29 @@ def _game_parse(game_kif: str) -> Optional[Game]:
       log.raise_value_error(f'Expected header section and moves section separator, but "{t}" found')
     key, value = p
     key = _HEADER_JP_D.get(key)
-    if not key is None:
+    if key is None:
+      if p[0] == '後手の持駒':
+        gote_pieces = _pieces_parse(value)
+        board = []
+        for _ in range(12):
+          board.append(next(it))
+        board = _board_parse(board)
+        t = next(it)
+        p = _parse_key_value(t, '：')
+        if p is None:
+          log.raise_value_error("Can't parse sente pieces")
+        key, value = p
+        if key != '先手の持駒':
+          log.raise_value_error("Can't parse sente pieces")
+        sente_pieces = _pieces_parse(value)
+        t = next(it)
+        if t == '後手番':
+          side_to_move = -1
+        else:
+          side_to_move = 1
+          it = itertools.chain([t], it)
+        start_pos = position.Position.private_init(board, side_to_move, None, sente_pieces, gote_pieces)
+    else:
       if key in _SIDE_S:
         _parse_player_name(game, value, key)
       elif key.endswith('_date'):
@@ -245,8 +328,12 @@ def _game_parse(game_kif: str) -> Optional[Game]:
           game.set_result(result.GameResult.ILLEGAL_PRECEDING_MOVE)
           break
       continue
-    t = str(game.pos.move_no)
     a = list(filter(lambda t: t != '', s.split(' ')))
+    if not start_pos is None:
+      start_pos.move_no = int(a[0])
+      game.set_start_position(start_pos)
+      start_pos = None
+    t = str(game.pos.move_no)
     if (len(a) < 2) or (t != a[0]):
       break
     km = a[1]

@@ -2,6 +2,7 @@
 import csv
 import gzip
 import inspect
+import io
 import logging
 import math
 import os
@@ -263,6 +264,17 @@ class TestEvaluation(unittest.TestCase):
           e = math.ceil(win_rate)
         e = round(shogi.evaluation.winning_percentage(score))
         self.assertEqual(e, int(t[0]), msg = f'test #{i+1}: win_rate({score}) = {win_rate}')
+
+class TestPuzzles(unittest.TestCase):
+  def test_puzzles(self):
+    for puzzle_id in range(1, 2):
+      with open(os.path.join(MODULE_DIR, 'puzzles', f'{puzzle_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
+        s = f.read()
+      g = shogi.kifu.game_parse(s)
+      self.assertIsNotNone(g)
+      f = io.StringIO()
+      shogi.kifu.game_write_to_file(g, f)
+      self.assertEqual(s, f.getvalue())
 
 if __name__ == '__main__':
   unittest.main()
