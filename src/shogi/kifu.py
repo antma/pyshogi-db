@@ -267,7 +267,6 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   if (p is None) or (p[0] != 'encoding'):
     log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
   _encoding = p[1]
-  start_pos = None
   while True:
     t = next(it)
     if t == _HEADER_MOVES_SEPARATOR:
@@ -298,7 +297,9 @@ def _game_parse(game_kif: str) -> Optional[Game]:
         else:
           side_to_move = 1
           it = itertools.chain([t], it)
-        start_pos = position.Position.private_init(board, side_to_move, None, sente_pieces, gote_pieces)
+        game2 = Game(position.Position.build_sfen(board, side_to_move, 1, sente_pieces, gote_pieces))
+        game2.tags = game.tags
+        game = game2
     else:
       if key in _SIDE_S:
         _parse_player_name(game, value, key)
@@ -329,10 +330,6 @@ def _game_parse(game_kif: str) -> Optional[Game]:
           break
       continue
     a = list(filter(lambda t: t != '', s.split(' ')))
-    if not start_pos is None:
-      start_pos.move_no = int(a[0])
-      game.set_start_position(start_pos)
-      start_pos = None
     t = str(game.pos.move_no)
     if (len(a) < 2) or (t != a[0]):
       break
@@ -354,6 +351,8 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   return game
 
 def _game_write_tags(g: Game, f):
+  if not g.start_pos is None:
+    g.set_tag('start_sfen', g.start_pos)
   for key in _HEADER_WRITE_ORDER_L:
     p = g.get_tag(key)
     if not p is None:

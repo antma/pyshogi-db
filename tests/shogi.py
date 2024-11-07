@@ -274,7 +274,12 @@ class TestPuzzles(unittest.TestCase):
       self.assertIsNotNone(g)
       f = io.StringIO()
       shogi.kifu.game_write_to_file(g, f)
-      self.assertEqual(s, f.getvalue())
+      t = f.getvalue()
+      '''
+      with open(os.path.join(MODULE_DIR, 'puzzles', f'{puzzle_id:04d}.out'), 'w', encoding = 'UTF8') as g:
+        g.write(t)
+      '''
+      self.assertEqual(s, t)
 
 if __name__ == '__main__':
   unittest.main()

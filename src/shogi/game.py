@@ -48,18 +48,6 @@ class Game:
     if move_no < self.start_move_no:
       log.raise_value_error('move number is too small')
     return self.start_side_to_move * pow(-1, (move_no - self.start_move_no) & 1)
-  def set_start_position(self, pos):
-    ''' should be used only in KIFU parsing '''
-    assert self.game_result is None
-    assert len(self.moves) == 0
-    self.start_pos = pos.sfen()
-    self.set_tag('start_sfen', self.start_pos)
-    self.start_move_no = pos.move_no
-    self.start_side_to_move = pos.side_to_move
-    self.pos = pos
-    self._repetitions_dict = defaultdict(list)
-    self._checks = []
-    self._insert_sfen()
   def __init__(self, start_pos = None):
     self.tags = {}
     self.moves = []
