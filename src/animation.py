@@ -79,8 +79,20 @@ def matplotlib_graph(e, width, height, output_filename):
   #ax.spines['left'].set_visible(False)
   plt.savefig(output_filename)
 
-def _frame(working_dir: str, index: int) -> str:
-  return os.path.join(working_dir, f'frame{index:04d}.png')
+class _Frames:
+  def __init__(self, working_dir: str):
+    self._working_dir = working_dir
+    self._index = 0
+  def next_frame_filename(self) -> str:
+    self._index += 1
+    return os.path.join(self._working_dir, f'frame{self._index:04d}.png')
+  def save(self, frame):
+    frame.save(self.next_frame_filename())
+  def copy_last(self):
+    self._index -= 1
+    old = self.next_frame_filename()
+    new = self.next_frame_filename()
+    copyfile(old, new)
 
 def _scan_column(frame, col: int):
   x = 0
@@ -132,7 +144,7 @@ class _FrameLayout:
     self.flip_orientation = flip_orientation
     grey = 15
     lc = _scan_column(frame, w-1)
-    assert ([t[2] for t in lc] == [2, grey, 2])
+    assert [t[2] for t in lc] == [2, grey, 2], "lc = {}".format(lc)
     self.bar_ytop, self.bar_height, _ = lc[1]
     for x in range(w - 1, -1, -1):
       if frame.getpixel((x, self.bar_ytop)) != grey:
@@ -185,35 +197,39 @@ class _FrameLayout:
 
 def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: Tuple[str,int], lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
+  for key in ['sente', 'gote']:
+    if game.get_tag(key) is None:
+      game.set_tag(key, ' ')
   lishogi_gif(game, flip_orientation, delay, gif_filename, lishogi_gif_server)
   layout = None
   e = game_win_rates(game)
-  last_index = None
   dft = (0.5, None)
+  has_evals = len(e) > 0
+  frames = _Frames(working_dir)
   with Image.open(gif_filename) as im:
     for index, frame in enumerate(ImageSequence.Iterator(im)):
       move_no = index + game.start_move_no
       if move_no > game.pos.move_no:
         break
-      frame_filename = _frame(working_dir, index)
-      #h, w = frame.height, frame.width
-      im = frame.copy()
       if layout is None:
-        layout = _FrameLayout(im, flip_orientation, ttf)
-      wr, _ = e.get(move_no, dft)
-      old_wr, bm = e.get(move_no - 1, dft)
-      side = -game.move_no_to_side_to_move(move_no)
-      msg = evaluation.mistake_str(side, old_wr, wr, bm and bm[1])
-      draw = ImageDraw.Draw(im)
-      layout.draw_bar(draw, wr)
-      if not msg is None:
-        layout.draw_text(draw, side, msg)
-        logging.info("%s: %s (side = %d)", frame_filename, msg, side)
-        layout.draw_move(draw, bm[0])
-      im.save(frame_filename)
-      last_index = index
-  copyfile(_frame(working_dir, last_index), _frame(working_dir, last_index+1))
-  last_index += 2
-  matplotlib_graph(e, layout.figure_width, layout.figure_height, _frame(working_dir, last_index))
+        layout = _FrameLayout(frame, flip_orientation, ttf)
+      if has_evals:
+        im = frame.copy()
+        wr, _ = e.get(move_no, dft)
+        old_wr, bm = e.get(move_no - 1, dft)
+        side = -game.move_no_to_side_to_move(move_no)
+        msg = evaluation.mistake_str(side, old_wr, wr, bm and bm[1])
+        draw = ImageDraw.Draw(im)
+        layout.draw_bar(draw, wr)
+        if not msg is None:
+          layout.draw_text(draw, side, msg)
+          logging.info("%s. %s (side = %d)", move_no, msg, side)
+          layout.draw_move(draw, bm[0])
+        frames.save(im)
+      else:
+        frames.save(frame)
+  frames.copy_last()
+  if has_evals:
+    matplotlib_graph(e, layout.figure_width, layout.figure_height, frames.next_frame_filename())
   command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, output_mp4_filename)]
   subprocess.run(command, check = True, shell = False)
