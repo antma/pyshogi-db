@@ -163,6 +163,7 @@ class _FrameLayout:
     logging.debug('cell sizes = %dx%d', self.cell_width, self.cell_height)
     self.sente_xcenter = _center(lr[2])
     self.gote_xcenter = _center(lr[0])
+    self.vl_width = ((lr[1][1] + 8) // 9) * 9
   def draw_bar(self, draw, win_rate: float):
     draw.rectangle((self.bar_xleft, self.bar_ytop, self.bar_xleft + self.bar_width - 1, self.bar_ytop + self.bar_height - 1), fill = ((255,255,255)))
     black_height = round(win_rate * self.bar_height)
@@ -173,10 +174,10 @@ class _FrameLayout:
         t = (self.bar_height - black_height, self.bar_height - 1)
       assert t[0] <= t[1]
       draw.rectangle((self.bar_xleft, self.bar_ytop + t[0], self.bar_xleft + self.bar_width - 1, self.bar_ytop + t[1]), fill = ((0,1,0)))
-  def draw_text(self, draw, side: int, msg: str):
+  def draw_text(self, draw, side: int, msg: str, color):
     sente = (side > 0) ^ self.flip_orientation
     y = self.bottom_row_center if sente else self.top_row_center
-    draw.text((self.bar_xleft - 1, y), msg, font = self.font, fill = (255,255,255), anchor = 'rm')
+    draw.text((self.bar_xleft - 1, y), msg, font = self.font, fill = color, anchor = 'rm')
   def cell_coords(self, c: int) -> Tuple[int, int]:
     row, col = divmod(c, 9)
     col = 8 - col
@@ -195,7 +196,7 @@ class _FrameLayout:
       src = self.cell_coords(m.from_cell)
     _draw_arrow(draw, src, dest, self.cell_width * 0.2, 30.0)
 
-def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: Tuple[str,int], lishogi_gif_server: Optional[str] = None):
+def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: Tuple[str,int], countdown: int = 0, lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
   for key in ['sente', 'gote']:
     if game.get_tag(key) is None:
@@ -222,12 +223,21 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         draw = ImageDraw.Draw(im)
         layout.draw_bar(draw, wr)
         if not msg is None:
-          layout.draw_text(draw, side, msg)
+          layout.draw_text(draw, side, msg, (255, 255, 255))
           logging.info("%s. %s (side = %d)", move_no, msg, side)
           layout.draw_move(draw, bm[0])
         frames.save(im)
       else:
-        frames.save(frame)
+        if countdown > 0:
+          side = game.move_no_to_side_to_move(move_no)
+          for t in reversed(range(countdown + 1)):
+            im = frame.copy()
+            draw = ImageDraw.Draw(im)
+            layout.draw_text(draw, side, str(t), (0, 255, 255))
+            frames.save(im)
+          countdown = 0
+        else:
+          frames.save(frame)
   frames.copy_last()
   if has_evals:
     matplotlib_graph(e, layout.figure_width, layout.figure_height, frames.next_frame_filename())
