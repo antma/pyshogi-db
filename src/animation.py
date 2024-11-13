@@ -164,6 +164,11 @@ class _FrameLayout:
     self.sente_xcenter = _center(lr[2])
     self.gote_xcenter = _center(lr[0])
     self.vl_width = ((lr[1][1] + 8) // 9) * 9
+    self.vl_height = (self.vl_width // 9) * 16
+    #(left, upper, right, lower)
+    self.vl_board_crop_box = (self.cell_xleft - 1, self.bar_ytop, self.cell_xleft - 1 + lr[1][1], self.bar_ytop + self.bar_height)
+    self.right_pieces = lr[2]
+    self.left_pieces = lr[0]
   def draw_bar(self, draw, win_rate: float):
     draw.rectangle((self.bar_xleft, self.bar_ytop, self.bar_xleft + self.bar_width - 1, self.bar_ytop + self.bar_height - 1), fill = ((255,255,255)))
     black_height = round(win_rate * self.bar_height)
@@ -195,8 +200,47 @@ class _FrameLayout:
     else:
       src = self.cell_coords(m.from_cell)
     _draw_arrow(draw, src, dest, self.cell_width * 0.2, 30.0)
+  def draw_vertical_frame(self, frame, countdown: Optional[int] = None):
+    im = Image.new('RGB', (self.vl_width, self.vl_height), (0, 0, 0))
+    draw = ImageDraw.Draw(im)
+    board = frame.crop(self.vl_board_crop_box)
+    x, y = 0, self.cell_height
+    board_dest_rect = (x, y, x + board.width, y + board.height)
+    im.paste(board, board_dest_rect)
+    z = board.width
+    draw.rectangle([(0, 0), (z - 1, self.cell_height - 1)], fill = (105,107,104))
+    y = board.height + self.cell_height
+    diagram_height = board.height + 2 * self.cell_height 
+    draw.rectangle([(0, y), (z - 1, diagram_height - 1)], fill = (105,107,104))
+    for p in reversed(range(piece.PAWN, piece.ROOK + 1)):
+      x = self.right_pieces[0]
+      y = self.bar_ytop + 1 + (p + 1) * self.cell_height + 8
+      l = self.right_pieces[1]
+      dl = round(l * 0.1)
+      x += dl
+      l -= 2 * dl
+      rp = frame.crop((x, y, x + l, y + self.cell_height)) 
+      x = self.left_pieces[0]
+      y = self.bar_ytop + 1 + (piece.ROOK - p) * self.cell_height + 8
+      l = self.left_pieces[1]
+      dl = round(l * 0.1)
+      x += dl
+      l -= 2 * dl
+      lp = frame.crop((x, y, x + l, y + self.cell_height)) 
+      y = self.cell_height + board.height + 1
+      im.paste(rp, (z - rp.width, y, z, y + rp.height))
+      y = 0
+      im.paste(lp, (z - lp.width, y, z, y + lp.height))
+      z -= max(rp.width, lp.width)
+      #break
+      #im.paste(lp, (z - rp.width, 0, z, rp.height))
+    if countdown:
+      x = im.width // 2
+      y = (diagram_height + im.height) // 2
+      draw.text((x, y), str(countdown), font = self.font, fill = (0, 255, 255), anchor = 'mm')
+    return im
 
-def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: Tuple[str,int], countdown: int = 0, lishogi_gif_server: Optional[str] = None):
+def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str, output_mp4_filename: str, preset: str, ttf: Tuple[str,int], countdown: int = 0, vertical_layout: bool = False, lishogi_gif_server: Optional[str] = None):
   gif_filename = os.path.join(working_dir, 'game.gif')
   for key in ['sente', 'gote']:
     if game.get_tag(key) is None:
@@ -214,7 +258,14 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         break
       if layout is None:
         layout = _FrameLayout(frame, flip_orientation, ttf)
-      if has_evals:
+      if vertical_layout:
+        while countdown > 0:
+          im = layout.draw_vertical_frame(frame, countdown)
+          frames.save(im)
+          countdown -= 1
+        im = layout.draw_vertical_frame(frame, None)
+        frames.save(im)
+      elif has_evals:
         im = frame.copy()
         wr, _ = e.get(move_no, dft)
         old_wr, bm = e.get(move_no - 1, dft)
@@ -239,7 +290,7 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         else:
           frames.save(frame)
   frames.copy_last()
-  if has_evals:
+  if (has_evals) and (not vertical_layout):
     matplotlib_graph(e, layout.figure_width, layout.figure_height, frames.next_frame_filename())
   command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, output_mp4_filename)]
   subprocess.run(command, check = True, shell = False)
