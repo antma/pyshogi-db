@@ -17,7 +17,7 @@ from shogi.move import Move
 from shogi.position import Position
 from shogi.kifu import TimeControl, game_parse
 from shogi.piece import side_to_str
-import usi
+#import usi
 
 def _insert(table, a):
   return 'INSERT INTO ' + table + '(' + ', '.join(a) + ') VALUES (' +  ', '.join('?' * len(a)) + ')'
@@ -33,9 +33,40 @@ def _u64_to_i64(x):
 def _conditions_and_join(conds: list[str]) -> str:
   return ' AND '.join('(' + s + ')' for s in conds)
 
+class DBConnection:
+  def __init__(self, database_filename: str):
+    self._connection = sqlite3.connect(database_filename)
+  def cursor(self):
+    return self._connection.cursor()
+  def close(self):
+    self._connection.close()
+  def select_single_value(self, q, parameters = ()):
+    c = self.cursor()
+    res = c.execute(q, parameters)
+    r = res.fetchone()
+    c.close()
+    if r is None:
+      return r
+    return r[0]
+  def insert_values(self, table_name, fields, values):
+    assert len(fields) == len(values)
+    q = _insert(table_name, fields)
+    c = self.cursor()
+    c.execute(q, values)
+    c.close()
+    self._connection.commit()
+  def insert_many_values(self, table_name, fields, values):
+    q = _insert(table_name, fields)
+    c = self.cursor()
+    for v in values:
+      assert len(fields) == len(v)
+      c.execute(q, v)
+    c.close()
+    self._connection.commit()
+
 _POSITION_CONDITION = _conditions_and_join(['pos_hash1 == ?', 'pos_hash2 == ?'])
-_GET_EVAL_FIELDS = ['nodes', 'time', 'depth', 'seldepth', 'pv']
-_STORE_EVAL_FIELDS = ['pos_hash1', 'pos_hash2', 'nodes', 'time', 'score', 'engine_id', 'depth', 'seldepth', 'pv']
+#_GET_EVAL_FIELDS = ['nodes', 'time', 'depth', 'seldepth', 'pv']
+#_STORE_EVAL_FIELDS = ['pos_hash1', 'pos_hash2', 'nodes', 'time', 'score', 'engine_id', 'depth', 'seldepth', 'pv']
 
 def sfen_hashes(sfen: str) -> Tuple[int, int]:
   m = hashlib.md5()
@@ -75,25 +106,56 @@ class PlayerAndTimeControlFilter:
     self.player = (player_name, player_side)
     self.time_control = time_control
 
+class EngineEvalCacheDB:
+  def __init__(self, database_filename: str):
+    self._database_filename = database_filename
+    self._connection = None
+  def __enter__(self):
+    assert self._connection is None
+    self._connection = DBConnection(self._database_filename)
+    self._create_tables()
+    return self
+  def __exit__(self, exl_type, exc_value, traceback):
+    self._connection.close()
+    self._connection = None
+  def _create_tables(self):
+    c = self._connection.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS analysis (
+  pos_hash1 integer NOT NULL,
+  pos_hash2 integer NOT NULL,
+  info TEXT NOT NULL
+)''')
+    c.execute('CREATE INDEX IF NOT EXISTS analysis_idx ON analysis(pos_hash1)')
+    c.close()
+  def get_position_engine_analyse(self, hashes: Tuple[int, int]):
+    query = f'SELECT info FROM analysis WHERE {_POSITION_CONDITION} LIMIT 1'
+    return self._connection.select_single_value(query, hashes)
+  def store_position_engine_analyse(self, hashes: Tuple[int, int], info: str):
+    fields = ['pos_hash1', 'pos_hash2', 'info']
+    values = [hashes[0], hashes[1], info]
+    self._connection.insert_values('analysis', fields, values)
+
 class KifuDB:
   def __init__(self, database_name: str, database_dir: str, backup_dir: Optional[str] = None):
     filename = database_name + '.db'
-    self._database = os.path.join(database_dir, filename)
-    if not os.path.lexists(self._database):
+    self._database_filename = os.path.join(database_dir, filename)
+    if not os.path.lexists(self._database_filename):
       if not backup_dir is None:
         backup_file = os.path.join(backup_dir, filename)
         if os.path.lexists(backup_file):
           logging.info("Copying database '%s' from backup directory '%s'", filename, backup_dir)
-          shutil.copyfile(os.path.join(backup_dir, filename), self._database)
+          shutil.copyfile(os.path.join(backup_dir, filename), self._database_filename)
     self._connection = None
     self._cached_player_with_most_games = None
   def __enter__(self):
-    self._connection = sqlite3.connect(self._database)
-    self.create_tables()
+    assert self._connection is None
+    self._connection = DBConnection(self._database_filename)
+    self._create_tables()
     return self
   def __exit__(self, exl_type, exc_value, traceback):
     self._connection.close()
-  def create_tables(self):
+    self._connection = None
+  def _create_tables(self):
     c = self._connection.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS kifus (
   sente text,
@@ -113,6 +175,7 @@ class KifuDB:
   game integer NOT NULL)''')
     c.execute('''CREATE TABLE IF NOT EXISTS time_controls (time_control text PRIMARY KEY)''')
     c.execute('CREATE INDEX IF NOT EXISTS idx_pos ON moves(pos_hash1)')
+    """
     c.execute('''CREATE TABLE IF NOT EXISTS engines (
   name text NOT NULL,
   time integer NOT NULL,
@@ -132,15 +195,10 @@ class KifuDB:
   pv TEXT NOT NULL
 )''')
     c.execute('CREATE INDEX IF NOT EXISTS analysis_idx ON analysis(pos_hash1)')
+    """
     c.close()
   def _select_single_value(self, q, parameters = ()):
-    c = self._connection.cursor()
-    res = c.execute(q, parameters)
-    r = res.fetchone()
-    c.close()
-    if r is None:
-      return r
-    return r[0]
+    return self._connection.select_single_value(q, parameters)
   def _get_rowid(self, table_name: str, field_name: str, value, force = False) -> Optional[int]:
     r = self._select_single_value(f'SELECT rowid FROM {table_name} WHERE {field_name} == ?', (value, ))
     if not r is None:
@@ -149,6 +207,7 @@ class KifuDB:
       return None
     self.insert_values(table_name, [field_name], [value])
     return self._get_rowid(table_name, field_name, value, False)
+  """
   def _get_engine_id(self, params: usi.USIEngineSearchParameters, force: bool = False) -> Optional[int]:
     fields = ['name', 'time', 'hash', 'threads']
     conds = [ f'{s} == ?' for s in fields]
@@ -161,6 +220,7 @@ class KifuDB:
       return None
     self.insert_values('engines', fields, values)
     return self._get_engine_id(params, False)
+  """
   def find_data_by_game_id(self, game_id: int) -> Optional[str]:
     compressed_data = self._select_single_value('SELECT data FROM kifus WHERE rowid = ?', (game_id, ))
     if compressed_data is None:
@@ -189,20 +249,9 @@ class KifuDB:
     logging.debug('Player with most games is %s', p1)
     return p1
   def insert_values(self, table_name, fields, values):
-    assert len(fields) == len(values)
-    q = _insert(table_name, fields)
-    c = self._connection.cursor()
-    c.execute(q, values)
-    c.close()
-    self._connection.commit()
+    self._connection.insert_values(table_name, fields, values)
   def insert_many_values(self, table_name, fields, values):
-    q = _insert(table_name, fields)
-    c = self._connection.cursor()
-    for v in values:
-      assert len(fields) == len(v)
-      c.execute(q, v)
-    c.close()
-    self._connection.commit()
+    self._connection.insert_many_values(table_name, fields, values)
   def insert_kifu_file(self, filename: str) -> bool:
     with open(filename, 'r', encoding = 'UTF8') as f:
       kifu = f.read()
@@ -408,6 +457,7 @@ ORDER BY b
     if player == game.get_tag('gote'):
       return PlayerAndTimeControlFilter(player, -1, time_control)
     return None
+  """
   def _position_already_analysed_by_engine_id(self, engine_id, hashes):
     conds = ['pos_hash1 == ?', 'pos_hash2 == ?', 'engine_id == ?']
     values = (hashes[0], hashes[1], engine_id)
@@ -488,3 +538,4 @@ LIMIT 1'''
       a.append(r)
     logging.debug('Found analysis for %d moves', len(a))
     return a
+  """

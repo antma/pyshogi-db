@@ -18,6 +18,7 @@ from shogi.game import Game
 from shogi.move import Move
 from shogi.position import Position
 from shogi.result import GameResult, description
+from kdb import EngineEvalCacheDB, sfen_hashes
 
 _INFO_BOUND_L = ['lowerbound', 'upperbound']
 _INFO_SCORE_L = ['score.' + s for s in ['cp', 'mate']]
@@ -177,6 +178,10 @@ class InfoMessage:
       return str(p * side_to_move)
     p = self._d['score.mate']
     return 'm' + str(p * side_to_move)
+  def short_str(self):
+    if self.s is None:
+      log.raise_value_error('InfoMessage.s original engine output is not set')
+    return self.s.removeprefix('info ')
   def kifu_str(self) -> str:
     if self.s is None:
       log.raise_value_error('InfoMessage.s original engine output is not set')
@@ -329,16 +334,27 @@ class USIEngine:
         log.raise_value_error('Last info message has not exact score')
       return (im, bestmove)
     return (None, bestmove)
-  def analyse_game(self, game: Game):
+  def analyse_game(self, game: Game, db_cache: EngineEvalCacheDB, db_cache_stored_limit: int = 3):
     self.new_game()
     usi_moves = []
     pos = Position(game.start_pos)
+    t = db_cache_stored_limit
     for m in game.moves:
       pos.do_move(m)
       usi_moves.append(m.usi_str())
-      im, _ = self.analyse_position(game.start_pos, usi_moves)
+      sfen = pos.sfen(move_no = False)
+      h = sfen_hashes(sfen)
+      s = db_cache.get_position_engine_analyse(h)
+      if s is None:
+        im, _ = self.analyse_position(game.start_pos, usi_moves)
+        if t > 0:
+          t -= 1
+          db_cache.store_position_engine_analyse(h, im.short_str())
+      else:
+        im = InfoMessage('info ' + s)
       game.append_comment_before_move(pos.move_no, im.kifu_str())
-      logging.info('%d. %s (%d%%)', pos.move_no - 1, usi_moves[-1], round(100.0 * im.win_rate()))
+      e = round(100.0 * im.win_rate() * pos.side_to_move)
+      logging.info('%d. %s (%d%%)', pos.move_no - 1, usi_moves[-1], e)
 
 class USIGame:
   '''for running game between two engine with tkinter (single threaded)'''
