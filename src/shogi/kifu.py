@@ -359,6 +359,8 @@ def _game_write_tags(g: Game, f):
       if key == 'start_sfen':
         f.write(position.Position(p).kifu_str())
       else:
+        if isinstance(p, datetime.date):
+          p = p.isoformat().replace('-', '/')
         if not isinstance(p, str):
           p = str(p)
         if key == 'sente':
