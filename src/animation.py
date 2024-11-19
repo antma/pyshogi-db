@@ -86,8 +86,12 @@ class _Frames:
   def next_frame_filename(self) -> str:
     self._index += 1
     return os.path.join(self._working_dir, f'frame{self._index:04d}.png')
-  def save(self, frame):
-    frame.save(self.next_frame_filename())
+  def save(self, frame, exif_data = None):
+    fn = self.next_frame_filename()
+    if exif_data is None:
+      frame.save(fn)
+    else:
+      frame.save(fn, exif = exif_data)
   def copy_last(self):
     self._index -= 1
     old = self.next_frame_filename()
@@ -247,6 +251,7 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
       game.set_tag(key, ' ')
   lishogi_gif(game, flip_orientation, delay, gif_filename, lishogi_gif_server)
   layout = None
+  positions = game.positions()
   e = game_win_rates(game)
   dft = (0.5, None)
   has_evals = len(e) > 0
@@ -267,6 +272,8 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         frames.save(im)
       elif has_evals:
         im = frame.copy()
+        exif_data = im.getexif()
+        exif_data[270] = positions[move_no]
         wr, _ = e.get(move_no, dft)
         old_wr, bm = e.get(move_no - 1, dft)
         side = -game.move_no_to_side_to_move(move_no)
@@ -277,7 +284,7 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
           layout.draw_text(draw, side, msg, (255, 255, 255))
           logging.info("%s. %s (side = %d)", move_no, msg, side)
           layout.draw_move(draw, bm[0])
-        frames.save(im)
+        frames.save(im, exif_data)
       else:
         if countdown > 0:
           side = game.move_no_to_side_to_move(move_no)

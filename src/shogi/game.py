@@ -30,6 +30,7 @@ class Game:
     if self.game_result is None:
       self.game_result = game_result
   def _insert_sfen(self):
+    self._positions = None
     sfen = self.pos.sfen(move_no = False)
     l = self._repetitions_dict[sfen]
     l.append(len(self._checks))
@@ -62,6 +63,7 @@ class Game:
     self._repetitions_dict = defaultdict(list)
     self._checks = []
     self._insert_sfen()
+    self._positions = None
   def append_comment_before_move(self, move_no: int, s: str):
     self.comments[move_no].append(s)
   def do_move(self, m: Move):
@@ -111,9 +113,12 @@ class Game:
       return "0-1"
     return "1/2"
   def positions(self) -> Mapping[int, str]:
+    if not self._positions is None:
+      return self._positions
     pos = Position(self.start_pos)
     d = {pos.move_no: pos.sfen()}
     for m in self.moves:
       pos.do_move(m)
       d[pos.move_no] = pos.sfen()
+    self._positions = d
     return d
