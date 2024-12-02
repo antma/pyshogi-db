@@ -254,19 +254,23 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   it = filter(lambda t: t != '', map(_strip_comment, enumerate(game_kif.split('\n'))))
   game = Game()
   t = next(it)
-  a = list(t.split())
-  if len(a) != 3:
-    log.raise_value_error('Illegal number of fields in KIFU header')
-  if a[0] != '#KIF':
-    log.raise_value_error(f'Expected "#KIFU", but "{a[0]}" found')
-  p = _parse_key_value(a[1], '=')
-  if (p is None) or (p[0] != 'version'):
-    log.raise_value_error(f'Expected "version", but "{a[1]}" found')
-  _version = p[1]
-  p = _parse_key_value(a[2], '=')
-  if (p is None) or (p[0] != 'encoding'):
-    log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
-  _encoding = p[1]
+  _version, _encoding = None, None
+  try:
+    a = list(t.split())
+    if len(a) != 3:
+      log.raise_value_error('Illegal number of fields in KIFU header')
+    if a[0] != '#KIF':
+      log.raise_value_error(f'Expected "#KIFU", but "{a[0]}" found')
+    p = _parse_key_value(a[1], '=')
+    if (p is None) or (p[0] != 'version'):
+      log.raise_value_error(f'Expected "version", but "{a[1]}" found')
+    _version = p[1]
+    p = _parse_key_value(a[2], '=')
+    if (p is None) or (p[0] != 'encoding'):
+      log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
+    _encoding = p[1]
+  except ValueError:
+    it = itertools.chain([t], it)
   while True:
     t = next(it)
     if t == _HEADER_MOVES_SEPARATOR:
