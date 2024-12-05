@@ -46,13 +46,13 @@ def win_rate_delta_to_mistake_type(delta: float) -> Optional[MistakeType]:
     return MistakeType.INACCURACY
   return None
 
-def mistake_str(side: int, old_win_rate: float, new_win_rate: float, bm: Move) -> Optional[str]:
+def mistake_str(side: int, old_win_rate: float, new_win_rate: float, pv: str) -> Optional[str]:
   delta = (old_win_rate - new_win_rate) * side
   mt = win_rate_delta_to_mistake_type(delta)
   if mt is None:
     return None
-  sbm = 'Best move'
-  return f'{mt} ({old_win_rate * 100.0:.0f}% → {new_win_rate * 100.0:.0f}%). {sbm}: {bm}'
+  spv = 'PV'
+  return f'{mt} ({old_win_rate * 100.0:.0f}% → {new_win_rate * 100.0:.0f}%). {spv}: {pv}'
 
 def winning_percentage(value: float) -> int:
   return round(win_rate(value) * 100.0)

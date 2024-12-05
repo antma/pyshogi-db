@@ -252,8 +252,8 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
   lishogi_gif(game, flip_orientation, delay, gif_filename, lishogi_gif_server)
   layout = None
   positions = game.positions()
-  e = game_win_rates(game)
-  dft = (0.5, None)
+  e = game_win_rates(game, 3)
+  dft = (0.5, [])
   has_evals = len(e) > 0
   frames = _Frames(working_dir)
   with Image.open(gif_filename) as im:
@@ -277,13 +277,13 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         wr, _ = e.get(move_no, dft)
         old_wr, bm = e.get(move_no - 1, dft)
         side = -game.move_no_to_side_to_move(move_no)
-        msg = evaluation.mistake_str(side, old_wr, wr, bm and bm[1])
+        msg = evaluation.mistake_str(side, old_wr, wr, ' '.join(s[1] for s in bm))
         draw = ImageDraw.Draw(im)
         layout.draw_bar(draw, wr)
         if not msg is None:
           layout.draw_text(draw, side, msg, (255, 255, 255))
           logging.info("%s. %s (side = %d)", move_no, msg, side)
-          layout.draw_move(draw, bm[0])
+          layout.draw_move(draw, bm[0][0])
         frames.save(im, exif_data)
       else:
         if countdown > 0:

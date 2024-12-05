@@ -10,7 +10,7 @@ from queue import Queue, Empty
 import subprocess
 from threading import Thread
 import time
-from typing import Mapping, Optional, Tuple
+from typing import List, Mapping, Optional, Tuple
 
 import log
 from shogi import evaluation, kifu
@@ -456,7 +456,7 @@ class USIGame:
       time.sleep(s)
       self.step()
 
-def game_win_rates(game: Game) -> Mapping[int, Tuple[float, Optional[Tuple[Move, str]]]]:
+def game_win_rates(game: Game, max_pv_size: int) -> Mapping[int, Tuple[float, List[Tuple[Move, str]]]]:
   p = game.positions()
   d = {}
   for move_no, l in game.comments.items():
@@ -467,15 +467,18 @@ def game_win_rates(game: Game) -> Mapping[int, Tuple[float, Optional[Tuple[Move,
           wr = im.win_rate()
           if game.move_no_to_side_to_move(move_no) < 0:
             wr = 1.0 - wr
-          best_move = None
+          best_moves = []
           pv = im.get('pv')
           if pv:
             sfen = p.get(move_no)
             if sfen:
               pos = Position(sfen)
-              logging.debug('%s: %s', pos.sfen(), pv[0])
-              m = pos.parse_usi_move(pv[0])
-              best_move = (m, pos.western_move_str(m))
-          d[move_no] = (wr, best_move)
+              for t in pv[:max_pv_size]:
+                if (t == 'resign') or (t == 'rep_inf'):
+                  break
+                m = pos.parse_usi_move(t)
+                best_moves.append((m, pos.western_move_str(m)))
+                pos.do_move(m)
+          d[move_no] = (wr, best_moves)
           break
   return d
