@@ -82,3 +82,13 @@ class PromotionZone:
       self._f = lambda k: k >= 54
   def __contains__(self, k: int) -> bool:
     return self._f(k)
+
+def from_upper(c: str) -> int:
+  if len(c) != 1:
+    return -1
+  if not c.isupper():
+    return -2
+  i = ASCII_PIECES.find(c.lower())
+  if i < 0:
+    return i
+  return i + 1

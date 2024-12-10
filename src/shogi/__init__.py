@@ -9,3 +9,4 @@ from . import move
 from . import openings
 from . import piece
 from . import position
+from . import psn
