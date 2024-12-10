@@ -59,7 +59,7 @@ def lishogi_gif(game: Game, flip_orientation: bool, delay: int, output_gif_filen
     with open(output_gif_filename, 'wb') as f:
       f.write(r.content)
 
-def matplotlib_graph(e, width, height, output_filename):
+def matplotlib_graph(title, e, width, height, output_filename):
   a = list(e.items())
   a.sort()
   x, y = [], []
@@ -68,7 +68,8 @@ def matplotlib_graph(e, width, height, output_filename):
     y.append(v[0] * 100.0)
   px = 1/plt.rcParams['figure.dpi']  # pixel in inches
   _, ax = plt.subplots(figsize=(width*px, height*px))
-  plt.plot(x,y)
+  plt.plot(x, y)
+  plt.title(title)
   ax.set_xlabel('moves')
   ax.set_ylabel('percent')
   ax.set_ylim(ymin = 0, ymax = 101)
@@ -298,6 +299,9 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
           frames.save(frame)
   frames.copy_last()
   if (has_evals) and (not vertical_layout):
-    matplotlib_graph(e, layout.figure_width, layout.figure_height, frames.next_frame_filename())
+    sente = game.player_with_rating(1)
+    gote = game.player_with_rating(-1)
+    title = sente + ' vs ' + gote
+    matplotlib_graph(title, e, layout.figure_width, layout.figure_height, frames.next_frame_filename())
   command = ['ffmpeg', '-r', f'1000/{delay}', '-i', os.path.join(working_dir, 'frame%04d.png'), '-c:v', 'libx264', '-preset', preset, '-vf', 'fps=25', '-pix_fmt', 'yuv420p', os.path.join(working_dir, output_mp4_filename)]
   subprocess.run(command, check = True, shell = False)
