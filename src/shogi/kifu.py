@@ -132,15 +132,7 @@ def _parse_move_times(s: Optional[str]) -> Tuple[Optional[datetime.timedelta], O
   return (u, v)
 
 def _parse_player_name(game: Game, s: str, key: str):
-  if s.endswith(')'):
-    i = s.rfind('(')
-    if i >= 0:
-      t = s[i+1:len(s)-1]
-      if (len(t) > 0) and t.isdigit():
-        game.set_tag(key, s[:i])
-        game.set_tag(key + '_rating', int(t))
-        return
-  game.set_tag(key, s)
+  game.parse_player_name(s, key)
 
 class TimeControl:
   def __init__(self, initial: int, byoyomi: int):
@@ -178,13 +170,14 @@ _HEADER_JP_D = {
   '開始日時': 'start_date',
   '終了日時': 'end_date',
   '場所': 'location',
+  '棋戦': 'event',
   '持ち時間': 'time_control',
   '手合割': 'handicap',
   '先手': 'sente',
   '後手': 'gote'
 }
 
-_HEADER_WRITE_ORDER_L = ['start_sfen', 'start_date', 'end_date', 'location', 'time_control', 'handicap', 'sente', 'gote']
+_HEADER_WRITE_ORDER_L = ['start_sfen', 'start_date', 'end_date', 'location', 'event', 'time_control', 'handicap', 'sente', 'gote']
 _HEADER_EN_D = dict((t[1], t[0]) for t in _HEADER_JP_D.items())
 _SIDE_S = set(['sente', 'gote'])
 

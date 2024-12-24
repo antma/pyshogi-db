@@ -122,3 +122,13 @@ class Game:
       d[pos.move_no] = pos.sfen()
     self._positions = d
     return d
+  def parse_player_name(self, s: str, key: str):
+    if s.endswith(')'):
+      i = s.rfind('(')
+      if i >= 0:
+        t = s[i+1:len(s)-1]
+        if (len(t) > 0) and t.isdigit():
+          self.set_tag(key, s[:i])
+          self.set_tag(key + '_rating', int(t))
+          return
+    self.set_tag(key, s)

@@ -1,6 +1,7 @@
 # -*- coding: UTF8 -*-
 ''' shogi rules (move generation, etc.) '''
 
+from . import csa
 from . import cell
 from . import evaluation
 from . import history
