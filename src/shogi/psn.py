@@ -94,6 +94,9 @@ def  _game_parse(game_psn: str) -> Game:
     if t == 'Mate':
       g.set_result(GameResult.CHECKMATE)
       break
+    if t == 'Resigns':
+      g.set_result(GameResult.RESIGNATION)
+      break
     m = _parse_psn_move(t, g.pos.side_to_move)
     if m is None:
       log.raise_value_error(f'can not parse move {mn}{t}')
