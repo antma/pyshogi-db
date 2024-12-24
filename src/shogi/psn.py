@@ -10,6 +10,8 @@ from .move import Move
 from .result import GameResult
 from . import cell, piece, position
 
+_MOVE_TAKE_S = set(['-', 'x'])
+
 def _parse_psn_move(s: str, side: int) -> Optional[Move]:
   it = iter(s)
   t = next(it)
@@ -34,8 +36,7 @@ def _parse_psn_move(s: str, side: int) -> Optional[Move]:
   from_cell = cell.usi_parse(col, row)
   if from_cell is None:
     return None
-  t = next(it)
-  if (t != '-') and (t != 'x'):
+  if next(it) not in _MOVE_TAKE_S:
     return None
   col = next(it)
   row = next(it)
@@ -65,7 +66,7 @@ def _parse_psn_header(line: str) -> Optional[Tuple[str, str]]:
   value = line[j:k]
   return (key, value)
 
-def  _game_parse(game_psn: str) -> Game:
+def game_parse(game_psn: str) -> Game:
   it = iter(game_psn.split('\n'))
   g = Game()
   while True:
@@ -102,11 +103,3 @@ def  _game_parse(game_psn: str) -> Game:
       log.raise_value_error(f'can not parse move {mn}{t}')
     g.do_move(m)
   return g
-
-def game_parse(s: str) -> Optional[Game]:
-  try:
-    return _game_parse(s)
-  except ValueError as err:
-    logging.debug(repr(err))
-    return None
-
