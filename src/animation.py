@@ -149,7 +149,7 @@ class _FrameLayout:
     self.flip_orientation = flip_orientation
     grey = 15
     lc = _scan_column(frame, w-1)
-    assert [t[2] for t in lc] == [2, grey, 2], "lc = {}".format(lc)
+    assert [t[2] for t in lc] == [2, grey, 2], f"lc = {lc}"
     self.bar_ytop, self.bar_height, _ = lc[1]
     for x in range(w - 1, -1, -1):
       if frame.getpixel((x, self.bar_ytop)) != grey:
@@ -215,7 +215,7 @@ class _FrameLayout:
     z = board.width
     draw.rectangle([(0, 0), (z - 1, self.cell_height - 1)], fill = (105,107,104))
     y = board.height + self.cell_height
-    diagram_height = board.height + 2 * self.cell_height 
+    diagram_height = board.height + 2 * self.cell_height
     draw.rectangle([(0, y), (z - 1, diagram_height - 1)], fill = (105,107,104))
     for p in reversed(range(piece.PAWN, piece.ROOK + 1)):
       x = self.right_pieces[0]
@@ -224,14 +224,14 @@ class _FrameLayout:
       dl = round(l * 0.1)
       x += dl
       l -= 2 * dl
-      rp = frame.crop((x, y, x + l, y + self.cell_height)) 
+      rp = frame.crop((x, y, x + l, y + self.cell_height))
       x = self.left_pieces[0]
       y = self.bar_ytop + 1 + (piece.ROOK - p) * self.cell_height + 8
       l = self.left_pieces[1]
       dl = round(l * 0.1)
       x += dl
       l -= 2 * dl
-      lp = frame.crop((x, y, x + l, y + self.cell_height)) 
+      lp = frame.crop((x, y, x + l, y + self.cell_height))
       y = self.cell_height + board.height + 1
       im.paste(rp, (z - rp.width, y, z, y + rp.height))
       y = 0
