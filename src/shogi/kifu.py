@@ -21,6 +21,7 @@ _HEADER_MOVES_SEPARATOR = '手数----指手---------消費時間--'
 _REGEXP_MOVE_TIME = re.compile(r'(\d+):(\d+)')
 _REGEXP_CUM_MOVE_TIME = re.compile(r'(\d+):(\d+):(\d+)')
 _REGEXP_TIME_CONTROL = re.compile(r'(\d+)分?[+](\d+)秒?')
+_REGEXP_WITHOUT_INCREMENT_TIME_CONTROL = re.compile(r'(\d+)分?')
 
 def _create_kifu_dict(s, offset = 0):
   return dict(map(lambda t: (t[1], t[0] + offset), filter(lambda t: t[1] != '?', enumerate(s))))
@@ -142,10 +143,13 @@ class TimeControl:
     return f"{self.initial}分+{self.byoyomi}秒"
 
 def parse_time_control(s: str) -> Optional[TimeControl]:
+  m = _REGEXP_WITHOUT_INCREMENT_TIME_CONTROL.fullmatch(s)
+  if not m is None:
+    return TimeControl(int(m.group(1)), 0)
   m = _REGEXP_TIME_CONTROL.fullmatch(s)
-  if m is None:
-    return None
-  return TimeControl(int(m.group(1)), int(m.group(2)))
+  if not m is None:
+    return TimeControl(int(m.group(1)), int(m.group(2)))
+  return None
 
 def game_parse(s: str) -> Optional[Game]:
   try:
