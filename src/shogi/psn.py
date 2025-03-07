@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 
+import datetime
 import itertools
 import logging
 from typing import Optional, Tuple
@@ -66,6 +67,11 @@ def _parse_psn_header(line: str) -> Optional[Tuple[str, str]]:
   value = line[j:k]
   return (key, value)
 
+_PSN_TO_KIF_D = {
+  'black': 'sente',
+  'white': 'gote',
+}
+
 def game_parse(game_psn: str) -> Game:
   it = iter(game_psn.split('\n'))
   g = Game()
@@ -80,9 +86,14 @@ def game_parse(game_psn: str) -> Game:
     if p[0] == 'sfen':
       if p[1] != position.SFEN_STARTPOS:
         g.set_tag('sfen_startpos', p[1])
+    elif p[0] == 'date':
+      day, month, year = p[1].split('/')
+      if year.isdigit() and month.isdigit() and day.isdigit():
+        g.set_tag('start_date', datetime.date(int(year), int(month), int(day)))
     else:
       logging.debug("set_tag: %s %s", p[0], p[1])
-      g.set_tag(p[0], p[1])
+      t = _PSN_TO_KIF_D.get(p[0], p[0])
+      g.set_tag(_PSN_TO_KIF_D.get(p[0], p[0]), p[1])
   for i, s in enumerate(it):
     mn = str(i+1) + '.'
     logging.debug('%s %s', mn, s)
