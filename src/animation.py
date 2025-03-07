@@ -275,13 +275,13 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         im = frame.copy()
         exif_data = im.getexif()
         exif_data[270] = positions[move_no]
-        wr, _ = e.get(move_no + 1, dft)
+        wr, curm = e.get(move_no + 1, dft)
         old_wr, bm = e.get(move_no, dft)
         side = -game.move_no_to_side_to_move(move_no + 1)
         msg = evaluation.mistake_str(side, old_wr, wr, ' '.join(s[1] for s in bm))
         draw = ImageDraw.Draw(im)
         layout.draw_bar(draw, old_wr)
-        if not msg is None:
+        if (not msg is None) and curm:
           layout.draw_text(draw, side, msg, (255, 255, 255))
           logging.info("%s. %s (side = %d)", move_no, msg, side)
           layout.draw_move(draw, bm[0][0])
