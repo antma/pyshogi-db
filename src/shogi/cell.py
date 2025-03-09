@@ -3,6 +3,8 @@
 import logging
 from typing import Optional
 
+from . import piece
+
 KIFU_COLS = '１２３４５６７８９'
 KIFU_ROWS = '一二三四五六七八九'
 
@@ -27,3 +29,15 @@ def usi_parse(col: str, row: str) -> Optional[int]:
   if not 0 <= y < 9:
     logging.warning('row %s is not in [1-9]', row)
   return 9 * y + x
+
+def can_drop(cell: int, p: int) -> bool:
+  assert 0 < abs(p) < piece.KING
+  if p == piece.LANCE or p == piece.PAWN:
+    return cell >= 9
+  if p == -piece.LANCE or p == -piece.PAWN:
+    return cell < 72
+  if p == piece.KNIGHT:
+    return cell >= 18
+  if p == -piece.KNIGHT:
+    return cell < 63
+  return True

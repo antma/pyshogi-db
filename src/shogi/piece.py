@@ -29,7 +29,37 @@ _GENERAL_MOVES = [(-1, -1), (-1, 0), (-1, 1)]
 GOLD_MOVES = _GENERAL_MOVES + [(0, -1), (0, 1), (1, 0)]
 SILVER_MOVES = _GENERAL_MOVES + [(1, -1), (1, 1)]
 KNIGHT_MOVES = [(-2, -1), (-2, 1)]
+ROOK_MOVES = [(-1, 0), (0, -1), (0, 1), (1, 0)]
+BISHOP_MOVES = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+KING_MOVES = ROOK_MOVES + BISHOP_MOVES
 del _GENERAL_MOVES
+
+def _build_move_table():
+  def short(l):
+    return [ (i, j, False) for i, j in l]
+  def long(l):
+    return [ (i, j, True) for i, j in l]
+  gold_moves = short(GOLD_MOVES)
+  bishop_moves = long(BISHOP_MOVES)
+  rook_moves = long(ROOK_MOVES)
+  t = []
+  t.append(None)
+  t.append([ (-1, 0, False)]) #PAWN
+  t.append([ (-1, 0, True)]) #LANCE
+  t.append(short(KNIGHT_MOVES))
+  t.append(short(SILVER_MOVES))
+  t.append(gold_moves)
+  t.append(bishop_moves)
+  t.append(rook_moves)
+  t.append(short(KING_MOVES))
+  for i in range(4):
+    t.append(gold_moves)
+  t.append(None)
+  t.append(bishop_moves + short(ROOK_MOVES))
+  t.append(rook_moves + short(BISHOP_MOVES))
+  return t
+
+MOVE_TABLE = _build_move_table()
 
 def is_legal(piece: int) -> bool:
   return abs(piece) <= DRAGON
