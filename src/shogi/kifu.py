@@ -329,6 +329,10 @@ def _game_parse(game_kif: str) -> Optional[Game]:
           assert not game.has_result()
           game.set_result(result.GameResult.ILLEGAL_PRECEDING_MOVE)
           break
+        if s == '*接続切れにて終局':
+          assert not game.has_result()
+          game.set_result(result.GameResult.BAD_CONNECTION)
+          break
       continue
     a = list(filter(lambda t: t != '', s.split(' ')))
     t = str(game.pos.move_no)
@@ -349,6 +353,9 @@ def _game_parse(game_kif: str) -> Optional[Game]:
     if game.has_result():
       break
     prev_move = mv
+  if (game.game_result == result.GameResult.CHECKMATE) and game.pos.has_legal_moves():
+    logging.error("Illegal checkmate move record in KIFU, 'checkmated' side has legal moves")
+    return None
   return game
 
 def _game_write_tags(g: Game, f):
@@ -384,7 +391,11 @@ def _game_write_moves(g: Game, f):
     prev = m
   #game result
   if not g.game_result is None:
-    f.write(str(move_no) + ' ' + result.japan_str(g.game_result) + '\n')
+    if g.game_result == result.GameResult.BAD_CONNECTION:
+      p = '*'
+    else:
+      p = str(move_no) + ' '
+    f.write(p + result.japan_str(g.game_result) + '\n')
 
 def game_write_to_file(g: Game, f):
   f.write('#KIF version=2.0 encoding=UTF-8\n')
