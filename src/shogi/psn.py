@@ -98,6 +98,19 @@ def game_parse(game_psn: str) -> Game:
     mn = str(i+1) + '.'
     logging.debug('%s %s', mn, s)
     if not s.startswith(mn):
+      side_to_win = None
+      if s == '--White Won--':
+        side_to_win = -1
+      elif s == '--Black Won--':
+        side_to_win = 1
+      if not side_to_win is None:
+        if g.pos.has_legal_moves():
+          g.set_result(GameResult.RESIGNATION)
+        else:
+          g.set_result(GameResult.CHECKMATE)
+        if g.sente_points() != side_to_win:
+          logging.error("Wrong game result")
+          return None
       break
     jt = iter(s[len(mn):].split())
     t = next(jt, None)

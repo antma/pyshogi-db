@@ -498,6 +498,7 @@ class Position:
     self.move_no = pos.move_no
     self.sente_pieces = pos.sente_pieces[:]
     self.gote_pieces = pos.gote_pieces[:]
+    return self
   @classmethod
   def build_sfen(cls, board, side_to_move, move_no, sente_pieces, gote_pieces):
     self = cls.__new__(cls)
@@ -507,9 +508,9 @@ class Position:
     self.sente_pieces = sente_pieces
     self.gote_pieces = gote_pieces
     return self.sfen()
-  def _generate_piece_move(self, p: int, r: int, c: int, direction: Tuple[int, int, bool]) -> Iterator[int]:
+  def _generate_piece_moves(self, p: int, r: int, c: int, direction: Tuple[int, int, bool]) -> Iterator[int]:
     dr, dc, sliding = direction
-    if piece < 0:
+    if p < 0:
       dc *= -1
     while True:
       r += dr
@@ -522,7 +523,6 @@ class Position:
       if q * p > 0:
         break
       yield 9 * r + c
-      #yield Move(p, from_cell, p, 9 * c + r)
       if not sliding:
         break
   def _generate_some_moves(self):
@@ -537,7 +537,7 @@ class Position:
       else:
         row, col = divmod(i, 9)
         for d in piece.MOVE_TABLE[abs(p)]:
-          for to_cell in self._generate_some_moves(p, row, col, d):
+          for to_cell in self._generate_piece_moves(p, row, col, d):
             yield Move(p, i, p, to_cell)
   def has_legal_moves(self):
     pos = Position.clone(self)
