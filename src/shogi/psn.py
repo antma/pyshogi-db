@@ -103,6 +103,9 @@ def game_parse(game_psn: str) -> Game:
         side_to_win = -1
       elif s == '--Black Won--':
         side_to_win = 1
+      elif s == '--Repetition--':
+        g.set_result(GameResult.REPETITION)
+        break
       if not side_to_win is None:
         if g.pos.has_legal_moves():
           g.set_result(GameResult.RESIGNATION)
