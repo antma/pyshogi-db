@@ -132,3 +132,11 @@ class Game:
           self.set_tag(key + '_rating', int(t))
           return
     self.set_tag(key, s)
+  def set_ratings(self, d: Mapping[str, int]):
+    for side in [1, -1]:
+      name = side_to_str(side)
+      player = self.get_tag(name)
+      if not player is None:
+        rating = d.get(player)
+        if not rating is None:
+          self.set_tag(name + '_rating', rating)
