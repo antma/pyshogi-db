@@ -59,6 +59,7 @@ def move_parse(s: str, side_to_move: int, last_move: Optional[move.Move]) -> Opt
       t = next(it)
     p = _KIFU_PIECES_D.get(t)
     if p is None:
+      logging.debug('unknown piece %s', t)
       return None
     if has_been_promoted:
       if piece.is_promoted(p):

@@ -511,7 +511,7 @@ class Position:
   def _generate_piece_moves(self, p: int, r: int, c: int, direction: Tuple[int, int, bool]) -> Iterator[int]:
     dr, dc, sliding = direction
     if p < 0:
-      dc *= -1
+      dr *= -1
     while True:
       r += dr
       if (r < 0) or (r > 8):
@@ -529,10 +529,10 @@ class Position:
     s = self.side_to_move
     c = self.sente_pieces if s > 0 else self.gote_pieces
     for i, p in enumerate(self.board):
-      if p * s <= 0:
+      if p * s < 0:
         continue
       if p == piece.FREE:
-        for j, _ in filter(lambda _, x: x > 0, enumerate(c)):
+        for j, _ in filter(lambda t: t[1] > 0, enumerate(c)):
           yield Move(None, None, s * (j+1), i)
       else:
         row, col = divmod(i, 9)
@@ -544,6 +544,7 @@ class Position:
     for m in self._generate_some_moves():
       try:
         pos.do_move(m)
+        logging.debug('Found move %s in position %s', m.kifu_str(None), pos.sfen()) 
         return True
       except IllegalMove:
         pass
