@@ -533,13 +533,15 @@ class Position:
         continue
       if p == piece.FREE:
         for j, _ in filter(lambda t: t[1] > 0, enumerate(c)):
-          yield Move(None, None, s * (j+1), i)
+          q = s * (j + 1)
+          if cell.can_drop(i, q):
+            yield Move(None, None, q, i)
       else:
         row, col = divmod(i, 9)
         for d in piece.MOVE_TABLE[abs(p)]:
           for to_cell in self._generate_piece_moves(p, row, col, d):
             yield Move(p, i, p, to_cell)
-  def has_legal_moves(self):
+  def has_legal_move(self):
     pos = Position.clone(self)
     for m in self._generate_some_moves():
       try:

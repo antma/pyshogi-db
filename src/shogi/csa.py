@@ -2,6 +2,7 @@
 ''' parsing CSA format files downloaded from Shogi Quest application
     https://gist.github.com/Marken-Foo/b1047990ee0c65537582ebe591e2b6d7
 '''
+import logging
 from typing import Optional
 
 import log
@@ -79,6 +80,9 @@ def game_parse(game_kif: str) -> Game:
     log.raise_value_error('Expected sente is side of first move')
   while True:
     t = next(it)
+    if t == '':
+      break
+    logging.debug(t)
     if t.startswith('%'):
       if t == '%TORYO':
         g.set_result(GameResult.RESIGNATION)

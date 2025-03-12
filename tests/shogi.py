@@ -281,5 +281,12 @@ class TestPuzzles(unittest.TestCase):
       '''
       self.assertEqual(s, t)
 
+class TestCheckmates(unittest.TestCase):
+  def test_checkmates(self):
+    with open(os.path.join(MODULE_DIR, 'sfen', 'checkmates.sfen'), 'r', encoding = 'UTF8') as f:
+      for s in f:
+        pos = Position(s)
+        self.assertFalse(pos.has_legal_move())
+
 if __name__ == '__main__':
   unittest.main()

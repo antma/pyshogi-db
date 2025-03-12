@@ -107,7 +107,7 @@ def game_parse(game_psn: str) -> Game:
         g.set_result(GameResult.REPETITION)
         break
       if not side_to_win is None:
-        if g.pos.has_legal_moves():
+        if g.pos.has_legal_move():
           g.set_result(GameResult.RESIGNATION)
         else:
           g.set_result(GameResult.CHECKMATE)
