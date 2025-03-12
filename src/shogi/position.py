@@ -523,7 +523,7 @@ class Position:
       if q * p > 0:
         break
       yield 9 * r + c
-      if not sliding:
+      if not sliding or q != piece.FREE:
         break
   def _generate_some_moves(self):
     s = self.side_to_move
@@ -546,7 +546,7 @@ class Position:
     for m in self._generate_some_moves():
       try:
         pos.do_move(m)
-        logging.debug('Found move %s in position %s', m.kifu_str(None), pos.sfen()) 
+        logging.debug('Found move %s in position %s', m.kifu_str(None), self.sfen())
         return True
       except IllegalMove:
         pass
