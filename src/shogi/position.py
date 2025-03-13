@@ -283,7 +283,7 @@ class Position:
     self.move_no += 1
     if (m.legal == 0) and not self.is_legal():
       m.legal = -1
-      logging.debug("Illegal position (king under check) = %s", self.sfen())
+      #logging.debug("Illegal position (king under check) = %s", self.sfen())
       self.undo_move(m, u)
       raise UnresolvedCheck
     m.legal = 1
