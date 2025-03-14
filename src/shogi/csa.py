@@ -86,6 +86,8 @@ def game_parse(game_kif: str) -> Game:
     if t.startswith('%'):
       if t == '%TORYO':
         g.set_result(GameResult.RESIGNATION)
+      elif t == '%TIME_UP':
+        g.set_result(GameResult.TIME)
       else:
         log.raise_value_error(f'unknown result (result={t}')
       break
@@ -94,4 +96,6 @@ def game_parse(game_kif: str) -> Game:
       log.raise_value_error(f'can not parse move (move = {t})')
     g.do_move(m)
     t = next(it)
+  if (g.game_result is None) and (not g.pos.has_legal_move()):
+    g.set_result(GameResult.CHECKMATE)
   return g
