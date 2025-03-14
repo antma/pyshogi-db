@@ -96,6 +96,17 @@ class Move:
     if self.from_piece == self.to_piece:
       return r + piece.kifu_str(self.to_piece) + t
     return r + piece.kifu_str(self.from_piece) + '成' + t
+  def time_str(self) -> Optional[str]:
+    if self.time is None:
+      return None
+    m, s = divmod(round(self.time.total_seconds()), 60)
+    return str(m) + ':' + str(s)
+  def cum_time_str(self) -> Optional[str]:
+    if self.cum_time is None:
+      return None
+    t, s = divmod(round(self.cum_time.total_seconds()), 60)
+    h, m = divmod(t, 60)
+    return str(h) + ':' + str(m) + ':' + str(s)
 
 class UndoMove:
   def __init__(self, taken_piece: int):

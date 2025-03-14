@@ -2,6 +2,7 @@
 ''' parsing CSA format files downloaded from Shogi Quest application
     https://gist.github.com/Marken-Foo/b1047990ee0c65537582ebe591e2b6d7
 '''
+import datetime
 import logging
 from typing import Optional
 
@@ -28,6 +29,14 @@ def _parse_cell(it) -> Optional[int]:
   if row not in r:
     log.raise_value_error('illegal row (row = %d)', row)
   return 9 * (row - 1) + (col - 1)
+
+def _parse_time(t: str) -> Optional[datetime.timedelta]:
+  if t.startswith('T'):
+    try:
+      return datetime.timedelta(seconds = int(t[1:]))
+    except ValueError:
+      pass
+  return None
 
 def _parse_move(pos: Position, s: str) -> Optional[Move]:
   it = iter(s)
@@ -78,6 +87,7 @@ def game_parse(game_kif: str) -> Game:
       log.raise_value_error('Expected starting position')
   if next(it) != '+':
     log.raise_value_error('Expected sente is side of first move')
+  cum_time = [ datetime.timedelta(seconds = 0), datetime.timedelta(seconds = 0)]
   while True:
     t = next(it)
     if t == '':
@@ -94,8 +104,13 @@ def game_parse(game_kif: str) -> Game:
     m = _parse_move(g.pos, t)
     if m is None:
       log.raise_value_error(f'can not parse move (move = {t})')
+    side = 0 if g.pos.side_to_move > 0 else 1
+    t = _parse_time(next(it))
+    if not t is None:
+      cum_time[side] += t
+      m.time = t
+      m.cum_time = cum_time[side]
     g.do_move(m)
-    t = next(it)
   if (g.game_result is None) and (not g.pos.has_legal_move()):
     g.set_result(GameResult.CHECKMATE)
   return g

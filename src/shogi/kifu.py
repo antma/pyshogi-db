@@ -383,7 +383,14 @@ def _game_write_moves(g: Game, f):
   prev = None
   move_no = g.start_move_no
   for m in g.moves:
-    f.write(str(move_no) + ' ' + m.kifu_str(prev) + '\n')
+    t = str(move_no) + ' ' + m.kifu_str(prev)
+    t1 = m.time_str()
+    if not t1 is None:
+      t2 = m.cum_time_str()
+      if not t2 is None:
+        t1 += '/' + t2
+      t += ' (' + t1 + ')'
+    f.write(t + '\n')
     move_no += 1
     p = g.comments.get(move_no)
     if p:
