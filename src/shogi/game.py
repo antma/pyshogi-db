@@ -1,6 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from collections import defaultdict
+import logging
 from typing import Mapping, Optional
 
 import log
@@ -140,3 +141,39 @@ class Game:
         rating = d.get(player)
         if not rating is None:
           self.set_tag(name + '_rating', rating)
+  def player_stats(self, player_name: str):
+    side = None
+    points = self.sente_points()
+    if points is None:
+      logging.warning('Game without result')
+      return None
+    if self.get_tag('sente') == player_name:
+      side = 'sente'
+      oside = 'gote'
+    elif self.get_tag('gote') == player_name:
+      side = 'gote'
+      oside = 'sente'
+      points *= -1
+    if side is None:
+      return None
+    opponent = self.get_tag(oside)
+    if opponent is None:
+      return None
+    rating = self.get_tag(side + '_rating')
+    if rating is None:
+      logging.warning('Game without player rating')
+      return None
+    orating = self.get_tag(oside + '_rating')
+    if orating is None:
+      logging.warning('Game without opponent rating')
+      return None
+    return {
+      'side': side,
+      'opponent' : opponent,
+      'points' : points,
+      'rating' : int(rating),
+      'orating': int(orating),
+      'hands' : len(self.moves),
+      'date': self.get_tag('start_date'),
+      'time_control' : self.get_tag('time_control')
+    }
