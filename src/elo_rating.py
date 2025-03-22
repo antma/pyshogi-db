@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 
+from bisect import bisect_left
 from typing import Optional
 
 _TBL = [-800, -677, -589, -538, -501, -470, -444, -422, -401, -383, -366, -351, -336, -322, -309, -296, -284, -273, -262, -251, -240, -230, -220, -211, -202, -193, -184, -175, -166, -158, -149, -141, -133, -125, -117, -110, -102, -95, -87, -80, -72, -65, -57, -50, -43, -36, -29, -21, -14, -7, 0, 7, 14, 21, 29, 36, 43, 50, 57, 65, 72, 80, 87, 95, 102, 110, 117, 125, 133, 141, 149, 158, 166, 175, 184, 193, 202, 211, 220, 230, 240, 251, 262, 273, 284, 296, 309, 322, 336, 351, 366, 383, 401, 422, 444, 470, 501, 538, 589, 677, 800]
@@ -34,3 +35,13 @@ class Performance:
     if self.games < min_games:
       return None
     return performance(self.opponents_rating_sum / self.games, 100.0 * (self.score / self.games))
+
+_RATING_TO_DAN_81DOJO_TBL = [800, 900, 1000, 1050, 1100, 1150, 1200, 1250, 1300, 1350, 1425, 1500, 1650, 1800, 1950, 2100, 2200, 2300]
+
+def rating_to_dan_81dojo(rating: int) -> int:
+  if rating < _RATING_TO_DAN_81DOJO_TBL[0]:
+    return -12
+  i = bisect_left(_RATING_TO_DAN_81DOJO_TBL, rating + 1) - 12
+  if i < 0:
+    return i
+  return i + 1
