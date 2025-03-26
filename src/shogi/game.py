@@ -141,6 +141,24 @@ class Game:
         rating = d.get(player)
         if not rating is None:
           self.set_tag(name + '_rating', rating)
+  def total_time(self) -> int:
+    sente_time = None
+    gote_time = None
+    flags = 0
+    for m in reversed(self.moves):
+      if m.cum_time is None:
+        continue
+      if m.to_piece > 0:
+        if sente_time is None:
+          sente_time = m.cum_time
+          flags |= 1
+      else:
+        if gote_time is None:
+          gote_time = m.cum_time
+          flags |= 2
+      if flags == 3:
+        return round((sente_time + gote_time).total_seconds())
+    return None
   def player_stats(self, player_name: str):
     side = None
     points = self.sente_points()
@@ -163,10 +181,12 @@ class Game:
     if rating is None:
       logging.warning('Game without player rating')
       return None
+    assert isinstance(rating, int)
     orating = self.get_tag(oside + '_rating')
     if orating is None:
       logging.warning('Game without opponent rating')
       return None
+    assert isinstance(orating, int)
     return {
       'side': side,
       'opponent' : opponent,
@@ -175,5 +195,6 @@ class Game:
       'orating': int(orating),
       'hands' : len(self.moves),
       'date': self.get_tag('start_date'),
-      'time_control' : self.get_tag('time_control')
+      'time_control' : self.get_tag('time_control'),
+      'duration': self.total_time(),
     }
