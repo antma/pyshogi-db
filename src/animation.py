@@ -278,7 +278,12 @@ def game_to_mp4(game: Game, flip_orientation: bool, delay: int, working_dir: str
         wr, curm = e.get(move_no + 1, dft)
         old_wr, bm = e.get(move_no, dft)
         side = -game.move_no_to_side_to_move(move_no + 1)
-        msg = evaluation.mistake_str(side, old_wr, wr, ' '.join(s[1] for s in bm))
+        msg = None
+        try:
+          if not (bm[0][0] == game.moves[index]):
+            msg = evaluation.mistake_str(side, old_wr, wr, ' '.join(s[1] for s in bm))
+        except IndexError:
+          pass
         draw = ImageDraw.Draw(im)
         layout.draw_bar(draw, old_wr)
         if (not msg is None) and curm:

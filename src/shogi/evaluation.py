@@ -24,26 +24,30 @@ def win_rate_to_centipawns(rate: float) -> int:
   return u
 
 class MistakeType(IntEnum):
-  INACCURACY = 1
-  MISTAKE = 2
-  SERIOUS_MISTAKE = 3
-  BLUNDER = 4
+  NORMAL = 1
+  INACCURACY = 2
+  MISTAKE = 3
+  SERIOUS_MISTAKE = 4
+  BLUNDER = 5
   def __str__(self) -> str:
     match self.value:
+      case MistakeType.NORMAL: return 'Normal'
       case MistakeType.INACCURACY: return 'Inaccuracy'
       case MistakeType.MISTAKE: return 'Mistake'
       case MistakeType.SERIOUS_MISTAKE: return 'Serious mistake'
       case MistakeType.BLUNDER: return 'Blunder'
 
 def win_rate_delta_to_mistake_type(delta: float) -> Optional[MistakeType]:
-  if delta > 0.4:
+  if delta > 0.5:
     return MistakeType.BLUNDER
-  if delta > 0.3:
+  if delta > 0.25:
     return MistakeType.SERIOUS_MISTAKE
-  if delta > 0.2:
-    return MistakeType.MISTAKE
   if delta > 0.1:
+    return MistakeType.MISTAKE
+  if delta > 0.05:
     return MistakeType.INACCURACY
+  if delta > 0.02:
+    return MistakeType.NORMAL
   return None
 
 def mistake_str(side: int, old_win_rate: float, new_win_rate: float, pv: str) -> Optional[str]:
