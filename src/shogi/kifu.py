@@ -215,32 +215,35 @@ def _board_parse(s: List[str]) -> List[int]:
     log.raise_value_error('_board_parse: expected board separator')
   b = [None] * 81
   for row in range(9):
-    t = list(s[row + 2])
-    if t[0] != '|':
+    it = iter(s[row + 2])
+    if next(it) != '|':
       log.raise_value_error(f'_board_parse: expected left board separator at row {row+1}')
-    k = 1
     for col in reversed(range(9)):
-      if t[k] == 'v':
+      n = 9 * row + col
+      t = next(it)
+      if t == 'v':
         side = -1
       else:
-        if t[k] != ' ':
-          log.raise_value_error(f'_board_parse: expected space at row {row+1}, column {col+1}')
+        if t != ' ':
+          if t == '・':
+            b[n] = piece.FREE
+            continue
+          log.raise_value_error(f"_board_parse: expected space at row {row+1}, column {col+1}, but '{t}' found")
         side = 1
-      k += 1
-      p = _KIFU_PIECES_D.get(t[k])
-      n = 9 * row + col
+      t = next(it)
+      p = _KIFU_PIECES_D.get(t)
       if p is None:
-        if t[k] != '・':
-          log.raise_value_error(f'_board_parse: expected empty cell character at {row+1}, column {col+1}')
+        if t != '・':
+          log.raise_value_error(f"_board_parse: expected empty cell character at {row+1}, column {col+1}, but '{t}' found")
         b[n] = piece.FREE
       else:
         b[n] = p * side
-      k += 1
-    if t[k] != '|':
+    if next(it) != '|':
       log.raise_value_error(f'_board_parse: expected right board separator at row {row+1}')
-    k += 1
-    if _KIFU_ROWS_D.get(t[k]) != row:
+    if _KIFU_ROWS_D.get(next(it)) != row:
       log.raise_value_error(f'_board_parse: expected row number at row {row+1}')
+    if not iter_is_empty(it):
+      log.raise_value_error(f'_board_parse: extra data at row {row+1}')
   if s[11] != sep:
     log.raise_value_error('_board_parse: expected board separator')
   return b
