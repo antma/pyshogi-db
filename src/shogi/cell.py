@@ -28,6 +28,22 @@ def usi_parse(col: str, row: str) -> Optional[int]:
   y = ord(row) - 97
   if not 0 <= y < 9:
     logging.warning('row %s is not in [1-9]', row)
+    return None
+  return 9 * y + x
+
+def digital_parse(s: str) -> Optional[int]:
+  if len(s) != 2:
+    logging.warning('digital_parse(): cell.digital_parse illegal input string length')
+    return None
+  it = iter(s)
+  x = int(next(it)) - 1
+  if not 0 <= x < 9:
+    logging.warning("digital_parse(): column %s is not in [1-9] for input '%s'", x, s)
+    return None
+  y = int(next(it)) - 1
+  if not 0 <= y < 9:
+    logging.warning("digital_parse(): row %s is not in [1-9] for input '%s'", y, s)
+    return None
   return 9 * y + x
 
 def can_drop(cell: int, p: int) -> bool:
