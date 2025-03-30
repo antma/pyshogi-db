@@ -9,6 +9,7 @@ import os
 import unittest
 
 import shogi
+from shogi.castles import Castles
 from shogi.move import (IllegalMove, Move)
 from shogi.position import Position
 from shogi.openings import OPENINGS
@@ -288,6 +289,26 @@ class TestCheckmates(unittest.TestCase):
         pos = Position(s)
         self.assertTrue(pos.is_check())
         self.assertFalse(pos.has_legal_move())
+
+_TEST_CASTLE_BY_POSITIONS = [('ln1g3nl/1ks3gr1/1ppppsbp1/p4pp1p/7P1/P1P2PP1P/1P1PPSN2/1BK1G2R1/LNSG4L b - 27', -1, Castles.HALF_MINO_CASTLE)]
+
+class TestCastles(unittest.TestCase):
+  def check(self, game_id, sente_castles, gote_castles):
+    with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
+      data = f.read()
+    g = shogi.kifu.game_parse(data)
+    self.assertIsNotNone(g)
+    s1, s2 = shogi.castles.game_find_castles(g)
+    self.assertEqual(set(sente_castles), s1)
+    self.assertEqual(set(gote_castles), s2)
+  def test_positions(self):
+    for sfen, side, ct in _TEST_CASTLE_BY_POSITIONS:
+      pos = Position(sfen)
+      st = set()
+      shogi.castles.position_update_set_of_castles(pos, side, st)
+      self.assertTrue(ct in st)
+  def test_castles(self):
+    self.check(1, [Castles.BOAT_CASTLE, Castles.CASTLE_TOWER_MINO], [Castles.HALF_MINO_CASTLE, Castles.TOPKNOT_MINO]) 
 
 if __name__ == '__main__':
   unittest.main()
