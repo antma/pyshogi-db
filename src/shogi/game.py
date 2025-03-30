@@ -198,3 +198,7 @@ class Game:
       'time_control' : self.get_tag('time_control'),
       'duration': self.total_time(),
     }
+  def drop_zero_times(self):
+    if all(m.zero_or_none_time() for m in self.moves):
+      for m in self.moves:
+        m.drop_times()

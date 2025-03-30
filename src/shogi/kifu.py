@@ -360,6 +360,7 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   if (game.game_result == result.GameResult.CHECKMATE) and game.pos.has_legal_move():
     logging.error("Illegal checkmate move record in KIFU, 'checkmated' side has legal moves")
     return None
+  game.drop_zero_times()
   return game
 
 def _game_write_tags(g: Game, f):

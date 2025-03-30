@@ -4,8 +4,6 @@ from enum import IntEnum
 from math import exp
 from typing import Optional
 
-from .move import Move
-
 def _sigmoid(x: float) -> float:
   return 1.0 / (1.0 + exp(-x))
 

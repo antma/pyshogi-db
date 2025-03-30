@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 
+from datetime import timedelta
 from typing import Optional
 
 from . import cell
@@ -107,6 +108,11 @@ class Move:
     t, s = divmod(round(self.cum_time.total_seconds()), 60)
     h, m = divmod(t, 60)
     return str(h) + ':' + str(m) + ':' + str(s)
+  def zero_or_none_time(self) -> bool:
+    return (self.time is None) or (self.time == timedelta.min)
+  def drop_times(self):
+    self.time = None
+    self.cum_time = None
 
 class UndoMove:
   def __init__(self, taken_piece: int):
