@@ -8,7 +8,7 @@ from ._pattern import PositionPattern
 
 Castle = IntEnum('Castle',
   ['CASTLE_TOWER_MINO', 'BOAT_CASTLE', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN',
-   'PEERLESS_GOLDS',
+   'PEERLESS_GOLDS', 'SWINGING_ROOK_ANAGUMA',
   ])
 
 _PATTERNS = [
@@ -26,6 +26,8 @@ _PATTERNS = [
                     ('P', '47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')]), Castle.MINO_CASTLE),
   (PositionPattern([('K', '38'), ('S', '28'), ('G', '48'), ('G', '58'), ('L', '19'), ('N', '29'),
                     ('P', '27'), ('P', '37'), ('P', '47'), ('P', '15,16,17')]), Castle.PEERLESS_GOLDS),
+  (PositionPattern([('K', '19'), ('S', '28'), ('G', '39'), ('L', '18'), ('N', '29'),
+                    ('P', '27'), ('P', '16,17')]), Castle.SWINGING_ROOK_ANAGUMA),
 ]
 
 def position_update_set_of_castles(pos: Position, side: int, st):

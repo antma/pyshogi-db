@@ -314,6 +314,7 @@ class TestCastles(unittest.TestCase):
     self.check(7, [Castle.MINO_CASTLE], [])
     self.check(8, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.PEERLESS_GOLDS])
     self.check(9, [Castle.MINO_CASTLE], [Castle.BOAT_CASTLE])
+    self.check(10, [Castle.BOAT_CASTLE], [Castle.SWINGING_ROOK_ANAGUMA])
 
 class TestOpenings(unittest.TestCase):
   def check(self, game_id, sente_openings, gote_openings):
@@ -329,6 +330,7 @@ class TestOpenings(unittest.TestCase):
     self.check(7, [Opening.QUICK_ISHIDA], [Opening.RIGHT_HAND_FORTH_FILE_ROOK])
     self.check(8, [Opening.QUICK_ISHIDA], [Opening.DOUBLE_SWINGING_ROOK])
     self.check(9, [Opening.THIRD_FILE_ROOK], [])
+    self.check(10, [], [Opening.FORTH_FILE_ROOK])
 
 if __name__ == '__main__':
   unittest.main()

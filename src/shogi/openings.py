@@ -6,7 +6,7 @@ from .game import Game
 from .position import Position
 
 Opening = IntEnum('Opening',
-  ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
+  ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
    'QUICK_ISHIDA',
   ])
 
@@ -26,6 +26,8 @@ def update_set_of_oppenings_by_rooks(rooks: Tuple[int, int], s: Set[Opening], ro
     s.add(Opening.OPPOSING_ROOK)
   elif r == 3:
     s.add(Opening.THIRD_FILE_ROOK)
+  elif r == 4:
+    s.add(Opening.FORTH_FILE_ROOK)
   elif r == 6:
     s.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
 
