@@ -295,6 +295,7 @@ class TestCheckmates(unittest.TestCase):
 _TEST_CASTLE_BY_POSITIONS = [
   ('ln1g3nl/1ks3gr1/1ppppsbp1/p4pp1p/7P1/P1P2PP1P/1P1PPSN2/1BK1G2R1/LNSG4L b - 27', -1, Castle.HALF_MINO_CASTLE),
   ('kn1gr3l/ls1b1sg2/pppp1pnpp/4p4/P4P3/2P3R2/1PBPP1P1P/1K2GS3/LNSG3NL b 2P 35', -1, Castle.SWINGING_ROOK_ANAGUMA),
+  ('ln3gsnl/1r3k1b1/p2ppg1pp/2ps1pp2/1p2P4/2PS5/PPBP1PPPP/4R1SK1/LN1G1G1NL w - 24', 1, Castle.HALF_MINO_CASTLE),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -320,6 +321,7 @@ class TestCastles(unittest.TestCase):
     self.check(10, [Castle.BOAT_CASTLE], [Castle.SWINGING_ROOK_ANAGUMA])
     self.check(11, [Castle.MINO_CASTLE], [])
     self.check(12, [Castle.BOAT_CASTLE, Castle.LEFT_HAND_MINO], [Castle.SWINGING_ROOK_ANAGUMA])
+    self.check(13, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE], [Castle.STATIC_ROOK_ANAGUMA])
 
 class TestOpenings(unittest.TestCase):
   def check(self, game_id, sente_openings, gote_openings):
@@ -338,6 +340,7 @@ class TestOpenings(unittest.TestCase):
     self.check(10, [], [Opening.FORTH_FILE_ROOK])
     self.check(11, [Opening.QUICK_ISHIDA, Opening.DOUBLE_SWINGING_ROOK], [Opening.FORTH_FILE_ROOK])
     self.check(12, [], [])
+    self.check(13, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.SILVER_37_SUPER_RAPID])
 
 if __name__ == '__main__':
   unittest.main()
