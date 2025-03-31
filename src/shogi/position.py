@@ -551,3 +551,7 @@ class Position:
       except IllegalMove:
         pass
     return False
+  def opponent_piece_in_the_camp(self, side: int) -> bool:
+    if side > 0:
+      return any(p < 0 for p in self.board[63:])
+    return any(p > 0 for p in self.board[:18])
