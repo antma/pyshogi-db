@@ -311,6 +311,7 @@ class TestCastles(unittest.TestCase):
       self.assertTrue(ct in st)
   def test_castles(self):
     self.check(1, [Castle.BOAT_CASTLE, Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.TOPKNOT_MINO, Castle.SILVER_CROWN])
+    self.check(7, [Castle.MINO_CASTLE], [])
 
 class TestOpenings(unittest.TestCase):
   def check(self, game_id, sente_openings, gote_openings):
@@ -323,6 +324,7 @@ class TestOpenings(unittest.TestCase):
     self.assertEqual(set(gote_openings), s2)
   def test_openings(self):
     self.check(1, [], [Opening.OPPOSING_ROOK])
+    self.check(7, [Opening.QUICK_ISHIDA], [Opening.RIGHT_HAND_FORTH_FILE_ROOK])
 
 if __name__ == '__main__':
   unittest.main()

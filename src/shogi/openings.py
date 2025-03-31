@@ -1,36 +1,55 @@
 # -*- coding: UTF8 -*-
 
 from enum import IntEnum
-from typing import Tuple, Set
+from typing import List, Tuple, Set
 from .game import Game
 from .position import Position
 
 Opening = IntEnum('Opening',
-  ['OPPOSING_ROOK'])
+  ['OPPOSING_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK',
+   'QUICK_ISHIDA',
+  ])
+
+_OPENINGS_D = {
+  'lnsgkgsnl/1r5b1/pppppp1pp/6p2/2P6/9/PP1PPPPPP/1B5R1/LNSGKGSNL w - 4' : Opening.QUICK_ISHIDA,
+}
 
 def swinging_rook(rooks: Tuple[int, int]) -> bool:
   return 1 <= rooks[0] <= 5
 
-def update_set_of_oppenings_by_rooks(rooks: Tuple[int, int], s: Set[Opening]):
+def update_set_of_oppenings_by_rooks(rooks: Tuple[int, int], s: Set[Opening], rook_limit: int):
+  if rooks[1] >= rook_limit:
+    'quick ishida != third file rook'
+    return
   r = rooks[0]
   if r == 2:
     s.add(Opening.OPPOSING_ROOK)
+  if r == 6:
+    s.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
+
+def _rooks_limit(moves_numbers: List[int], max_hands: int) -> int:
+  return max_hands if not moves_numbers else moves_numbers[0]
 
 def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[Opening]]:
   sente_openings = set()
   gote_openings = set()
   assert g.start_pos is None
-  sente_rooks, gote_rooks = g.rooks(max_hands)
-  update_set_of_oppenings_by_rooks(sente_rooks, sente_openings)
-  update_set_of_oppenings_by_rooks(gote_rooks, gote_openings)
-  #TODO: aifuribisha code
-  '''
   pos = Position()
+  sente_moves_numbers = []
+  gote_moves_numbers = []
   for m in g.moves[:max_hands]:
     pos.do_move(m)
-    side = -pos.side_to_move
-    position_update_set_of_castles(pos, side, sente_castles if side > 0 else gote_castles)
-  '''
+    ot = _OPENINGS_D.get(pos.sfen())
+    if not ot is None:
+      s, m = (sente_openings, sente_moves_numbers) if pos.side_to_move < 0 else (gote_openings, gote_moves_numbers)
+      s.add(ot)
+      m.append(pos.move_no - 1)
+  sente_rook_limit = _rooks_limit(sente_moves_numbers, max_hands)
+  gote_rook_limit = _rooks_limit(gote_moves_numbers, max_hands)
+  sente_rooks, gote_rooks = g.rooks(max(sente_rook_limit, gote_rook_limit))
+  update_set_of_oppenings_by_rooks(sente_rooks, sente_openings, sente_rook_limit)
+  update_set_of_oppenings_by_rooks(gote_rooks, gote_openings, gote_rook_limit)
+  #TODO: aifuribisha code
   return (sente_openings, gote_openings)
 
 """
