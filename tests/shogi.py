@@ -292,7 +292,10 @@ class TestCheckmates(unittest.TestCase):
         self.assertTrue(pos.is_check())
         self.assertFalse(pos.has_legal_move())
 
-_TEST_CASTLE_BY_POSITIONS = [('ln1g3nl/1ks3gr1/1ppppsbp1/p4pp1p/7P1/P1P2PP1P/1P1PPSN2/1BK1G2R1/LNSG4L b - 27', -1, Castle.HALF_MINO_CASTLE)]
+_TEST_CASTLE_BY_POSITIONS = [
+  ('ln1g3nl/1ks3gr1/1ppppsbp1/p4pp1p/7P1/P1P2PP1P/1P1PPSN2/1BK1G2R1/LNSG4L b - 27', -1, Castle.HALF_MINO_CASTLE),
+  ('kn1gr3l/ls1b1sg2/pppp1pnpp/4p4/P4P3/2P3R2/1PBPP1P1P/1K2GS3/LNSG3NL b 2P 35', -1, Castle.SWINGING_ROOK_ANAGUMA),
+]
 
 class TestCastles(unittest.TestCase):
   def check(self, game_id, sente_castles, gote_castles):
@@ -315,6 +318,8 @@ class TestCastles(unittest.TestCase):
     self.check(8, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.PEERLESS_GOLDS])
     self.check(9, [Castle.MINO_CASTLE], [Castle.BOAT_CASTLE])
     self.check(10, [Castle.BOAT_CASTLE], [Castle.SWINGING_ROOK_ANAGUMA])
+    self.check(11, [Castle.MINO_CASTLE], [])
+    self.check(12, [Castle.BOAT_CASTLE, Castle.LEFT_HAND_MINO], [Castle.SWINGING_ROOK_ANAGUMA])
 
 class TestOpenings(unittest.TestCase):
   def check(self, game_id, sente_openings, gote_openings):
@@ -331,6 +336,8 @@ class TestOpenings(unittest.TestCase):
     self.check(8, [Opening.QUICK_ISHIDA], [Opening.DOUBLE_SWINGING_ROOK])
     self.check(9, [Opening.THIRD_FILE_ROOK], [])
     self.check(10, [], [Opening.FORTH_FILE_ROOK])
+    self.check(11, [Opening.QUICK_ISHIDA, Opening.DOUBLE_SWINGING_ROOK], [Opening.FORTH_FILE_ROOK])
+    self.check(12, [], [])
 
 if __name__ == '__main__':
   unittest.main()

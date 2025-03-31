@@ -7,7 +7,10 @@ from .position import Position
 from ._pattern import PositionPattern
 
 Castle = IntEnum('Castle',
-  ['CASTLE_TOWER_MINO', 'BOAT_CASTLE', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN',
+  [ #static rook
+   'BOAT_CASTLE', 'LEFT_HAND_MINO',
+    #swinging rook
+   'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN',
    'PEERLESS_GOLDS', 'SWINGING_ROOK_ANAGUMA',
   ])
 
@@ -22,12 +25,15 @@ _PATTERNS = [
                     ('P', '57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '95,96,97')]), Castle.BOAT_CASTLE),
   (PositionPattern([('K', '28'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), (' ', '58'),
                     ('P', '47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')]), Castle.HALF_MINO_CASTLE),
-  (PositionPattern([('K', '28'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('G', '58'),
+  (PositionPattern([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('G', '58'),
                     ('P', '47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')]), Castle.MINO_CASTLE),
   (PositionPattern([('K', '38'), ('S', '28'), ('G', '48'), ('G', '58'), ('L', '19'), ('N', '29'),
                     ('P', '27'), ('P', '37'), ('P', '47'), ('P', '15,16,17')]), Castle.PEERLESS_GOLDS),
-  (PositionPattern([('K', '19'), ('S', '28'), ('G', '39'), ('L', '18'), ('N', '29'),
+  (PositionPattern([('K', '19'), ('S', '28'), ('G', '39,49'), ('L', '18'), ('N', '29'),
                     ('P', '27'), ('P', '16,17')]), Castle.SWINGING_ROOK_ANAGUMA),
+  (PositionPattern([('K', '88'), ('S', '78'), ('G', '69'), ('G', '58'), ('L', '99'), ('N', '89'),
+                    ('P', '87'), ('P', '76'), ('P', '67'), ('P', '95,96,97')]), Castle.LEFT_HAND_MINO),
+
 ]
 
 def position_update_set_of_castles(pos: Position, side: int, st):
