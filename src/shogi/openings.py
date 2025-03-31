@@ -6,7 +6,7 @@ from .game import Game
 from .position import Position
 
 Opening = IntEnum('Opening',
-  ['OPPOSING_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK',
+  ['OPPOSING_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
    'QUICK_ISHIDA',
   ])
 
@@ -47,9 +47,19 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
   sente_rook_limit = _rooks_limit(sente_moves_numbers, max_hands)
   gote_rook_limit = _rooks_limit(gote_moves_numbers, max_hands)
   sente_rooks, gote_rooks = g.rooks(max(sente_rook_limit, gote_rook_limit))
-  update_set_of_oppenings_by_rooks(sente_rooks, sente_openings, sente_rook_limit)
-  update_set_of_oppenings_by_rooks(gote_rooks, gote_openings, gote_rook_limit)
-  #TODO: aifuribisha code
+  sente_double_swinging_rook = False
+  gote_double_swinging_rook = False
+  if swinging_rook(sente_rooks) and swinging_rook(gote_rooks):
+    if sente_rooks[1] > gote_rooks[1]:
+      sente_double_swinging_rook = True
+      sente_openings.add(Opening.DOUBLE_SWINGING_ROOK)
+    else:
+      gote_double_swinging_rook = True
+      gote_openings.add(Opening.DOUBLE_SWINGING_ROOK)
+  if not sente_double_swinging_rook:
+    update_set_of_oppenings_by_rooks(sente_rooks, sente_openings, sente_rook_limit)
+  if not gote_double_swinging_rook:
+    update_set_of_oppenings_by_rooks(gote_rooks, gote_openings, gote_rook_limit)
   return (sente_openings, gote_openings)
 
 """
