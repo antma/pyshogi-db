@@ -6,20 +6,20 @@ from .game import Game
 from .position import Position
 from ._pattern import PositionPattern
 
-Castles = IntEnum('Castles',
+Castle = IntEnum('Castle',
   ['CASTLE_TOWER_MINO', 'BOAT_CASTLE', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'SILVER_CROWN'])
 
 _PATTERNS = [
   (PositionPattern([('K', '28'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'),
-                    ('P', '47'), ('P', '37'), ('P', '26'), ('P', '15,16,17')]), Castles.TOPKNOT_MINO),
+                    ('P', '47'), ('P', '37'), ('P', '26'), ('P', '15,16,17')]), Castle.TOPKNOT_MINO),
   (PositionPattern([('K', '28'), ('S', '27'), ('G', '38'), ('N', '29'), ('L', '19'),
-                    ('P', '47'), ('P', '37'), ('P', '26'), ('P', '15,16,17')]), Castles.SILVER_CROWN),
+                    ('P', '47'), ('P', '37'), ('P', '26'), ('P', '15,16,17')]), Castle.SILVER_CROWN),
   (PositionPattern([('K', '87'), ('S', '78'), ('G', '69'), ('B', '88'), ('N', '89'), ('L', '99'),
-                    ('P', '67'), ('P', '76'), ('P', '86'), ('P', '95,96,97')]), Castles.CASTLE_TOWER_MINO),
+                    ('P', '67'), ('P', '76'), ('P', '86'), ('P', '95,96,97')]), Castle.CASTLE_TOWER_MINO),
   (PositionPattern([('K', '78'), ('S', '79'), ('G', '69'), ('G', '58'), ('B', '88'), ('N', '89'), ('L', '99'),
-                    ('P', '57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '95,96,97')]), Castles.BOAT_CASTLE),
+                    ('P', '57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '95,96,97')]), Castle.BOAT_CASTLE),
   (PositionPattern([('K', '28'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), (' ', '58'),
-                    ('P', '47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')]), Castles.HALF_MINO_CASTLE)
+                    ('P', '47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')]), Castle.HALF_MINO_CASTLE)
 ]
 
 def position_update_set_of_castles(pos: Position, side: int, st):
@@ -27,7 +27,7 @@ def position_update_set_of_castles(pos: Position, side: int, st):
     if (not ct in st) and p.match(pos, side):
       st.add(ct)
 
-def game_find_castles(g: Game, max_hands: int = 60) -> Tuple[Set[Castles], Set[Castles]]:
+def game_find_castles(g: Game, max_hands: int = 60) -> Tuple[Set[Castle], Set[Castle]]:
   sente_castles = set()
   gote_castles = set()
   assert g.start_pos is None

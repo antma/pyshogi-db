@@ -2,11 +2,11 @@
 
 from collections import defaultdict
 import logging
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Tuple
 
 import log
 from .move import Move, IllegalMove
-from .piece import side_to_str
+from .piece import ROOK, side_to_str
 from .position import Position
 from .result import GameResult, side_to_move_points
 
@@ -202,3 +202,16 @@ class Game:
     if all(m.zero_or_none_time() for m in self.moves):
       for m in self.moves:
         m.drop_times()
+  def rooks(self, max_hands: int = 30) -> Tuple[Tuple[int,int], Tuple[int,int]]:
+    assert self.start_pos is None
+    sente = (8, 0)
+    for i, m in enumerate(self.moves[0:max_hands:2]):
+      if m.from_piece == ROOK:
+        sente = (9 - (m.to_cell % 9), 2 * i + 1)
+        break
+    gote = (8, 0)
+    for i, m in enumerate(self.moves[1:max_hands:2]):
+      if m.from_piece == -ROOK:
+        gote = (1 + (m.to_cell % 9), 2 * i + 2)
+        break
+    return (sente, gote)

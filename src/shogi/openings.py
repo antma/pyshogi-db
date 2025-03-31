@@ -1,5 +1,39 @@
 # -*- coding: UTF8 -*-
 
+from enum import IntEnum
+from typing import Tuple, Set
+from .game import Game
+from .position import Position
+
+Opening = IntEnum('Opening',
+  ['OPPOSING_ROOK'])
+
+def swinging_rook(rooks: Tuple[int, int]) -> bool:
+  return 1 <= rooks[0] <= 5
+
+def update_set_of_oppenings_by_rooks(rooks: Tuple[int, int], s: Set[Opening]):
+  r = rooks[0]
+  if r == 2:
+    s.add(Opening.OPPOSING_ROOK)
+
+def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[Opening]]:
+  sente_openings = set()
+  gote_openings = set()
+  assert g.start_pos is None
+  sente_rooks, gote_rooks = g.rooks(max_hands)
+  update_set_of_oppenings_by_rooks(sente_rooks, sente_openings)
+  update_set_of_oppenings_by_rooks(gote_rooks, gote_openings)
+  #TODO: aifuribisha code
+  '''
+  pos = Position()
+  for m in g.moves[:max_hands]:
+    pos.do_move(m)
+    side = -pos.side_to_move
+    position_update_set_of_castles(pos, side, sente_castles if side > 0 else gote_castles)
+  '''
+  return (sente_openings, gote_openings)
+
+"""
 class Opening:
   def __init__(self, usi_moves: str, jp_name: str, en_name: str, url: str):
     self.usi_moves = usi_moves
@@ -35,3 +69,4 @@ OPENINGS = [
   Opening('7g7f 8c8d 5g5f 3c3d 5f5e 5a4b 2h5h 7a6b 5i4h 8d8e 8h7g 7c7d 7i6h 6b7c',
     '超速3七銀', 'Super High Speed Silver-37', 'https://en.wikipedia.org/wiki/Super_High_Speed_Silver-37'),
 ]
+"""

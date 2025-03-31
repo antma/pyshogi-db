@@ -9,10 +9,10 @@ import os
 import unittest
 
 import shogi
-from shogi.castles import Castles
+from shogi.castles import Castle
+from shogi.openings import Opening
 from shogi.move import (IllegalMove, Move)
 from shogi.position import Position
-from shogi.openings import OPENINGS
 
 MODULE_DIR = os.path.dirname(inspect.getfile(inspect.currentframe()))
 
@@ -227,6 +227,7 @@ class TestShogiPosition(unittest.TestCase):
         self.assertEqual(s, m.usi_str())
         pos.do_move(m)
       self.assertEqual(final_sfen, pos.sfen())
+  '''
   def test_openings(self):
     for o in OPENINGS:
       pos = Position()
@@ -234,6 +235,7 @@ class TestShogiPosition(unittest.TestCase):
         m = pos.parse_usi_move(s)
         self.assertEqual(s, m.usi_str())
         pos.do_move(m)
+  '''
   def test_western_move_str(self):
     for (fen, usi_move, expected) in WESTERN_MOVE_TESTS:
       pos = Position(fen)
@@ -290,7 +292,7 @@ class TestCheckmates(unittest.TestCase):
         self.assertTrue(pos.is_check())
         self.assertFalse(pos.has_legal_move())
 
-_TEST_CASTLE_BY_POSITIONS = [('ln1g3nl/1ks3gr1/1ppppsbp1/p4pp1p/7P1/P1P2PP1P/1P1PPSN2/1BK1G2R1/LNSG4L b - 27', -1, Castles.HALF_MINO_CASTLE)]
+_TEST_CASTLE_BY_POSITIONS = [('ln1g3nl/1ks3gr1/1ppppsbp1/p4pp1p/7P1/P1P2PP1P/1P1PPSN2/1BK1G2R1/LNSG4L b - 27', -1, Castle.HALF_MINO_CASTLE)]
 
 class TestCastles(unittest.TestCase):
   def check(self, game_id, sente_castles, gote_castles):
@@ -308,7 +310,19 @@ class TestCastles(unittest.TestCase):
       shogi.castles.position_update_set_of_castles(pos, side, st)
       self.assertTrue(ct in st)
   def test_castles(self):
-    self.check(1, [Castles.BOAT_CASTLE, Castles.CASTLE_TOWER_MINO], [Castles.HALF_MINO_CASTLE, Castles.TOPKNOT_MINO, Castles.SILVER_CROWN])
+    self.check(1, [Castle.BOAT_CASTLE, Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.TOPKNOT_MINO, Castle.SILVER_CROWN])
+
+class TestOpenings(unittest.TestCase):
+  def check(self, game_id, sente_openings, gote_openings):
+    with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
+      data = f.read()
+    g = shogi.kifu.game_parse(data)
+    self.assertIsNotNone(g)
+    s1, s2 = shogi.openings.game_find_openings(g)
+    self.assertEqual(set(sente_openings), s1)
+    self.assertEqual(set(gote_openings), s2)
+  def test_openings(self):
+    self.check(1, [], [Opening.OPPOSING_ROOK])
 
 if __name__ == '__main__':
   unittest.main()
