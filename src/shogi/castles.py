@@ -12,6 +12,8 @@ Castles = IntEnum('Castles',
 _PATTERNS = [
   (PositionPattern([('K', '28'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'),
                     ('P', '47'), ('P', '37'), ('P', '26'), ('P', '15,16,17')]), Castles.TOPKNOT_MINO),
+  (PositionPattern([('K', '28'), ('S', '27'), ('G', '38'), ('N', '29'), ('L', '19'),
+                    ('P', '47'), ('P', '37'), ('P', '26'), ('P', '15,16,17')]), Castles.SILVER_CROWN),
   (PositionPattern([('K', '87'), ('S', '78'), ('G', '69'), ('B', '88'), ('N', '89'), ('L', '99'),
                     ('P', '67'), ('P', '76'), ('P', '86'), ('P', '95,96,97')]), Castles.CASTLE_TOWER_MINO),
   (PositionPattern([('K', '78'), ('S', '79'), ('G', '69'), ('G', '58'), ('B', '88'), ('N', '89'), ('L', '99'),

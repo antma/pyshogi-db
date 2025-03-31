@@ -76,7 +76,7 @@ USI_GAMES = [
  '7e6d P*7e 7d6e 6f6e 6d2h+ N*7d 8b9c G*8h R*5i 9i9h P*7c G*8b 7c7d 8b8c 9c8c '
  '6e7d 8c7b N*4f 7b6b S*6c 6b5a 7d6e 4e5g+ 6h5g 5i5g+ 4f3d 2b9b N*6d S*6a 5f5e '
  'B*6i 6e7f G*6e 7f6e 5g6g G*7g 6g6e P*6b 6e6d 6b6a+ 5a6a 6c5d+ 6d6h P*6b 6a7a '
- 'S*8c N*6e 8g9g 6e7g+ 7h6h G*8g', 
+ 'S*8c N*6e 8g9g 6e7g+ 7h6h G*8g',
  'l1k5l/r2P5/1S3p1p1/pp2+SsN1p/2P1P1PP1/PP6P/Kg+n2P3/LG1G3+b1/3b4L b RPgs2n3p 127'),
 ]
 
@@ -308,7 +308,7 @@ class TestCastles(unittest.TestCase):
       shogi.castles.position_update_set_of_castles(pos, side, st)
       self.assertTrue(ct in st)
   def test_castles(self):
-    self.check(1, [Castles.BOAT_CASTLE, Castles.CASTLE_TOWER_MINO], [Castles.HALF_MINO_CASTLE, Castles.TOPKNOT_MINO]) 
+    self.check(1, [Castles.BOAT_CASTLE, Castles.CASTLE_TOWER_MINO], [Castles.HALF_MINO_CASTLE, Castles.TOPKNOT_MINO, Castles.SILVER_CROWN])
 
 if __name__ == '__main__':
   unittest.main()
