@@ -114,6 +114,17 @@ def _parse_key_value(s: str, sep: str) -> Optional[Tuple[str, str]]:
     return None
   return (s[:i], s[i+1:])
 
+def _parse_datetime(s: str) -> Optional[datetime.datetime]:
+  try:
+    return datetime.datetime.strptime(s, '%Y/%m/%d %H:%M:%S')
+  except ValueError:
+    pass
+  try:
+    return datetime.datetime.strptime(s, '%Y/%m/%d')
+  except ValueError:
+    pass
+  return None
+
 def _parse_move_times(s: Optional[str]) -> Tuple[Optional[datetime.timedelta], Optional[datetime.timedelta]]:
   if not s or not s.startswith('(') or not s.endswith(')'):
     return (None, None)
@@ -309,9 +320,9 @@ def _game_parse(game_kif: str) -> Optional[Game]:
       if key in _SIDE_S:
         _parse_player_name(game, value, key)
       elif key.endswith('_date'):
-        year, month, day = value.split('/')
-        if year.isdigit() and month.isdigit() and day.isdigit():
-          game.set_tag(key, datetime.date(int(year), int(month), int(day)))
+        date = _parse_datetime(value)
+        if not date is None:
+          game.set_tag(key, date)
       elif key == 'time_control':
         tc = parse_time_control(value)
         if tc is None:
@@ -373,7 +384,7 @@ def _game_write_tags(g: Game, f):
         f.write(position.Position(p).kifu_str())
       else:
         if isinstance(p, datetime.date):
-          p = p.isoformat().replace('-', '/')
+          p = p.isoformat().replace('-', '/').replace('T', ' ')
         if not isinstance(p, str):
           p = str(p)
         if key == 'sente':
