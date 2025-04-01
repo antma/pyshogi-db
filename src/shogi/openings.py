@@ -2,6 +2,7 @@
 
 from enum import IntEnum
 from typing import List, Tuple, Set
+from . import kifu
 from .game import Game
 from .position import Position
 from .piece import BISHOP, ROOK
@@ -13,6 +14,7 @@ Opening = IntEnum('Opening',
     #static
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
+   'URESINO_STYLE',
   ])
 
 _OPENINGS_D = {
@@ -23,6 +25,7 @@ _OPENINGS_D = {
   'lnsgkgsnl/4r2b1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/1B5R1/LNSGKGSNL b - 7': Opening.GOKIGEN_CENTRAL_ROOK,
   'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER_37_SUPER_RAPID,
   'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
+  'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1S3R1/LN1GKGSNL w - 2': Opening.URESINO_STYLE,
 }
 
 _RECOGNIZER = Recognizer([
@@ -59,9 +62,16 @@ def _unmovable_rooks(pos: Position) -> bool:
 def _exchanged_bishops(pos: Position) -> bool:
   return (pos.sente_pieces[BISHOP-1] == 1) and (pos.gote_pieces[BISHOP-1] == 1)
 
+_GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
+
 def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[Opening]]:
   sente_openings = set()
   gote_openings = set()
+  try:
+    if g.moves[1] == _GOTE_URESINO_FIRST_MOVE:
+      gote_openings.add(Opening.URESINO_STYLE)
+  except IndexError:
+    pass
   assert g.start_pos is None
   pos = Position()
   assert _unmovable_rooks(pos)
