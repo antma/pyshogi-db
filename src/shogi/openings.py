@@ -4,10 +4,15 @@ from enum import IntEnum
 from typing import List, Tuple, Set
 from .game import Game
 from .position import Position
+from .piece import BISHOP, ROOK
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
-   'QUICK_ISHIDA', 'SILVER_37_SUPER_RAPID',
+   'QUICK_ISHIDA',
+    #static
+   'BISHOP_EXCHANGE',
+   'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
+
   ])
 
 _OPENINGS_D = {
@@ -15,7 +20,9 @@ _OPENINGS_D = {
   'ln1gkgsnl/1r1s3b1/p1pppp1pp/6p2/1p2P4/2P6/PPBP1PPPP/4R4/LNSGKGSNL w - 10': Opening.GOKIGEN_CENTRAL_ROOK,
   'lnsgkgsnl/4r2b1/pppp1p1pp/6p2/4p4/2P4P1/PP1PPPP1P/1B2GS1R1/LNSGK2NL b - 9': Opening.GOKIGEN_CENTRAL_ROOK,
   'ln1gkgsnl/1r1s3b1/p1pppp1pp/1p4p2/4P4/2P6/PP1P1PPPP/1B2R4/LNSGKGSNL w - 8': Opening.GOKIGEN_CENTRAL_ROOK,
+  'lnsgkgsnl/4r2b1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/1B5R1/LNSGKGSNL b - 7': Opening.GOKIGEN_CENTRAL_ROOK,
   'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER_37_SUPER_RAPID,
+  'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
 }
 
 def swinging_rook(rooks: Tuple[int, int]) -> bool:
@@ -38,15 +45,25 @@ def update_set_of_oppenings_by_rooks(rooks: Tuple[int, int], s: Set[Opening], ro
 def _rooks_limit(moves_numbers: List[int], max_hands: int) -> int:
   return max_hands if not moves_numbers else moves_numbers[0]
 
+def _unmovable_rooks(pos: Position) -> bool:
+  return (pos.board[64] == ROOK) and (pos.board[16] == -ROOK)
+
+def _exchanged_bishops(pos: Position) -> bool:
+  return (pos.sente_pieces[BISHOP-1] == 1) and (pos.gote_pieces[BISHOP-1] == 1)
+
 def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[Opening]]:
   sente_openings = set()
   gote_openings = set()
   assert g.start_pos is None
   pos = Position()
+  assert _unmovable_rooks(pos)
   sente_moves_numbers = []
   gote_moves_numbers = []
+  bishop_exchange = False
   for m in g.moves[:max_hands]:
     pos.do_move(m)
+    if (not bishop_exchange) and _unmovable_rooks(pos) and _exchanged_bishops(pos):
+      bishop_exchange = True
     ot = _OPENINGS_D.get(pos.sfen())
     if not ot is None:
       s, m = (sente_openings, sente_moves_numbers) if pos.side_to_move < 0 else (gote_openings, gote_moves_numbers)
@@ -68,6 +85,9 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
     update_set_of_oppenings_by_rooks(sente_rooks, sente_openings, sente_rook_limit)
   if not gote_double_swinging_rook:
     update_set_of_oppenings_by_rooks(gote_rooks, gote_openings, gote_rook_limit)
+  if bishop_exchange:
+    sente_openings.add(Opening.BISHOP_EXCHANGE)
+    gote_openings.add(Opening.BISHOP_EXCHANGE)
   return (sente_openings, gote_openings)
 
 """
