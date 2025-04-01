@@ -9,7 +9,7 @@ from ._pattern import Recognizer
 Castle = IntEnum('Castle',
   [ #static rook
    'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA', 'STRAWBERRY_CASTLE',
-   'MILLENIUM_CASTLE',
+   'MILLENIUM_CASTLE', 'SNOW_ROOF_CASTLE',
     #swinging rook
    'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'HIGH_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN', 'KIMURA_MINO',
    'PEERLESS_GOLDS', 'SWINGING_ROOK_ANAGUMA',
@@ -45,6 +45,7 @@ _RECOGNIZER = Recognizer( [
   ([('K', '68'), ('G', '58'), ('G', '78'), ('B', '88'), ('S', '79'), ('N', '89'), ('L', '99'),
     ('P', '96,97'), ('P', '87'), ('P', '76'), ('P', '67'), ('P', '57')], Castle.STRAWBERRY_CASTLE),
   ([('K', '89'), ('G', '79'), ('S', '88'), ('N', '77'), ('P', '87'), ('P', '76'), ('P', '67'), ('P','96,97'), ('L', '99')], Castle.MILLENIUM_CASTLE),
+  ([('K', '69'), ('G', '78'), ('G', '58'), ('S', '67'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('N', '89'), ('L', '99')], Castle.SNOW_ROOF_CASTLE),
 ])
 
 def position_update_set_of_castles(pos: Position, sente_set, gote_set):
