@@ -299,15 +299,34 @@ _TEST_CASTLE_BY_POSITIONS = [
   ('ln1g1gsnl/1ks1r2b1/1ppp1p1pp/p5p2/4p4/P1P2P1P1/1P1PP1P1P/1BKSGS1R1/LN1G3NL b - 19', -1, Castle.HALF_MINO_CASTLE),
 ]
 
+_TEST_DATA_CASTLES = [
+  (1, [Castle.BOAT_CASTLE, Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.TOPKNOT_MINO, Castle.SILVER_CROWN]),
+  (7, [Castle.MINO_CASTLE], []),
+  (8, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.PEERLESS_GOLDS]),
+  (9, [Castle.MINO_CASTLE], [Castle.BOAT_CASTLE]),
+  (10, [Castle.BOAT_CASTLE], [Castle.SWINGING_ROOK_ANAGUMA]),
+  (11, [Castle.MINO_CASTLE], []),
+  (12, [Castle.BOAT_CASTLE, Castle.LEFT_HAND_MINO], [Castle.SWINGING_ROOK_ANAGUMA]),
+  (13, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE], [Castle.STATIC_ROOK_ANAGUMA]),
+  (14, [Castle.BOAT_CASTLE], [Castle.HALF_MINO_CASTLE]),
+  (15, [Castle.HALF_MINO_CASTLE], []),
+  (16, [], [Castle.HALF_MINO_CASTLE]),
+  (17, [], []),
+  (18, [], []),
+  (19, [Castle.KIMURA_MINO, Castle.HALF_MINO_CASTLE], []),
+  (20, [Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
+]
+
 class TestCastles(unittest.TestCase):
   def check(self, game_id, sente_castles, gote_castles):
+    msg = f'game #{game_id:04d}'
     with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
       data = f.read()
     g = shogi.kifu.game_parse(data)
-    self.assertIsNotNone(g)
+    self.assertIsNotNone(g, msg)
     s1, s2 = shogi.castles.game_find_castles(g)
-    self.assertEqual(set(sente_castles), s1)
-    self.assertEqual(set(gote_castles), s2)
+    self.assertEqual(set(sente_castles), s1, msg)
+    self.assertEqual(set(gote_castles), s2, msg)
   def test_positions(self):
     for sfen, side, ct in _TEST_CASTLE_BY_POSITIONS:
       pos = Position(sfen)
@@ -315,47 +334,40 @@ class TestCastles(unittest.TestCase):
       shogi.castles.position_update_set_of_castles(pos, st, st)
       self.assertTrue(ct in st)
   def test_castles(self):
-    self.check(1, [Castle.BOAT_CASTLE, Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.TOPKNOT_MINO, Castle.SILVER_CROWN])
-    self.check(7, [Castle.MINO_CASTLE], [])
-    self.check(8, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.PEERLESS_GOLDS])
-    self.check(9, [Castle.MINO_CASTLE], [Castle.BOAT_CASTLE])
-    self.check(10, [Castle.BOAT_CASTLE], [Castle.SWINGING_ROOK_ANAGUMA])
-    self.check(11, [Castle.MINO_CASTLE], [])
-    self.check(12, [Castle.BOAT_CASTLE, Castle.LEFT_HAND_MINO], [Castle.SWINGING_ROOK_ANAGUMA])
-    self.check(13, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE], [Castle.STATIC_ROOK_ANAGUMA])
-    self.check(14, [Castle.BOAT_CASTLE], [Castle.HALF_MINO_CASTLE])
-    self.check(15, [Castle.HALF_MINO_CASTLE], [])
-    self.check(16, [], [Castle.HALF_MINO_CASTLE])
-    self.check(17, [], [])
-    self.check(18, [], [])
-    self.check(19, [Castle.KIMURA_MINO, Castle.HALF_MINO_CASTLE], [])
-    self.check(20, [Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE])
+    for game_id, sente, gote in _TEST_DATA_CASTLES:
+      self.check(game_id, sente, gote)
+
+_TEST_DATA_OPENINGS = [
+  (1, [], [Opening.OPPOSING_ROOK]),
+  (7, [Opening.QUICK_ISHIDA], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
+  (8, [Opening.QUICK_ISHIDA], [Opening.DOUBLE_SWINGING_ROOK]),
+  (9, [Opening.THIRD_FILE_ROOK], []),
+  (10, [], [Opening.FORTH_FILE_ROOK]),
+  (11, [Opening.QUICK_ISHIDA, Opening.DOUBLE_SWINGING_ROOK], [Opening.FORTH_FILE_ROOK]),
+  (12, [], []),
+  (13, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.SILVER_37_SUPER_RAPID]),
+  (14, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
+  (15, [Opening.GOKIGEN_CENTRAL_ROOK], []),
+  (16, [Opening.MARUYAMA_VACCINE], [Opening.GOKIGEN_CENTRAL_ROOK]),
+  (17, [Opening.BISHOP_EXCHANGE, Opening.RIGHT_HAND_KING], [Opening.BISHOP_EXCHANGE]),
+  (18, [Opening.URESINO_STYLE], []),
+  (19, [Opening.URESINO_STYLE], [Opening.DOUBLE_SWINGING_ROOK]),
+  (20, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.FORTH_FILE_ROOK]),
+]
 
 class TestOpenings(unittest.TestCase):
   def check(self, game_id, sente_openings, gote_openings):
+    msg = f'game #{game_id:04d}'
     with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
       data = f.read()
     g = shogi.kifu.game_parse(data)
-    self.assertIsNotNone(g)
+    self.assertIsNotNone(g, msg)
     s1, s2 = shogi.openings.game_find_openings(g)
-    self.assertEqual(set(sente_openings), s1)
-    self.assertEqual(set(gote_openings), s2)
+    self.assertEqual(set(sente_openings), s1, msg)
+    self.assertEqual(set(gote_openings), s2, msg)
   def test_openings(self):
-    self.check(1, [], [Opening.OPPOSING_ROOK])
-    self.check(7, [Opening.QUICK_ISHIDA], [Opening.RIGHT_HAND_FORTH_FILE_ROOK])
-    self.check(8, [Opening.QUICK_ISHIDA], [Opening.DOUBLE_SWINGING_ROOK])
-    self.check(9, [Opening.THIRD_FILE_ROOK], [])
-    self.check(10, [], [Opening.FORTH_FILE_ROOK])
-    self.check(11, [Opening.QUICK_ISHIDA, Opening.DOUBLE_SWINGING_ROOK], [Opening.FORTH_FILE_ROOK])
-    self.check(12, [], [])
-    self.check(13, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.SILVER_37_SUPER_RAPID])
-    self.check(14, [], [Opening.GOKIGEN_CENTRAL_ROOK])
-    self.check(15, [Opening.GOKIGEN_CENTRAL_ROOK], [])
-    self.check(16, [Opening.MARUYAMA_VACCINE], [Opening.GOKIGEN_CENTRAL_ROOK])
-    self.check(17, [Opening.BISHOP_EXCHANGE, Opening.RIGHT_HAND_KING], [Opening.BISHOP_EXCHANGE])
-    self.check(18, [Opening.URESINO_STYLE], [])
-    self.check(19, [Opening.URESINO_STYLE], [Opening.DOUBLE_SWINGING_ROOK])
-    self.check(20, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.FORTH_FILE_ROOK])
+    for game_id, sente, gote in _TEST_DATA_OPENINGS:
+      self.check(game_id, sente, gote)
 
 if __name__ == '__main__':
   unittest.main()
