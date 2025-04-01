@@ -297,6 +297,7 @@ _TEST_CASTLE_BY_POSITIONS = [
   ('kn1gr3l/ls1b1sg2/pppp1pnpp/4p4/P4P3/2P3R2/1PBPP1P1P/1K2GS3/LNSG3NL b 2P 35', -1, Castle.SWINGING_ROOK_ANAGUMA),
   ('ln3gsnl/1r3k1b1/p2ppg1pp/2ps1pp2/1p2P4/2PS5/PPBP1PPPP/4R1SK1/LN1G1G1NL w - 24', 1, Castle.HALF_MINO_CASTLE),
   ('ln1g1gsnl/1ks1r2b1/1ppp1p1pp/p5p2/4p4/P1P2P1P1/1P1PP1P1P/1BKSGS1R1/LN1G3NL b - 19', -1, Castle.HALF_MINO_CASTLE),
+  ('ln1g3nl/1ks1grsb1/1pp1p2p1/p2p1pp1p/9/P1PBP2P1/1PNP1PP1P/1S2GS1R1/LKG4NL w - 26', -1, Castle.MILLENIUM_CASTLE),
 ]
 
 _TEST_DATA_CASTLES = [
@@ -332,9 +333,7 @@ class TestCastles(unittest.TestCase):
   def test_positions(self):
     for sfen, side, ct in _TEST_CASTLE_BY_POSITIONS:
       pos = Position(sfen)
-      st = set()
-      shogi.castles.position_update_set_of_castles(pos, st, st)
-      self.assertTrue(ct in st)
+      self.assertEqual(ct, shogi.castles.position_find_castle(pos))
   def test_castles(self):
     for game_id, sente, gote in _TEST_DATA_CASTLES:
       self.check(game_id, sente, gote)
