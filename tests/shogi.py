@@ -312,7 +312,7 @@ class TestCastles(unittest.TestCase):
     for sfen, side, ct in _TEST_CASTLE_BY_POSITIONS:
       pos = Position(sfen)
       st = set()
-      shogi.castles.position_update_set_of_castles(pos, side, st)
+      shogi.castles.position_update_set_of_castles(pos, st, st)
       self.assertTrue(ct in st)
   def test_castles(self):
     self.check(1, [Castle.BOAT_CASTLE, Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.TOPKNOT_MINO, Castle.SILVER_CROWN])
@@ -348,7 +348,7 @@ class TestOpenings(unittest.TestCase):
     self.check(14, [], [Opening.GOKIGEN_CENTRAL_ROOK])
     self.check(15, [Opening.GOKIGEN_CENTRAL_ROOK], [])
     self.check(16, [Opening.MARUYAMA_VACCINE], [Opening.GOKIGEN_CENTRAL_ROOK])
-    self.check(17, [Opening.BISHOP_EXCHANGE], [Opening.BISHOP_EXCHANGE])
+    self.check(17, [Opening.BISHOP_EXCHANGE, Opening.RIGHT_HAND_KING], [Opening.BISHOP_EXCHANGE])
 
 if __name__ == '__main__':
   unittest.main()

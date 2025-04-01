@@ -5,14 +5,14 @@ from typing import List, Tuple, Set
 from .game import Game
 from .position import Position
 from .piece import BISHOP, ROOK
+from ._pattern import Recognizer
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
    'QUICK_ISHIDA',
     #static
-   'BISHOP_EXCHANGE',
+   'BISHOP_EXCHANGE', 'RIGHT_HAND_KING',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
-
   ])
 
 _OPENINGS_D = {
@@ -24,6 +24,14 @@ _OPENINGS_D = {
   'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER_37_SUPER_RAPID,
   'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
 }
+
+_RECOGNIZER = Recognizer([
+  ([('K', '48'), ('G', '58'), ('S', '47'), ('N', '37'), ('L', '19'), ('R', '29') ,
+    ('P', '46'), ('P', '36'), ('P', '57,56'), ('P', '25,26'), ('P', '16,17')], Opening.RIGHT_HAND_KING),
+])
+
+def position_update_set_of_openings(pos: Position, sente_set, gote_set):
+  _RECOGNIZER.update_set(pos, sente_set, gote_set)
 
 def swinging_rook(rooks: Tuple[int, int]) -> bool:
   return 1 <= rooks[0] <= 5
@@ -69,6 +77,7 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
       s, m = (sente_openings, sente_moves_numbers) if pos.side_to_move < 0 else (gote_openings, gote_moves_numbers)
       s.add(ot)
       m.append(pos.move_no - 1)
+    position_update_set_of_openings(pos, sente_openings, gote_openings)
   sente_rook_limit = _rooks_limit(sente_moves_numbers, max_hands)
   gote_rook_limit = _rooks_limit(gote_moves_numbers, max_hands)
   sente_rooks, gote_rooks = g.rooks(max(sente_rook_limit, gote_rook_limit))
