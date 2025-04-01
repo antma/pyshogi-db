@@ -16,8 +16,13 @@ class _PiecePattern:
     elif piece_latin_letter == ' ':
       self._piece = piece.FREE
     else:
-      self._piece = piece.from_upper(piece_latin_letter)
-      assert self._piece > 0
+      if piece_latin_letter.islower():
+        self._piece = piece.from_upper(piece_latin_letter.upper())
+        assert self._piece > 0
+        self._piece *= -1
+      else:
+        self._piece = piece.from_upper(piece_latin_letter)
+        assert self._piece > 0
     self._list = list(map(cell.digital_parse, cell_pattern.split(',')))
   def match(self, pos: Position, side: int) -> bool:
     if self.op_eq:
@@ -33,10 +38,18 @@ class _PositionPattern:
 class Recognizer:
   def __init__(self, p):
     self._position_patterns = [(_PositionPattern(data), value) for data, value in p]
-  def update_set(self, pos: Position, sente_set: set, gote_set: set):
+  def _find(self, pos: Position):
     side = -pos.side_to_move
     for p, ct in self._position_patterns:
       if p.match(pos, side):
-        st = sente_set if side > 0 else gote_set
-        st.add(ct)
-        break
+        return ct
+    return None
+  def update_set(self, pos: Position, sente_set: set, gote_set: set):
+    ct = self._find(pos)
+    if not ct is None:
+      st = sente_set if pos.side_to_move < 0 else gote_set
+      if ct in st:
+        return False
+      st.add(ct)
+      return True
+    return False

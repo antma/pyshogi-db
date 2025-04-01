@@ -14,27 +14,36 @@ Opening = IntEnum('Opening',
     #static
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
-   'URESINO_STYLE',
+   'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'RECLINING_SILVER',
   ])
 
 _OPENINGS_D = {
   'lnsgkgsnl/1r5b1/pppppp1pp/6p2/2P6/9/PP1PPPPPP/1B5R1/LNSGKGSNL w - 4' : Opening.QUICK_ISHIDA,
-  'ln1gkgsnl/1r1s3b1/p1pppp1pp/6p2/1p2P4/2P6/PPBP1PPPP/4R4/LNSGKGSNL w - 10': Opening.GOKIGEN_CENTRAL_ROOK,
-  'lnsgkgsnl/4r2b1/pppp1p1pp/6p2/4p4/2P4P1/PP1PPPP1P/1B2GS1R1/LNSGK2NL b - 9': Opening.GOKIGEN_CENTRAL_ROOK,
-  'ln1gkgsnl/1r1s3b1/p1pppp1pp/1p4p2/4P4/2P6/PP1P1PPPP/1B2R4/LNSGKGSNL w - 8': Opening.GOKIGEN_CENTRAL_ROOK,
-  'lnsgkgsnl/4r2b1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/1B5R1/LNSGKGSNL b - 7': Opening.GOKIGEN_CENTRAL_ROOK,
   'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER_37_SUPER_RAPID,
   'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
   'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1S3R1/LN1GKGSNL w - 2': Opening.URESINO_STYLE,
 }
+#'ln1gkgsnl/1r1s3b1/p1pppp1pp/6p2/1p2P4/2P6/PPBP1PPPP/4R4/LNSGKGSNL w - 10': Opening.GOKIGEN_CENTRAL_ROOK,
+#'lnsgkgsnl/4r2b1/pppp1p1pp/6p2/4p4/2P4P1/PP1PPPP1P/1B2GS1R1/LNSGK2NL b - 9': Opening.GOKIGEN_CENTRAL_ROOK,
+#'ln1gkgsnl/1r1s3b1/p1pppp1pp/1p4p2/4P4/2P6/PP1P1PPPP/1B2R4/LNSGKGSNL w - 8': Opening.GOKIGEN_CENTRAL_ROOK,
+#'lnsgkgsnl/4r2b1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/1B5R1/LNSGKGSNL b - 7': Opening.GOKIGEN_CENTRAL_ROOK,
 
 _RECOGNIZER = Recognizer([
   ([('K', '48'), ('G', '58'), ('S', '47'), ('N', '37'), ('L', '19'), ('R', '29') ,
     ('P', '46'), ('P', '36'), ('P', '57,56'), ('P', '25,26'), ('P', '16,17')], Opening.RIGHT_HAND_KING),
+  ([('S', '27'), ('P', '25'), ('B', '88'), ('R', '28'),
+    ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'),
+    ('G', '49'), ('G', '69'), ('K', '59'),
+   ] + [('P', str(i) + '7') for i in range(1,10) if i != 2], Opening.PRIMITIVE_CLIMBING_SILVER),
+  ([('P', '55,56'), ('P', '76'), ('B', '88,77'), ('R', '58'),
+    ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'), ('S', '39'),
+    ('G', '49'), ('G', '69'), ('K', '59'),
+   ] + [('P', str(i) + '7') for i in range(2,9) if i != 5 and i != 7], Opening.GOKIGEN_CENTRAL_ROOK),
+  ([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
 ])
 
 def position_update_set_of_openings(pos: Position, sente_set, gote_set):
-  _RECOGNIZER.update_set(pos, sente_set, gote_set)
+  return _RECOGNIZER.update_set(pos, sente_set, gote_set)
 
 def swinging_rook(rooks: Tuple[int, int]) -> bool:
   return 1 <= rooks[0] <= 5
@@ -83,11 +92,17 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
     if (not bishop_exchange) and _unmovable_rooks(pos) and _exchanged_bishops(pos):
       bishop_exchange = True
     ot = _OPENINGS_D.get(pos.sfen())
-    if not ot is None:
-      s, m = (sente_openings, sente_moves_numbers) if pos.side_to_move < 0 else (gote_openings, gote_moves_numbers)
+    updated = False
+    if ot is None:
+      if position_update_set_of_openings(pos, sente_openings, gote_openings):
+        updated = True
+    else:
+      s = sente_openings if pos.side_to_move < 0 else gote_openings
       s.add(ot)
+      updated = True
+    if updated:
+      m = sente_moves_numbers if pos.side_to_move < 0 else gote_moves_numbers
       m.append(pos.move_no - 1)
-    position_update_set_of_openings(pos, sente_openings, gote_openings)
   sente_rook_limit = _rooks_limit(sente_moves_numbers, max_hands)
   gote_rook_limit = _rooks_limit(gote_moves_numbers, max_hands)
   sente_rooks, gote_rooks = g.rooks(max(sente_rook_limit, gote_rook_limit))
