@@ -10,7 +10,7 @@ Castle = IntEnum('Castle',
   [ #static rook
    'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA',
     #swinging rook
-   'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'HIGH_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN',
+   'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'HIGH_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN', 'KIMURA_MINO',
    'PEERLESS_GOLDS', 'SWINGING_ROOK_ANAGUMA',
   ])
 
@@ -27,6 +27,8 @@ _RECOGNIZER = Recognizer( [
     ('P', '67'), ('P', '76'), ('P', '86'), ('P', '95,96,97')], Castle.CASTLE_TOWER_MINO),
   ([('K', '78'), ('S', '79'), ('G', '69'), ('G', '58'), ('B', '88'), ('N', '89'), ('L', '99'),
     ('P', '57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '95,96,97')], Castle.BOAT_CASTLE),
+  ([('K', '28'), ('G', '38'), ('S', '47'), ('N', '29'), ('L', '19'),
+    ('P', '46'), ('P', '37'), ('P', '27'), ('P', '16,17')], Castle.KIMURA_MINO),
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('G', '58'),
     ('P', '46,47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.MINO_CASTLE),
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('!G', '58'), ('!S', '58'),
