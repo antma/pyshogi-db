@@ -12,7 +12,8 @@ Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
    'QUICK_ISHIDA',
     #static
-   'BISHOP_EXCHANGE', 'RIGHT_HAND_KING',
+   'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
+   'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'RECLINING_SILVER',
   ])
@@ -22,6 +23,14 @@ _OPENINGS_D = {
   'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER_37_SUPER_RAPID,
   'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
   'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1S3R1/LN1GKGSNL w - 2': Opening.URESINO_STYLE,
+  'lnsgk1snl/1r4gb1/p1ppppppp/9/1p5P1/9/PPPPPPP1P/1BG3SR1/LNS1KG1NL w - 8': Opening.DOUBLE_WING_ATTACK,
+  'ln1gk1snl/1rs3gb1/p1ppppppp/9/1p5P1/9/PPPPPPP1P/1BG3SR1/LNS1KG1NL b - 9': Opening.DOUBLE_WING_ATTACK,
+  'lnsgk1snl/6gb1/p1pppp2p/6R2/9/1rP6/P2PPPP1P/1BG6/LNS1KGSNL w 3P2p 16': Opening.SIDE_PAWN_PICKER,
+  'lnsgk1snl/6g2/p1ppppb1p/6R2/9/1rP6/P2PPPP1P/1BG6/LNS1KGSNL b 3P2p 17': Opening.BISHOP33_STRATEGY,
+  'ln1gk1snl/3s2g2/p1ppppb1p/6R2/9/1rP3P2/P2PPP2P/1BG1K4/LNS2GSNL w 3P2p 20': Opening.AONO_STYLE,
+  'lnsgk2nl/6gs1/p1ppppb1p/6R2/9/1rP3P2/P2PPP2P/1BG1K4/LNS2GSNL w 3P2p 20': Opening.AONO_STYLE,
+  'lnsg2snl/4k1g2/p1ppppb1p/6R2/9/1rP3P2/P2PPP2P/1BG1K4/LNS2GSNL w 3P2p 20': Opening.AONO_STYLE,
+  'lnsgk1snl/6g2/p1ppppb1p/6R2/9/1rP6/P2PPPP1P/1BGK5/LNS2GSNL w 3P2p 18': Opening.YUUKI_STYLE,
 }
 #'ln1gkgsnl/1r1s3b1/p1pppp1pp/6p2/1p2P4/2P6/PPBP1PPPP/4R4/LNSGKGSNL w - 10': Opening.GOKIGEN_CENTRAL_ROOK,
 #'lnsgkgsnl/4r2b1/pppp1p1pp/6p2/4p4/2P4P1/PP1PPPP1P/1B2GS1R1/LNSGK2NL b - 9': Opening.GOKIGEN_CENTRAL_ROOK,
@@ -70,6 +79,10 @@ def _unmovable_rooks(pos: Position) -> bool:
 
 def _exchanged_bishops(pos: Position) -> bool:
   return (pos.sente_pieces[BISHOP-1] == 1) and (pos.gote_pieces[BISHOP-1] == 1)
+
+def _remove_redundant(s):
+  if Opening.DOUBLE_WING_ATTACK in s:
+    s.discard(Opening.RECLINING_SILVER)
 
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 
@@ -122,6 +135,8 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
   if bishop_exchange:
     sente_openings.add(Opening.BISHOP_EXCHANGE)
     gote_openings.add(Opening.BISHOP_EXCHANGE)
+  _remove_redundant(sente_openings)
+  _remove_redundant(gote_openings)
   return (sente_openings, gote_openings)
 
 """

@@ -319,6 +319,8 @@ _TEST_DATA_CASTLES = [
   (20, [Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
   (21, [Castle.KIMURA_MINO, Castle.HALF_MINO_CASTLE], []),
   (22, [], [Castle.STRAWBERRY_CASTLE]),
+  (23, [], []),
+  (24, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -357,6 +359,8 @@ _TEST_DATA_OPENINGS = [
   (20, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.FORTH_FILE_ROOK]),
   (21, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.PRIMITIVE_CLIMBING_SILVER]),
   (22, [Opening.RECLINING_SILVER], [Opening.RECLINING_SILVER]),
+  (23, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
+  (24, [Opening.SIDE_PAWN_PICKER, Opening.AONO_STYLE], [Opening.BISHOP33_STRATEGY]),
 ]
 
 class TestOpenings(unittest.TestCase):
