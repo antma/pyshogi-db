@@ -321,6 +321,7 @@ _TEST_DATA_CASTLES = [
   (22, [], [Castle.STRAWBERRY_CASTLE]),
   (23, [], []),
   (24, [], []),
+  (25, [Castle.HALF_MINO_CASTLE], [Castle.LEFT_HAND_MINO]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -340,6 +341,10 @@ class TestCastles(unittest.TestCase):
   def test_castles(self):
     for game_id, sente, gote in _TEST_DATA_CASTLES:
       self.check(game_id, sente, gote)
+
+_TEST_OPENINGS_BY_POSITIONS = [
+  ('ln1gkgbnl/1r1s2s2/p1pp1pppp/4p4/1p7/2PP5/PPB1PPPPP/2SR1K3/LN1G1GSNL b - 13', -1, Opening.IJIMAS_BACK_BISHOP_STRATEGY),
+]
 
 _TEST_DATA_OPENINGS = [
   (1, [], [Opening.OPPOSING_ROOK]),
@@ -361,6 +366,7 @@ _TEST_DATA_OPENINGS = [
   (22, [Opening.RECLINING_SILVER], [Opening.RECLINING_SILVER]),
   (23, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
   (24, [Opening.SIDE_PAWN_PICKER, Opening.AONO_STYLE], [Opening.BISHOP33_STRATEGY]),
+  (25, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.IJIMAS_BACK_BISHOP_STRATEGY]),
 ]
 
 class TestOpenings(unittest.TestCase):
@@ -373,6 +379,10 @@ class TestOpenings(unittest.TestCase):
     s1, s2 = shogi.openings.game_find_openings(g)
     self.assertEqual(set(sente_openings), s1, msg)
     self.assertEqual(set(gote_openings), s2, msg)
+  def test_positions(self):
+    for sfen, side, ct in _TEST_OPENINGS_BY_POSITIONS:
+      pos = Position(sfen)
+      self.assertEqual(ct, shogi.openings.position_find_opening(pos))
   def test_openings(self):
     for game_id, sente, gote in _TEST_DATA_OPENINGS:
       self.check(game_id, sente, gote)

@@ -1,7 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from enum import IntEnum
-from typing import List, Tuple, Set
+from typing import List, Optional, Tuple, Set
 from . import kifu
 from .game import Game
 from .position import Position
@@ -15,7 +15,7 @@ Opening = IntEnum('Opening',
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
-   'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'RECLINING_SILVER',
+   'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'RECLINING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY',
   ])
 
 _OPENINGS_D = {
@@ -49,10 +49,27 @@ _RECOGNIZER = Recognizer([
     ('G', '49'), ('G', '69'), ('K', '59'),
    ] + [('P', str(i) + '7') for i in range(2,9) if i != 5 and i != 7], Opening.GOKIGEN_CENTRAL_ROOK),
   ([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
+  ([('B', '79'), ('K', '59'), ('S', '78'), ('P', '56'), ('R', '28') ,
+    ('P', '25,26'), ('P', '96,97'), ('P', '16,17'),
+    ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39,48'), ('G', '69'), ('G', '58,69')] +
+   [('P', str(i) + '7') for i in range(3, 9) if i != 5] , Opening.IJIMAS_BACK_BISHOP_STRATEGY),
 ])
 
-def position_update_set_of_openings(pos: Position, sente_set, gote_set):
-  return _RECOGNIZER.update_set(pos, sente_set, gote_set)
+def position_find_opening(pos: Position) -> Optional[Opening]:
+  ot = _OPENINGS_D.get(pos.sfen())
+  if ot is None:
+    return _RECOGNIZER.find(pos)
+  return ot
+
+def _position_update_set_of_openings(pos: Position, sente_set, gote_set) -> bool:
+  ot = position_find_opening(pos)
+  if ot is None:
+    return False
+  s = sente_set if pos.side_to_move < 0 else gote_set
+  if ot in s:
+    return False
+  s.add(ot)
+  return True
 
 def swinging_rook(rooks: Tuple[int, int]) -> bool:
   return 1 <= rooks[0] <= 5
@@ -104,18 +121,10 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
     pos.do_move(m)
     if (not bishop_exchange) and _unmovable_rooks(pos) and _exchanged_bishops(pos):
       bishop_exchange = True
-    ot = _OPENINGS_D.get(pos.sfen())
-    updated = False
-    if ot is None:
-      if position_update_set_of_openings(pos, sente_openings, gote_openings):
-        updated = True
-    else:
-      s = sente_openings if pos.side_to_move < 0 else gote_openings
-      s.add(ot)
-      updated = True
-    if updated:
+    if _position_update_set_of_openings(pos, sente_openings, gote_openings):
       m = sente_moves_numbers if pos.side_to_move < 0 else gote_moves_numbers
       m.append(pos.move_no - 1)
+      
   sente_rook_limit = _rooks_limit(sente_moves_numbers, max_hands)
   gote_rook_limit = _rooks_limit(gote_moves_numbers, max_hands)
   sente_rooks, gote_rooks = g.rooks(max(sente_rook_limit, gote_rook_limit))
