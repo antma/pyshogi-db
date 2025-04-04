@@ -14,9 +14,10 @@ Opening = IntEnum('Opening',
    'QUICK_ISHIDA', 'SAKATA_OPPOSING_ROOK',
     #static
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
+   'BISHOP_EXCHANGE_RECLINING_SILVER', 'RECLINING_SILVER',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
-   'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'RECLINING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY',
+   'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY',
    'CLIMBING_SILVER',
   ])
 
@@ -65,7 +66,13 @@ _RECOGNIZER = Recognizer([
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'), ('S', '39'),
     ('G', '49'), ('G', '69'), ('K', '59'),
    ] + [('P', str(i) + '7') for i in range(2,9) if i != 5 and i != 7], Opening.GOKIGEN_CENTRAL_ROOK),
-  ([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
+  #([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
+  ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85'),
+    ('B', 1), ('b', 1), ('P', '36'), ('N', '37'), ('G', '48'),
+     ], Opening.BISHOP_EXCHANGE_RECLINING_SILVER),
+  ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '26,28'),
+    ('B', 0), ('b', 0), ('P', '36'), ('N', '37'), ('P', '76'),
+     ], Opening.RECLINING_SILVER),
   ([('B', '79'), ('K', '59'), ('S', '78'), ('P', '56'), ('R', '28'), ('!r', '82'),
     ('P', '25,26'), ('P', '96,97'), ('P', '16,17'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39,48'), ('G', '69'), ('G', '58,69')] +
@@ -128,8 +135,6 @@ def _exchanged_bishops(pos: Position) -> bool:
   return (pos.sente_pieces[BISHOP-1] == 1) and (pos.gote_pieces[BISHOP-1] == 1)
 
 def _remove_redundant(s):
-  if Opening.DOUBLE_WING_ATTACK in s:
-    s.discard(Opening.RECLINING_SILVER)
   if Opening.SAKATA_OPPOSING_ROOK in s:
     s.discard(Opening.BISHOP_EXCHANGE)
 

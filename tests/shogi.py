@@ -303,6 +303,7 @@ _TEST_CASTLE_BY_POSITIONS = [
 
 _TEST_DATA_CASTLES = [
   (1, [Castle.BOAT_CASTLE, Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.TOPKNOT_MINO, Castle.SILVER_CROWN]),
+  (4, [], []),
   (7, [Castle.MINO_CASTLE], []),
   (8, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.PEERLESS_GOLDS]),
   (9, [Castle.MINO_CASTLE], [Castle.BOAT_CASTLE]),
@@ -358,6 +359,7 @@ _TEST_OPENINGS_BY_POSITIONS = [
 
 _TEST_DATA_OPENINGS = [
   (1, [], [Opening.OPPOSING_ROOK]),
+  (4, [Opening.BISHOP_EXCHANGE, Opening.BISHOP_EXCHANGE_RECLINING_SILVER], [Opening.BISHOP_EXCHANGE]),
   (7, [Opening.QUICK_ISHIDA], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
   (8, [Opening.QUICK_ISHIDA], [Opening.DOUBLE_SWINGING_ROOK]),
   (9, [Opening.THIRD_FILE_ROOK], []),
@@ -379,9 +381,8 @@ _TEST_DATA_OPENINGS = [
   (25, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.IJIMAS_BACK_BISHOP_STRATEGY]),
   (26, [], [Opening.SAKATA_OPPOSING_ROOK]),
   #(27, [], [Opening.CLIMBING_SILVER]),
-  #reclining silver should be fixed for 28, 29 games
-  #(28, [], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
-  #(29, [], [Opening.BISHOP_EXCHANGE]),
+  (28, [], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
+  (29, [], [Opening.BISHOP_EXCHANGE]),
   (30, [Opening.BISHOP_EXCHANGE, Opening.RIGHT_HAND_KING], [Opening.BISHOP_EXCHANGE]),
   (31, [], [Opening.OPPOSING_ROOK]),
   (32, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
