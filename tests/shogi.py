@@ -322,6 +322,13 @@ _TEST_DATA_CASTLES = [
   (23, [], []),
   (24, [], []),
   (25, [Castle.HALF_MINO_CASTLE], [Castle.LEFT_HAND_MINO]),
+  (26, [],[]),
+  (27, [],[]),
+  (28, [],[]),
+  (29, [],[]),
+  (30, [],[]),
+  (31, [Castle.LEFT_HAND_MINO, Castle.STATIC_ROOK_ANAGUMA], [Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE, Castle.SILVER_CROWN]),
+  (32, [], [Castle.KIMURA_MINO, Castle.HALF_MINO_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -344,6 +351,9 @@ class TestCastles(unittest.TestCase):
 
 _TEST_OPENINGS_BY_POSITIONS = [
   ('ln1gkgbnl/1r1s2s2/p1pp1pppp/4p4/1p7/2PP5/PPB1PPPPP/2SR1K3/LN1G1GSNL b - 13', -1, Opening.IJIMAS_BACK_BISHOP_STRATEGY),
+  ('lnsgk1snl/7r1/2ppppgpp/pp4p2/7P1/P1P5P/1P1PPPP2/1S5R1/LN1GKGSNL b Bb 15', -1, Opening.SAKATA_OPPOSING_ROOK),
+  #('lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12', -1, Opening.BISHOP_EXCHANGE),
+  #('lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13', -1, Opening.BISHOP_EXCHANGE),
 ]
 
 _TEST_DATA_OPENINGS = [
@@ -367,6 +377,14 @@ _TEST_DATA_OPENINGS = [
   (23, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
   (24, [Opening.SIDE_PAWN_PICKER, Opening.AONO_STYLE], [Opening.BISHOP33_STRATEGY]),
   (25, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.IJIMAS_BACK_BISHOP_STRATEGY]),
+  (26, [], [Opening.SAKATA_OPPOSING_ROOK]),
+  #(27, [], [Opening.CLIMBING_SILVER]),
+  #reclining silver should be fixed for 28, 29 games
+  #(28, [], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
+  #(29, [], [Opening.BISHOP_EXCHANGE]),
+  (30, [Opening.BISHOP_EXCHANGE, Opening.RIGHT_HAND_KING], [Opening.BISHOP_EXCHANGE]),
+  (31, [], [Opening.OPPOSING_ROOK]),
+  (32, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
 ]
 
 class TestOpenings(unittest.TestCase):

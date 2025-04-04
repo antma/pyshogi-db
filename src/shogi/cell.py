@@ -48,9 +48,9 @@ def digital_parse(s: str) -> Optional[int]:
 
 def can_drop(cell: int, p: int) -> bool:
   assert 0 < abs(p) < piece.KING
-  if p == piece.LANCE or p == piece.PAWN:
+  if p in (piece.LANCE, piece.PAWN):
     return cell >= 9
-  if p == -piece.LANCE or p == -piece.PAWN:
+  if p in (-piece.LANCE, -piece.PAWN):
     return cell < 72
   if p == piece.KNIGHT:
     return cell >= 18

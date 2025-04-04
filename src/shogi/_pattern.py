@@ -1,50 +1,90 @@
 # -*- coding: UTF8 -*-
 
+from enum import IntEnum
 import logging
+from typing import Union
 
 from . import cell
 from . import piece
-from .position import Position
+from .history import PositionWithHistory
+
+_Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN'])
+
+def _latin_to_piece(s: str) -> int:
+  if s.islower():
+    p = piece.from_upper(s.upper())
+    assert p > 0
+    return -p
+  p = piece.from_upper(s)
+  assert p > 0
+  return p
 
 class _PiecePattern:
-  def __init__(self, piece_latin_letter: str, cell_pattern: str):
-    self.op_eq = True
+  def __init__(self, piece_latin_letter: str, cell_pattern: Union[str,int]):
+    self._repr = (piece_latin_letter, cell_pattern)
+    self._op = _Operation.IN
     if piece_latin_letter.startswith('!'):
-      self.op_eq = False
-      self._piece = piece.from_upper(piece_latin_letter[1:])
-      assert self._piece > 0
+      self._op = _Operation.NOT_IN
+      self._piece = _latin_to_piece(piece_latin_letter[1:])
     elif piece_latin_letter == ' ':
       self._piece = piece.FREE
+    elif piece_latin_letter == 'from':
+      self._op = _Operation.FROM_IN
+      self._piece = None
+    elif piece_latin_letter == 'to':
+      self._op = _Operation.TO_IN
+      self._piece = None
     else:
-      if piece_latin_letter.islower():
-        self._piece = piece.from_upper(piece_latin_letter.upper())
-        assert self._piece > 0
-        self._piece *= -1
-      else:
-        self._piece = piece.from_upper(piece_latin_letter)
-        assert self._piece > 0
-    self._list = list(map(cell.digital_parse, cell_pattern.split(',')))
-  def match(self, pos: Position, side: int) -> bool:
-    if self.op_eq:
+      self._piece = _latin_to_piece(piece_latin_letter)
+    if isinstance(cell_pattern, int):
+      self._op = _Operation.PIECES_EQ
+      self._count = cell_pattern
+      self._list = None
+    else:
+      self._count = None
+      self._list = list(map(cell.digital_parse, cell_pattern.split(',')))
+  def __str__(self):
+    return f'PiecePattern({self._repr})'
+  def match(self, pos: PositionWithHistory, side: int) -> bool:
+    if self._op == _Operation.IN:
       return any(pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece for c in self._list)
-    return all(pos.board[c if side > 0 else cell.swap_side(c)] != side * self._piece for c in self._list)
+    if self._op == _Operation.NOT_IN:
+      return all(pos.board[c if side > 0 else cell.swap_side(c)] != side * self._piece for c in self._list)
+    if self._op == _Operation.PIECES_EQ:
+      p = pos.sente_pieces if side * self._piece > 0 else pos.gote_pieces
+      return p[abs(self._piece) - 1] == self._count
+    m = pos.last_move()
+    if m is None:
+      return False
+    c = m.from_cell if self._op == _Operation.FROM_IN else m.to_cell
+    if side < 0:
+      c = cell.swap_side(c)
+    return c in self._list
+  def debug_match(self, pos: PositionWithHistory, side: int) -> bool:
+    res = self.match(pos, side)
+    if not res:
+      logging.debug('%s not matched', self)
+    return res
 
 class _PositionPattern:
   def __init__(self, data: list):
     self._patterns = list(map(lambda t: _PiecePattern(t[0], t[1]), data))
-  def match(self, pos: Position, side: int) -> bool:
+  def match(self, pos: PositionWithHistory, side: int) -> bool:
     return all(p.match(pos, side) for p in self._patterns)
+  def debug_match(self, pos: PositionWithHistory, side: int) -> bool:
+    return all(p.debug_match(pos, side) for p in self._patterns)
 
 class Recognizer:
   def __init__(self, p):
     self._position_patterns = [(_PositionPattern(data), value) for data, value in p]
-  def find(self, pos: Position):
+  def find(self, pos: PositionWithHistory):
     side = -pos.side_to_move
     for p, ct in self._position_patterns:
-      if p.match(pos, side):
+      if p.debug_match(pos, side):
         return ct
+      logging.debug('Pattern %s not matched', ct.name)
     return None
-  def update_set(self, pos: Position, sente_set: set, gote_set: set):
+  def update_set(self, pos: PositionWithHistory, sente_set: set, gote_set: set):
     ct = self.find(pos)
     if not ct is None:
       st = sente_set if pos.side_to_move < 0 else gote_set
