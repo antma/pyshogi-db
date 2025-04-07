@@ -342,6 +342,7 @@ _TEST_DATA_CASTLES = [
   (41, [], []),
   (42, [], []),
   (43, [], []),
+  (44, [Castle.SWINGING_ROOK_ANAGUMA], [Castle.BOAT_CASTLE, Castle.STATIC_ROOK_ANAGUMA]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -413,6 +414,7 @@ _TEST_DATA_OPENINGS = [
   (41, [], []),
   (42, [Opening.OPPOSING_ROOK], []),
   (43, [Opening.BISHOP_EXCHANGE, Opening.BISHOP_EXCHANGE_RECLINING_SILVER], []),
+  (44, [Opening.THIRD_FILE_ROOK], [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE]),
 ]
 
 class TestOpenings(unittest.TestCase):
