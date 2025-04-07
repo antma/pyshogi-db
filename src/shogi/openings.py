@@ -12,6 +12,7 @@ from ._pattern import Recognizer
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
    'QUICK_ISHIDA', 'SAKATA_OPPOSING_ROOK',
+   'AMAHIKO_OPPOSING_ROOK',
     #static
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
    'BISHOP_EXCHANGE_RECLINING_SILVER', 'RECLINING_SILVER',
@@ -88,6 +89,9 @@ _RECOGNIZER = Recognizer([
     ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58'), ('G', '69'), ('S', '79'), ('N', '89'), ('L', '99'),
    ('P', '87'), ('P', '76'), ('P', '67'), ('P', '56'), ('S', '57,48'), ('R', '28')], Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
+  ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76'),
+    ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('G', '49'), ('G', '69'), ('K', '59')] +
+   [('P', str(i) + '7') for i in range(2,9) if i != 7], Opening.AMAHIKO_OPPOSING_ROOK),
 ])
 
 def position_find_opening(pos: PositionWithHistory) -> Optional[Opening]:

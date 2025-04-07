@@ -333,6 +333,11 @@ _TEST_DATA_CASTLES = [
   (32, [], [Castle.KIMURA_MINO, Castle.HALF_MINO_CASTLE]),
   (33, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.BOAT_CASTLE, Castle.STATIC_ROOK_ANAGUMA]),
   (34, [], []),
+  (35, [Castle.MINO_CASTLE, Castle.HALF_MINO_CASTLE], [Castle.MINO_CASTLE]),
+  (36, [Castle.MINO_CASTLE, Castle.HALF_MINO_CASTLE, Castle.HIGH_MINO_CASTLE], [Castle.STATIC_ROOK_ANAGUMA]),
+  (37, [], []),
+  (38, [], []),
+  (39, [Castle.SWINGING_ROOK_ANAGUMA], [Castle.STATIC_ROOK_ANAGUMA]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -391,6 +396,12 @@ _TEST_DATA_OPENINGS = [
   (32, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
   (33, [Opening.THIRD_FILE_ROOK], [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE]),
   (34, [Opening.PRIMITIVE_CLIMBING_SILVER, Opening.FORTH_FILE_ROOK], [Opening.URESINO_STYLE, Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
+  (35, [Opening.QUICK_ISHIDA, Opening.DOUBLE_SWINGING_ROOK], [Opening.FORTH_FILE_ROOK]),
+  (36, [Opening.GOKIGEN_CENTRAL_ROOK], []),
+  (37, [Opening.URESINO_STYLE], []),
+  #another problem in bishop exchange pattern
+  #(38, [], []),
+  (39, [Opening.AMAHIKO_OPPOSING_ROOK], []),
 ]
 
 class TestOpenings(unittest.TestCase):
