@@ -18,7 +18,7 @@ Opening = IntEnum('Opening',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY',
-   'CLIMBING_SILVER',
+   'BISHOP_EXCHANGE_CLIMBING_SILVER',
   ])
 
 _OPENINGS_D = {
@@ -83,6 +83,8 @@ _RECOGNIZER = Recognizer([
     [('P', str(i) + '7') for i in range(3, 9) if i != 7], Opening.SAKATA_OPPOSING_ROOK),
   ([('S', '77'), ('R', '28'), ('r', '82'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'),
    ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '88,68'), ('to', '77')], Opening.BISHOP_EXCHANGE),
+  ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
+    ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
 ])
 
 def position_find_opening(pos: PositionWithHistory) -> Optional[Opening]:
