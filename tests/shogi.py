@@ -341,6 +341,7 @@ _TEST_DATA_CASTLES = [
   (40, [], []),
   (41, [], []),
   (42, [], []),
+  (43, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -366,6 +367,10 @@ _TEST_OPENINGS_BY_POSITIONS = [
   ('lnsgk1snl/7r1/2ppppgpp/pp4p2/7P1/P1P5P/1P1PPPP2/1S5R1/LN1GKGSNL b Bb 15', -1, Opening.SAKATA_OPPOSING_ROOK),
   #('lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12', -1, Opening.BISHOP_EXCHANGE),
   #('lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13', -1, Opening.BISHOP_EXCHANGE),
+]
+
+_TEST_OPENINGS_BY_POSITIONS_AND_MOVE = [
+  ('l2gk2nl/1r1s2g2/2n1ppspp/p1pp2p2/1p7/2P2PPPP/PPSPPS3/2GKG2R1/LN5NL b Bb 29', '4g5f', Opening.BISHOP_EXCHANGE_RECLINING_SILVER),
 ]
 
 _TEST_DATA_OPENINGS = [
@@ -407,6 +412,7 @@ _TEST_DATA_OPENINGS = [
   (40, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
   (41, [], []),
   (42, [Opening.OPPOSING_ROOK], []),
+  (43, [Opening.BISHOP_EXCHANGE, Opening.BISHOP_EXCHANGE_RECLINING_SILVER], []),
 ]
 
 class TestOpenings(unittest.TestCase):
@@ -422,6 +428,13 @@ class TestOpenings(unittest.TestCase):
   def test_positions(self):
     for sfen, side, ct in _TEST_OPENINGS_BY_POSITIONS:
       pos = PositionWithHistory(sfen)
+      self.assertEqual(ct, shogi.openings.position_find_opening(pos))
+  def test_positions_and_move(self):
+    for sfen, s, ct in _TEST_OPENINGS_BY_POSITIONS_AND_MOVE:
+      pos = PositionWithHistory(sfen)
+      m = pos.parse_usi_move(s)
+      self.assertEqual(s, m.usi_str())
+      pos.do_move(m)
       self.assertEqual(ct, shogi.openings.position_find_opening(pos))
   def test_openings(self):
     for game_id, sente, gote in _TEST_DATA_OPENINGS:

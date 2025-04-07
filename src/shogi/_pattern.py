@@ -8,7 +8,7 @@ from . import cell
 from . import piece
 from .history import PositionWithHistory
 
-_Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN'])
+_Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES'])
 
 def _latin_to_piece(s: str) -> int:
   if s.islower():
@@ -22,6 +22,13 @@ def _latin_to_piece(s: str) -> int:
 class _PiecePattern:
   def __init__(self, piece_latin_letter: str, cell_pattern: Union[str,int]):
     self._repr = (piece_latin_letter, cell_pattern)
+    if piece_latin_letter == 'max-gold-moves':
+      self._op = _Operation.MAX_MOVES
+      self._piece = piece.GOLD
+      assert isinstance(cell_pattern, int)
+      self._count = cell_pattern
+      self._list = None
+      return
     self._op = _Operation.IN
     if piece_latin_letter.startswith('!'):
       self._op = _Operation.NOT_IN
@@ -53,6 +60,8 @@ class _PiecePattern:
     if self._op == _Operation.PIECES_EQ:
       p = pos.sente_pieces if side * self._piece > 0 else pos.gote_pieces
       return p[abs(self._piece) - 1] == self._count
+    if self._op == _Operation.MAX_MOVES:
+      return pos.count_piece_moves(self._piece * side) <= self._count
     m = pos.last_move()
     if m is None:
       return False
