@@ -59,10 +59,10 @@ _OPENINGS_POS_AND_MOVE_D = {
 _RECOGNIZER = Recognizer([
   ([('K', '48'), ('G', '58'), ('S', '47'), ('N', '37'), ('L', '19'), ('R', '29') ,
     ('P', '46'), ('P', '36'), ('P', '57,56'), ('P', '25,26'), ('P', '16,17')], Opening.RIGHT_HAND_KING),
-  ([('S', '27'), ('P', '25'), ('B', '88'), ('R', '28'),
+  ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'),
-    ('G', '49'), ('G', '69'), ('K', '59'),
-   ] + [('P', str(i) + '7') for i in range(1,10) if i != 2], Opening.PRIMITIVE_CLIMBING_SILVER),
+    ('G', '49'), ('G', '69'), ('K', '59'), ('P', '76,77'),
+   ] + [('P', str(i) + '7') for i in range(1,10) if not i in (2, 7)], Opening.PRIMITIVE_CLIMBING_SILVER),
   ([('P', '55,56'), ('P', '76'), ('B', '88,77'), ('R', '58'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'), ('S', '39'),
     ('G', '49'), ('G', '69'), ('K', '59'),
@@ -103,15 +103,15 @@ def position_find_opening(pos: PositionWithHistory) -> Optional[Opening]:
    '''
   return _RECOGNIZER.find(pos)
 
-def _position_update_set_of_openings(pos: PositionWithHistory, sente_set, gote_set) -> bool:
+def _position_update_set_of_openings(pos: PositionWithHistory, sente_set, gote_set) -> Opening:
   ot = position_find_opening(pos)
   if ot is None:
-    return False
+    return None
   s = sente_set if pos.side_to_move < 0 else gote_set
   if ot in s:
-    return False
+    return None
   s.add(ot)
-  return True
+  return ot
 
 def swinging_rook(rooks: Tuple[int, int]) -> bool:
   return 1 <= rooks[0] <= 5
@@ -142,6 +142,8 @@ def _exchanged_bishops(pos: Position) -> bool:
 def _remove_redundant(s):
   if Opening.SAKATA_OPPOSING_ROOK in s:
     s.discard(Opening.BISHOP_EXCHANGE)
+  if Opening.PRIMITIVE_CLIMBING_SILVER in s:
+    s.discard(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
 
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 
@@ -159,12 +161,14 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
   sente_moves_numbers = []
   gote_moves_numbers = []
   bishop_exchange = False
+  before_rook_openings = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBING_SILVER])
   for m in g.moves[:max_hands]:
     #last_usi_move = m.usi_str()
     pos.do_move(m)
     if (not bishop_exchange) and _unmovable_rooks(pos) and _exchanged_bishops(pos):
       bishop_exchange = True
-    if _position_update_set_of_openings(pos, sente_openings, gote_openings):
+    ot = _position_update_set_of_openings(pos, sente_openings, gote_openings)
+    if (not ot is None) and (not ot in before_rook_openings):
       m = sente_moves_numbers if pos.side_to_move < 0 else gote_moves_numbers
       m.append(pos.move_no - 1)
 
