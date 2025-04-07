@@ -270,16 +270,16 @@ def _game_parse(game_kif: str) -> Optional[Game]:
   try:
     a = list(t.split())
     if len(a) != 3:
-      log.raise_value_error('Illegal number of fields in KIFU header')
+      log.raise_value_error('Illegal number of fields in KIFU header', logging.INFO)
     if a[0] != '#KIF':
-      log.raise_value_error(f'Expected "#KIFU", but "{a[0]}" found')
+      log.raise_value_error(f'Expected "#KIFU", but "{a[0]}" found', logging.INFO)
     p = _parse_key_value(a[1], '=')
     if (p is None) or (p[0] != 'version'):
-      log.raise_value_error(f'Expected "version", but "{a[1]}" found')
+      log.raise_value_error(f'Expected "version", but "{a[1]}" found', logging.INFO)
     _version = p[1]
     p = _parse_key_value(a[2], '=')
     if (p is None) or (p[0] != 'encoding'):
-      log.raise_value_error(f'Expected "encoding", but "{a[2]}" found')
+      log.raise_value_error(f'Expected "encoding", but "{a[2]}" found', logging.INFO)
     _encoding = p[1]
   except ValueError:
     it = itertools.chain([t], it)

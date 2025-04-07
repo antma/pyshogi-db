@@ -5,9 +5,9 @@ import logging
 import os
 import sys
 
-def raise_value_error(msg):
+def raise_value_error(msg, level = logging.ERROR):
   '''log error and raise ValueError'''
-  logging.error(msg)
+  logging.log(level, msg)
   raise ValueError(msg)
 
 def init_logging(log_filename = None, logging_level = logging.INFO):
