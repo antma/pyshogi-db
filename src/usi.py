@@ -477,7 +477,7 @@ def game_win_rates(game: Game, max_pv_size: int) -> Mapping[int, Tuple[float, Li
                 if (t == 'resign') or (t == 'rep_inf'):
                   break
                 m = pos.parse_usi_move(t)
-                best_moves.append((m, pos.western_move_str(m)))
+                best_moves.append((m, pos.western_move_str(m, True)))
                 pos.do_move(m)
           d[move_no] = (wr, best_moves)
           break

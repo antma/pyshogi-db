@@ -48,10 +48,10 @@ def win_rate_delta_to_mistake_type(delta: float) -> Optional[MistakeType]:
     return MistakeType.NORMAL
   return None
 
-def mistake_str(side: int, old_win_rate: float, new_win_rate: float, pv: str) -> Optional[str]:
+def mistake_str(side: int, old_win_rate: float, new_win_rate: float, pv: str, brief: bool = True) -> Optional[str]:
   delta = (old_win_rate - new_win_rate) * side
   mt = win_rate_delta_to_mistake_type(delta)
-  if mt is None:
+  if (mt is None) or (brief and mt == MistakeType.NORMAL):
     return None
   spv = 'PV'
   return f'{mt} ({old_win_rate * 100.0:.0f}% → {new_win_rate * 100.0:.0f}%). {spv}: {pv}'

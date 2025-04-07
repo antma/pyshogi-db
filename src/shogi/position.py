@@ -476,14 +476,14 @@ class Position:
             return True
     assert t == 1
     return False
-  def western_move_str(self, m: Move) -> str:
+  def western_move_str(self, m: Move, digital: bool = False) -> str:
     if m.is_drop():
-      return piece.to_string(abs(m.to_piece)) + '*' + cell.usi_str(m.to_cell)
+      return piece.to_string(abs(m.to_piece)) + '*' + cell.western_str(m.to_cell, digital)
     s = piece.to_string(abs(m.from_piece))
     if self.not_unique_move(m):
-      s += cell.usi_str(m.from_cell)
+      s += cell.western_str(m.from_cell, digital)
     s += '-' if self.board[m.to_cell] == piece.FREE else 'x'
-    s += cell.usi_str(m.to_cell)
+    s += cell.western_str(m.to_cell, digital)
     p = m.from_piece
     if abs(p) in _COULD_BE_PROMOTED_S:
       pz = piece.PromotionZone(p)

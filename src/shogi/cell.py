@@ -16,6 +16,9 @@ def usi_str(cell: int) -> str:
   row, col = divmod(cell, 9)
   return chr(49 + col) + chr(97 + row)
 
+def western_str(cell: int, digital: bool) -> str:
+  return digital_str(cell) if digital else usi_str(cell)
+
 def kifu_str(cell: int) -> str:
   (row, col) = divmod(cell, 9)
   return KIFU_COLS[col] + KIFU_ROWS[row]

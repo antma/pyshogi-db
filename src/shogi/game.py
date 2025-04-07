@@ -37,6 +37,8 @@ class Game:
     l.append(len(self._checks))
     check = self.pos.is_check()
     self._checks.append(check)
+    if len(l) >= 2:
+      logging.debug("Position '%s' was repeated %d times on moves %s", sfen, len(l), l)
     if len(l) >= 4:
       u, v = l[0], l[-1]
       if check and all(self._checks[u:v:2]):
