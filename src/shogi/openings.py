@@ -19,6 +19,7 @@ Opening = IntEnum('Opening',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY',
    'BISHOP_EXCHANGE_CLIMBING_SILVER',
+   'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
   ])
 
 _OPENINGS_D = {
@@ -85,6 +86,8 @@ _RECOGNIZER = Recognizer([
    ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '88,68'), ('to', '77')], Opening.BISHOP_EXCHANGE),
   ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
     ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
+  ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58'), ('G', '69'), ('S', '79'), ('N', '89'), ('L', '99'),
+   ('P', '87'), ('P', '76'), ('P', '67'), ('P', '56'), ('S', '57,48'), ('R', '28')], Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
 ])
 
 def position_find_opening(pos: PositionWithHistory) -> Optional[Opening]:

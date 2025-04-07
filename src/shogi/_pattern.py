@@ -57,6 +57,8 @@ class _PiecePattern:
     if m is None:
       return False
     c = m.from_cell if self._op == _Operation.FROM_IN else m.to_cell
+    if c is None:
+      return False
     if side < 0:
       c = cell.swap_side(c)
     return c in self._list

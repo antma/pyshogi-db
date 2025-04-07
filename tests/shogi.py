@@ -10,6 +10,7 @@ import unittest
 
 import shogi
 from shogi.castles import Castle
+from shogi.history import PositionWithHistory
 from shogi.openings import Opening
 from shogi.move import (IllegalMove, Move)
 from shogi.position import Position
@@ -330,6 +331,7 @@ _TEST_DATA_CASTLES = [
   (30, [],[]),
   (31, [Castle.LEFT_HAND_MINO, Castle.STATIC_ROOK_ANAGUMA], [Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE, Castle.SILVER_CROWN]),
   (32, [], [Castle.KIMURA_MINO, Castle.HALF_MINO_CASTLE]),
+  (33, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.BOAT_CASTLE, Castle.STATIC_ROOK_ANAGUMA]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -386,6 +388,7 @@ _TEST_DATA_OPENINGS = [
   (30, [Opening.BISHOP_EXCHANGE, Opening.RIGHT_HAND_KING], [Opening.BISHOP_EXCHANGE]),
   (31, [], [Opening.OPPOSING_ROOK]),
   (32, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
+  (33, [Opening.THIRD_FILE_ROOK], [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE]),
 ]
 
 class TestOpenings(unittest.TestCase):
@@ -400,7 +403,7 @@ class TestOpenings(unittest.TestCase):
     self.assertEqual(set(gote_openings), s2, msg)
   def test_positions(self):
     for sfen, side, ct in _TEST_OPENINGS_BY_POSITIONS:
-      pos = Position(sfen)
+      pos = PositionWithHistory(sfen)
       self.assertEqual(ct, shogi.openings.position_find_opening(pos))
   def test_openings(self):
     for game_id, sente, gote in _TEST_DATA_OPENINGS:
