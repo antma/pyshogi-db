@@ -339,6 +339,8 @@ _TEST_DATA_CASTLES = [
   (38, [], []),
   (39, [Castle.SWINGING_ROOK_ANAGUMA], [Castle.STATIC_ROOK_ANAGUMA]),
   (40, [], []),
+  (41, [], []),
+  (42, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -403,6 +405,8 @@ _TEST_DATA_OPENINGS = [
   (38, [], []),
   (39, [Opening.AMAHIKO_OPPOSING_ROOK], []),
   (40, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
+  (41, [], []),
+  (42, [Opening.OPPOSING_ROOK], []),
 ]
 
 class TestOpenings(unittest.TestCase):
