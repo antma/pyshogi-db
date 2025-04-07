@@ -40,14 +40,13 @@ _OPENINGS_D = {
   # 'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13' : Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
 }
 
-'''
 _OPENINGS_POS_AND_MOVE_D = {
-  'ln1gk1snl/1r1s2g2/p1pppp1pp/1p4p2/9/2P4P1/PPSPPPP1P/2G4R1/LN2KGSNL w Bb 12 6h7g': Opening.BISHOP_EXCHANGE, #[wars/0030]
-  'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13 2b3c': Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
-  'ln1gk2nl/1r1s2g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/2G2S1R1/LN2KG1NL b Bb 17 2b3c': Opening.BISHOP_EXCHANGE, #[vE-7Y9XLfgs]
-  'lnsgk2nl/1r4g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/5S1R1/LN1GKG1NL b Bb 15 2b3c': Opening.BISHOP_EXCHANGE, #[SPSX76u6-vA]
+  'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12 8h7g' : Opening.BISHOP_EXCHANGE, #[wars/0004]
+  #'ln1gk1snl/1r1s2g2/p1pppp1pp/1p4p2/9/2P4P1/PPSPPPP1P/2G4R1/LN2KGSNL w Bb 12 6h7g': Opening.BISHOP_EXCHANGE, #[wars/0030]
+  #'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13 2b3c': Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
+  #'ln1gk2nl/1r1s2g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/2G2S1R1/LN2KG1NL b Bb 17 2b3c': Opening.BISHOP_EXCHANGE, #[vE-7Y9XLfgs]
+  #'lnsgk2nl/1r4g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/5S1R1/LN1GKG1NL b Bb 15 2b3c': Opening.BISHOP_EXCHANGE, #[SPSX76u6-vA]
 }
-'''
 
 #'ln1gkgsnl/1r1s3b1/p1pppp1pp/6p2/1p2P4/2P6/PPBP1PPPP/4R4/LNSGKGSNL w - 10': Opening.GOKIGEN_CENTRAL_ROOK,
 #'lnsgkgsnl/4r2b1/pppp1p1pp/6p2/4p4/2P4P1/PP1PPPP1P/1B2GS1R1/LNSGK2NL b - 9': Opening.GOKIGEN_CENTRAL_ROOK,
@@ -84,7 +83,7 @@ _RECOGNIZER = Recognizer([
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('S', '79'), ('G', '49'), ('P', '96,97'), ('P', '16,17')] +
     [('P', str(i) + '7') for i in range(3, 9) if i != 7], Opening.SAKATA_OPPOSING_ROOK),
   ([('S', '77'), ('R', '28'), ('r', '82'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'),
-   ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '88,68'), ('to', '77')], Opening.BISHOP_EXCHANGE),
+   ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '88,68'), ('to', '77'), ('G', '78')], Opening.BISHOP_EXCHANGE),
   ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
     ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58'), ('G', '69'), ('S', '79'), ('N', '89'), ('L', '99'),
@@ -99,12 +98,12 @@ def position_find_opening(pos: PositionWithHistory) -> Optional[Opening]:
   ot = _OPENINGS_D.get(sfen)
   if not ot is None:
     return ot
-  '''
-  if not last_usi_move is None:
+  m = pos.last_move()
+  if not m is None:
+    last_usi_move = m.usi_str()
     ot = _OPENINGS_POS_AND_MOVE_D.get(sfen + ' ' + last_usi_move)
     if not ot is None:
       return ot
-   '''
   return _RECOGNIZER.find(pos)
 
 def _position_update_set_of_openings(pos: PositionWithHistory, sente_set, gote_set) -> Opening:

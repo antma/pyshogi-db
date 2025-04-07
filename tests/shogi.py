@@ -399,8 +399,7 @@ _TEST_DATA_OPENINGS = [
   (35, [Opening.QUICK_ISHIDA, Opening.DOUBLE_SWINGING_ROOK], [Opening.FORTH_FILE_ROOK]),
   (36, [Opening.GOKIGEN_CENTRAL_ROOK], []),
   (37, [Opening.URESINO_STYLE], []),
-  #another problem in bishop exchange pattern
-  #(38, [], []),
+  (38, [], []),
   (39, [Opening.AMAHIKO_OPPOSING_ROOK], []),
 ]
 
