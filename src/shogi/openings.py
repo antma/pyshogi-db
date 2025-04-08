@@ -4,10 +4,7 @@ from enum import IntEnum
 from typing import List, Optional, Tuple, Set
 from . import kifu
 from .game import Game
-from .history import PositionWithHistory
-from .position import Position
-from .piece import BISHOP, ROOK
-from ._pattern import Recognizer
+from ._pattern import Recognizer, PositionForPatternRecognition
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
@@ -96,12 +93,13 @@ _RECOGNIZER = Recognizer([
    [('P', str(i) + '7') for i in range(2,9) if i != 7], Opening.AMAHIKO_OPPOSING_ROOK),
 ])
 
-def position_find_opening(pos: PositionWithHistory) -> Optional[Opening]:
+def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
+  assert isinstance(pos, PositionForPatternRecognition)
   sfen = pos.sfen()
   ot = _OPENINGS_D.get(sfen)
   if not ot is None:
     return ot
-  m = pos.last_move()
+  m = pos.last_move
   if not m is None:
     last_usi_move = m.usi_str()
     ot = _OPENINGS_POS_AND_MOVE_D.get(sfen + ' ' + last_usi_move)
@@ -109,7 +107,7 @@ def position_find_opening(pos: PositionWithHistory) -> Optional[Opening]:
       return ot
   return _RECOGNIZER.find(pos)
 
-def _position_update_set_of_openings(pos: PositionWithHistory, sente_set, gote_set) -> Opening:
+def _position_update_set_of_openings(pos: PositionForPatternRecognition, sente_set, gote_set) -> Opening:
   ot = position_find_opening(pos)
   if ot is None:
     return None
@@ -139,11 +137,13 @@ def update_set_of_oppenings_by_rooks(rooks: Tuple[int, int], s: Set[Opening], ro
 def _rooks_limit(moves_numbers: List[int], max_hands: int) -> int:
   return max_hands if not moves_numbers else moves_numbers[0]
 
+'''
 def _unmovable_rooks(pos: Position) -> bool:
   return (pos.board[64] == ROOK) and (pos.board[16] == -ROOK)
 
 def _exchanged_bishops(pos: Position) -> bool:
   return (pos.sente_pieces[BISHOP-1] == 1) and (pos.gote_pieces[BISHOP-1] == 1)
+'''
 
 def _remove_redundant(s):
   if Opening.SAKATA_OPPOSING_ROOK in s:
@@ -162,17 +162,19 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
   except IndexError:
     pass
   assert g.start_pos is None
-  pos = PositionWithHistory()
-  assert _unmovable_rooks(pos)
+  pos = PositionForPatternRecognition()
+  #assert _unmovable_rooks(pos)
   sente_moves_numbers = []
   gote_moves_numbers = []
-  bishop_exchange = False
+  #bishop_exchange = False
   before_rook_openings = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBING_SILVER])
   for m in g.moves[:max_hands]:
     #last_usi_move = m.usi_str()
     pos.do_move(m)
+    '''
     if (not bishop_exchange) and _unmovable_rooks(pos) and _exchanged_bishops(pos):
       bishop_exchange = True
+    '''
     ot = _position_update_set_of_openings(pos, sente_openings, gote_openings)
     if (not ot is None) and (not ot in before_rook_openings):
       m = sente_moves_numbers if pos.side_to_move < 0 else gote_moves_numbers

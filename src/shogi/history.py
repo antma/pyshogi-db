@@ -27,5 +27,3 @@ class PositionWithHistory(position.Position):
     if self._history:
       return self._history[-1][0]
     return None
-  def count_piece_moves(self, piece):
-    return sum(1 for m in self._history if m[0].from_piece == piece)
