@@ -346,6 +346,8 @@ _TEST_DATA_CASTLES = [
   (44, [Castle.SWINGING_ROOK_ANAGUMA], [Castle.BOAT_CASTLE, Castle.STATIC_ROOK_ANAGUMA]),
   (45, [Castle.BOAT_CASTLE, Castle.LEFT_HAND_MINO, Castle.SILVER_CROWN], [Castle.TOPKNOT_MINO, Castle.HALF_MINO_CASTLE, Castle.SILVER_CROWN]),
   (46, [], [Castle.HALF_MINO_CASTLE]),
+  (47, [], []),
+  (48, [Castle.BOAT_CASTLE, Castle.STATIC_ROOK_ANAGUMA], [Castle.HALF_MINO_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -419,6 +421,8 @@ _TEST_DATA_OPENINGS = [
   (44, [Opening.THIRD_FILE_ROOK], [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE]),
   (45, [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE], [Opening.OPPOSING_ROOK]),
   (46, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
+  (47, [], []),
+  (48, [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE], [Opening.THIRD_FILE_ROOK]),
 ]
 
 class TestOpenings(unittest.TestCase):
