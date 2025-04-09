@@ -64,11 +64,11 @@ _RECOGNIZER = Recognizer([
   ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'),
     ('G', '49'), ('G', '69'), ('K', '59'), ('P', '76,77'),
-   ] + [('P', str(i) + '7') for i in range(1,10) if not i in (2, 7)], Opening.PRIMITIVE_CLIMBING_SILVER),
+   ] + adjacent_pawns(7, 1, 10, [2, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
   ([('P', '55,56'), ('P', '76'), ('B', '88,77'), ('R', '58'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'), ('S', '39'),
     ('G', '49'), ('G', '69'), ('K', '59'),
-   ] + [('P', str(i) + '7') for i in range(2,9) if i != 5 and i != 7], Opening.GOKIGEN_CENTRAL_ROOK),
+   ] + adjacent_pawns(7, 2, 9, [5, 7]), Opening.GOKIGEN_CENTRAL_ROOK),
   #([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
   ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85'),
     ('B', 1), ('b', 1), ('P', '36'), ('N', '29,37'), ('G', '48,58'),
@@ -83,7 +83,7 @@ _RECOGNIZER = Recognizer([
   ([('G', '77'), ('R', '88'), ('P', '76'), ('P', '26,27'), ('to', '88'),
     ('B', 1), ('b', 1), #bishops exchanged
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('S', '79'), ('G', '49'), ('P', '96,97'), ('P', '16,17')] +
-    [('P', str(i) + '7') for i in range(3, 9) if i != 7], Opening.SAKATA_OPPOSING_ROOK),
+    adjacent_pawns(7, 3, 9, [7]), Opening.SAKATA_OPPOSING_ROOK),
   ([('S', '77'), ('R', '28'), ('r', '82'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'),
    ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '88,68'), ('to', '77'), ('G', '78'),
    ('max-gold-moves', 2),
@@ -94,10 +94,10 @@ _RECOGNIZER = Recognizer([
    ('P', '87'), ('P', '76'), ('P', '67'), ('P', '56'), ('S', '57,48'), ('R', '28')], Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
   ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('G', '49'), ('G', '69'), ('K', '59')] +
-   [('P', str(i) + '7') for i in range(2,9) if i != 7], Opening.AMAHIKO_OPPOSING_ROOK),
+   adjacent_pawns(7, 2, 9, [7]), Opening.AMAHIKO_OPPOSING_ROOK),
   ([('B', '79'), ('K', '78'), ('S', '57'), ('G', '49'), ('G', '69'), ('R', '28'), ('P', '56'), ('P', '67'), ('P', '47'), ('P', '25'),
     ('N', '89'), ('L', '99'), ('N', '29'), ('L', '19')] +
-    adjacent_pawns(7, 3, 9, [5]), Opening.SPEARING_THE_BIRD),
+   adjacent_pawns(7, 3, 9, [5]), Opening.SPEARING_THE_BIRD),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
