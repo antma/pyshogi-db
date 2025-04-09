@@ -351,6 +351,9 @@ _TEST_DATA_CASTLES = [
   (49, [], [Castle.SNOW_ROOF_CASTLE]),
   (50, [Castle.HALF_MINO_CASTLE, Castle.KIMURA_MINO], []),
   (51, [], []),
+  (52, [], []),
+  (53, [Castle.STATIC_ROOK_ANAGUMA], [Castle.SWINGING_ROOK_ANAGUMA]),
+  (54, [Castle.ELMO_CASTLE], [Castle.MINO_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -429,6 +432,9 @@ _TEST_DATA_OPENINGS = [
   (49, [], []),
   (50, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.SPEARING_THE_BIRD]),
   (51, [Opening.QUICK_ISHIDA], []),
+  (52, [Opening.AMAHIKO_OPPOSING_ROOK], []),
+  (53, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
+  (54, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.THIRD_FILE_ROOK]),
 ]
 
 class TestOpenings(unittest.TestCase):
