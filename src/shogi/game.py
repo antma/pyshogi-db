@@ -2,11 +2,11 @@
 
 from collections import defaultdict
 import logging
-from typing import Mapping, Optional, Tuple
+from typing import Mapping, Optional
 
 import log
 from .move import Move, IllegalMove
-from .piece import KING, ROOK, side_to_str
+from .piece import side_to_str
 from .position import Position
 from .result import GameResult, side_to_move_points
 

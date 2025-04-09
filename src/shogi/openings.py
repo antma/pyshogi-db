@@ -1,7 +1,7 @@
 # -*- coding: UTF8 -*-
 
 from enum import IntEnum
-from typing import List, Optional, Tuple, Set
+from typing import Optional, Tuple, Set
 from . import kifu
 from .game import Game
 from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns
@@ -21,7 +21,7 @@ Opening = IntEnum('Opening',
    'SPEARING_THE_BIRD',
 
    #internal usage
-   '_SWINGING_ROOK',
+   'SWINGING_ROOK',
   ])
 
 _OPENINGS_D = {
@@ -131,30 +131,30 @@ def _almost_empty(s: Set[Opening]) -> bool:
 
 def _update_set_of_oppenings_by_rooks(col: int, my_set: Set[Opening], opponent_set: Set[Opening]):
   if col < 5:
-    if Opening._SWINGING_ROOK in opponent_set:
+    if Opening.SWINGING_ROOK in opponent_set:
       my_set.add(Opening.DOUBLE_SWINGING_ROOK)
       return
   if col == 2:
     if _almost_empty(my_set):
       my_set.add(Opening.OPPOSING_ROOK)
-    my_set.add(Opening._SWINGING_ROOK)
+    my_set.add(Opening.SWINGING_ROOK)
   elif col == 3:
     'quick ishida != third file rook'
     if _almost_empty(my_set):
       my_set.add(Opening.THIRD_FILE_ROOK)
-    my_set.add(Opening._SWINGING_ROOK)
+    my_set.add(Opening.SWINGING_ROOK)
   elif col == 4:
     if _almost_empty(my_set):
       my_set.add(Opening.FORTH_FILE_ROOK)
-    my_set.add(Opening._SWINGING_ROOK)
+    my_set.add(Opening.SWINGING_ROOK)
   elif col == 5:
-    my_set.add(Opening._SWINGING_ROOK)
+    my_set.add(Opening.SWINGING_ROOK)
   elif col == 6:
     if _almost_empty(my_set):
       my_set.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
 
 def _remove_redundant(s):
-  s.discard(Opening._SWINGING_ROOK)
+  s.discard(Opening.SWINGING_ROOK)
   if Opening.SAKATA_OPPOSING_ROOK in s:
     s.discard(Opening.BISHOP_EXCHANGE)
     s.discard(Opening.OPPOSING_ROOK)
