@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import List, Optional, Tuple, Set
 from . import kifu
 from .game import Game
-from ._pattern import Recognizer, PositionForPatternRecognition
+from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
@@ -18,6 +18,7 @@ Opening = IntEnum('Opening',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY',
    'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
+   'SPEARING_THE_BIRD',
   ])
 
 _OPENINGS_D = {
@@ -75,7 +76,7 @@ _RECOGNIZER = Recognizer([
   ([('B', '79'), ('K', '59'), ('S', '78'), ('P', '56'), ('R', '28'), ('!r', '82'),
     ('P', '25,26'), ('P', '96,97'), ('P', '16,17'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39,48'), ('G', '69'), ('G', '58,69')] +
-   [('P', str(i) + '7') for i in range(3, 9) if i != 5] , Opening.IJIMAS_BACK_BISHOP_STRATEGY),
+   adjacent_pawns(7, 3, 9, [5]), Opening.IJIMAS_BACK_BISHOP_STRATEGY),
   ([('R', '88'), ('G', '77'), ('P', '76'), ('P', '26,27'),
     ('B', 1), ('b', 1), #bishops exchanged
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('S', '79'), ('G', '49'), ('P', '96,97'), ('P', '16,17')] +
@@ -91,6 +92,9 @@ _RECOGNIZER = Recognizer([
   ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('G', '49'), ('G', '69'), ('K', '59')] +
    [('P', str(i) + '7') for i in range(2,9) if i != 7], Opening.AMAHIKO_OPPOSING_ROOK),
+  ([('B', '79'), ('K', '78'), ('S', '57'), ('G', '49'), ('G', '69'), ('R', '28'), ('P', '56'), ('P', '67'), ('P', '47'), ('P', '25'),
+    ('N', '89'), ('L', '99'), ('N', '29'), ('L', '19')] +
+    adjacent_pawns(7, 3, 9, [5]), Opening.SPEARING_THE_BIRD),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:

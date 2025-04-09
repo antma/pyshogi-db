@@ -2,7 +2,7 @@
 
 from enum import IntEnum
 import logging
-from typing import Union
+from typing import List, Union
 
 from . import cell
 from . import piece
@@ -11,6 +11,11 @@ from .move import Move
 
 _Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES'])
 _GENERALS_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER])
+
+def adjacent_pawns(row: int, start_col: int, end_col: int, excl: List[int]):
+  row = str(row)
+  s = set(excl)
+  return [('P', str(col) + row) for col in range(start_col, end_col) if not col in s]
 
 class PositionForPatternRecognition(position.Position):
   def __init__(self, sfen: str = None):
