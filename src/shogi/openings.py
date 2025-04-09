@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import Optional, Tuple, Set
 from . import kifu
 from .game import Game
-from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns
+from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns, last_row_pieces
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
@@ -61,14 +61,10 @@ _OPENINGS_POS_AND_MOVE_D = {
 _RECOGNIZER = Recognizer([
   ([('K', '48'), ('G', '58'), ('S', '47'), ('N', '37'), ('L', '19'), ('R', '29') ,
     ('P', '46'), ('P', '36'), ('P', '57,56'), ('P', '25,26'), ('P', '16,17')], Opening.RIGHT_HAND_KING),
-  ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'),
-    ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'),
-    ('G', '49'), ('G', '69'), ('K', '59'), ('P', '76,77'),
-   ] + adjacent_pawns(7, 1, 10, [2, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
-  ([('P', '55,56'), ('P', '76'), ('B', '88,77'), ('R', '58'),
-    ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '79'), ('S', '39'),
-    ('G', '49'), ('G', '69'), ('K', '59'),
-   ] + adjacent_pawns(7, 2, 9, [5, 7]), Opening.GOKIGEN_CENTRAL_ROOK),
+  ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '76,77')] +
+    last_row_pieces('3') + adjacent_pawns(7, 1, 10, [2, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
+  ([('P', '55,56'), ('P', '76'), ('B', '88,77'), ('R', '58')] +
+    last_row_pieces('') + adjacent_pawns(7, 2, 9, [5, 7]), Opening.GOKIGEN_CENTRAL_ROOK),
   #([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
   ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85'),
     ('B', 1), ('b', 1), ('P', '36'), ('N', '29,37'), ('G', '48,58'),
@@ -82,8 +78,8 @@ _RECOGNIZER = Recognizer([
    adjacent_pawns(7, 3, 9, [5]), Opening.IJIMAS_BACK_BISHOP_STRATEGY),
   ([('G', '77'), ('R', '88'), ('P', '76'), ('P', '26,27'), ('to', '88'),
     ('B', 1), ('b', 1), #bishops exchanged
-    ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('S', '79'), ('G', '49'), ('P', '96,97'), ('P', '16,17')] +
-    adjacent_pawns(7, 3, 9, [7]), Opening.SAKATA_OPPOSING_ROOK),
+    ('P', '96,97'), ('P', '16,17')] +
+    last_row_pieces('6') + adjacent_pawns(7, 3, 9, [7]), Opening.SAKATA_OPPOSING_ROOK),
   ([('S', '77'), ('R', '28'), ('r', '82'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'),
    ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '88,68'), ('to', '77'), ('G', '78'),
    ('max-gold-moves', 2),
@@ -92,12 +88,10 @@ _RECOGNIZER = Recognizer([
     ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58'), ('G', '69'), ('S', '79'), ('N', '89'), ('L', '99'),
    ('P', '87'), ('P', '76'), ('P', '67'), ('P', '56'), ('S', '57,48'), ('R', '28')], Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
-  ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76'),
-    ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('G', '49'), ('G', '69'), ('K', '59')] +
-   adjacent_pawns(7, 2, 9, [7]), Opening.AMAHIKO_OPPOSING_ROOK),
-  ([('B', '79'), ('K', '78'), ('S', '57'), ('G', '49'), ('G', '69'), ('R', '28'), ('P', '56'), ('P', '67'), ('P', '47'), ('P', '25'),
-    ('N', '89'), ('L', '99'), ('N', '29'), ('L', '19')] +
-   adjacent_pawns(7, 3, 9, [5]), Opening.SPEARING_THE_BIRD),
+  ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76')] +
+    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.AMAHIKO_OPPOSING_ROOK),
+  ([('B', '79'), ('K', '78'), ('S', '57'), ('R', '28'), ('P', '56'), ('P', '67'), ('P', '47'), ('P', '25')] +
+    last_row_pieces('357') + adjacent_pawns(7, 3, 9, [5]), Opening.SPEARING_THE_BIRD),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:

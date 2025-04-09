@@ -17,6 +17,17 @@ def adjacent_pawns(row: int, start_col: int, end_col: int, excl: List[int]):
   s = set(excl)
   return [('P', str(col) + row) for col in range(start_col, end_col) if not col in s]
 
+_FIRST_ROW = 'LNSGKGSNL'
+
+def last_row_pieces(excl: str):
+  a = []
+  s = set(map(int, excl))
+  for i, c in enumerate(_FIRST_ROW):
+    col = i + 1
+    if not col in s:
+      a.append((c, str(col) + '9'))
+  return a
+
 def _swinging_rook_column(col: int) -> bool:
   return 1 <= col <= 5
 
