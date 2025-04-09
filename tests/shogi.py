@@ -306,6 +306,7 @@ _TEST_CASTLE_BY_POSITIONS = [
 _TEST_DATA_CASTLES = [
   (1, [Castle.BOAT_CASTLE, Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.TOPKNOT_MINO, Castle.SILVER_CROWN]),
   (4, [], []),
+  (5, [Castle.BOAT_CASTLE], []),
   (7, [Castle.MINO_CASTLE], []),
   (8, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.PEERLESS_GOLDS]),
   (9, [Castle.MINO_CASTLE], [Castle.BOAT_CASTLE]),
@@ -354,6 +355,7 @@ _TEST_DATA_CASTLES = [
   (52, [], []),
   (53, [Castle.STATIC_ROOK_ANAGUMA], [Castle.SWINGING_ROOK_ANAGUMA]),
   (54, [Castle.ELMO_CASTLE], [Castle.MINO_CASTLE]),
+  (55, [], [Castle.HALF_MINO_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -387,6 +389,7 @@ _TEST_OPENINGS_BY_POSITIONS_AND_MOVE = [
 _TEST_DATA_OPENINGS = [
   (1, [], [Opening.OPPOSING_ROOK]),
   (4, [Opening.BISHOP_EXCHANGE, Opening.BISHOP_EXCHANGE_RECLINING_SILVER], [Opening.BISHOP_EXCHANGE]),
+  (5, [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE], [Opening.FORTH_FILE_ROOK, Opening.FUJII_SYSTEM]),
   (7, [Opening.QUICK_ISHIDA], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
   (8, [Opening.QUICK_ISHIDA], [Opening.DOUBLE_SWINGING_ROOK]),
   (9, [Opening.THIRD_FILE_ROOK], []),
@@ -435,6 +438,7 @@ _TEST_DATA_OPENINGS = [
   (52, [Opening.AMAHIKO_OPPOSING_ROOK], []),
   (53, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
   (54, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.THIRD_FILE_ROOK]),
+  (55, [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE], [Opening.OPPOSING_ROOK]),
 ]
 
 class TestOpenings(unittest.TestCase):

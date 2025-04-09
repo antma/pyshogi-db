@@ -10,6 +10,7 @@ Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
    'QUICK_ISHIDA', 'SAKATA_OPPOSING_ROOK',
    'AMAHIKO_OPPOSING_ROOK',
+   'FUJII_SYSTEM',
     #static
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
    'BISHOP_EXCHANGE_RECLINING_SILVER', 'RECLINING_SILVER',
@@ -86,12 +87,16 @@ _RECOGNIZER = Recognizer([
    ], Opening.BISHOP_EXCHANGE),
   ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
     ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
-  ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58'), ('G', '69'), ('S', '79'), ('N', '89'), ('L', '99'),
-   ('P', '87'), ('P', '76'), ('P', '67'), ('P', '56'), ('S', '57,48'), ('R', '28')], Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
+  ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58,67'),
+   ('P', '87'), ('P', '76'), ('P', '66,67'), ('P', '56'), ('S', '57,48'), ('R', '28')] +
+   last_row_pieces('2345'), Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
   ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76')] +
     last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.AMAHIKO_OPPOSING_ROOK),
   ([('B', '79'), ('K', '78'), ('S', '57'), ('R', '28'), ('P', '56'), ('P', '67'), ('P', '47'), ('P', '25')] +
     last_row_pieces('357') + adjacent_pawns(7, 3, 9, [5]), Opening.SPEARING_THE_BIRD),
+  ([('P', '36'), ('to', '36'), ('R', '68'), ('S', '38'), ('S', '67'), ('G', '58,69'), ('B', '77'),
+    ('P', '76'), ('P', '66,67'), ('P', '57'), ('P', '87'), ('P', '27'), ('P', '15,16')] +
+    last_row_pieces('367'), Opening.FUJII_SYSTEM),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
