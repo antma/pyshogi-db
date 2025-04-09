@@ -20,6 +20,7 @@ Opening = IntEnum('Opening',
    'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SPEARING_THE_BIRD',
+   'SILVER_HORNED_SNOW_ROOF',
 
    #internal usage
    'SWINGING_ROOK',
@@ -97,6 +98,8 @@ _RECOGNIZER = Recognizer([
   ([('P', '36'), ('to', '36'), ('R', '68'), ('S', '38'), ('S', '67'), ('G', '58,69'), ('B', '77'),
     ('P', '76'), ('P', '66,67'), ('P', '57'), ('P', '87'), ('P', '27'), ('P', '15,16')] +
     last_row_pieces('367'), Opening.FUJII_SYSTEM),
+  ([('K', '69'), ('G', '78'), ('G', '58'), ('S', '67'), ('S', '47'),
+    ('P', '76'), ('P', '66'), ('P', '57'), ('P', '46'), ('N', '89'), ('L', '99'), ('N', '29'), ('L', '19'), ('B', '88,77')], Opening.SILVER_HORNED_SNOW_ROOF),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
