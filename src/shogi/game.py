@@ -30,6 +30,9 @@ class Game:
   def set_result(self, game_result: GameResult):
     if self.game_result is None:
       self.game_result = game_result
+  def adjourn(self):
+    if (self.game_result is None) and (not self.pos.has_legal_move()):
+      self.set_result(GameResult.CHECKMATE)
   def _insert_sfen(self):
     self._positions = None
     sfen = self.pos.sfen(move_no = False)
