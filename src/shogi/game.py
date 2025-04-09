@@ -207,26 +207,3 @@ class Game:
     if all(m.zero_or_none_time() for m in self.moves):
       for m in self.moves:
         m.drop_times()
-  def rooks(self, max_hands: int = 30) -> Tuple[Tuple[int,int], Tuple[int,int]]:
-    assert self.start_pos is None
-    sente = (8, 0)
-    king_moved = False
-    for i, m in enumerate(self.moves[0:max_hands:2]):
-      if m.from_piece == KING:
-        king_moved = True
-      elif m.from_piece == ROOK:
-        sente = (9 - (m.to_cell % 9), 2 * i + 1)
-        if king_moved and sente[0] < 6:
-          sente = (8, 0)
-        break
-    gote = (8, 0)
-    king_moved = False
-    for i, m in enumerate(self.moves[1:max_hands:2]):
-      if m.from_piece == -KING:
-        king_moved = True
-      elif m.from_piece == -ROOK:
-        gote = (1 + (m.to_cell % 9), 2 * i + 2)
-        if king_moved and gote[0] < 6:
-          gote = (8, 0)
-        break
-    return (sente, gote)

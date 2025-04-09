@@ -2,7 +2,7 @@
 
 from enum import IntEnum
 import logging
-from typing import List, Union
+from typing import List, Optional, Union
 
 from . import cell
 from . import piece
@@ -17,12 +17,16 @@ def adjacent_pawns(row: int, start_col: int, end_col: int, excl: List[int]):
   s = set(excl)
   return [('P', str(col) + row) for col in range(start_col, end_col) if not col in s]
 
+def _swinging_rook_column(col: int) -> bool:
+  return 1 <= col <= 5
+
 class PositionForPatternRecognition(position.Position):
   def __init__(self, sfen: str = None):
     super().__init__(sfen)
     self._taken_general = False
     self.last_move = None
     self._count_moves_d = {}
+    self._was_drops = False
   def do_move(self, m: Move):
     u = super().do_move(m)
     if (not u is None) and abs(u.taken_piece) in _GENERALS_S:
@@ -31,10 +35,27 @@ class PositionForPatternRecognition(position.Position):
     p = m.from_piece
     if not p is None:
       self._count_moves_d[p] = self._count_moves_d.get(p, 0) + 1
+    if (not self._was_drops) and m.is_drop():
+      self._was_drops = True
   def is_opening(self) -> bool:
     return not self._taken_general
   def count_piece_moves(self, p: int) -> int:
     return self._count_moves_d.get(p, 0)
+  def first_rook_move_rank(self, m: Move) -> Optional[int]:
+    if self._was_drops:
+      return None
+    side = self.side_to_move
+    assert side * m.to_piece > 0
+    rook = side * piece.ROOK
+    if m.from_piece != rook or self._count_moves_d.get(rook, 0) > 0:
+      return None
+    col = (m.to_cell % 9) + 1
+    if side > 0:
+      col = 10 - col
+    king = side * piece.KING
+    if _swinging_rook_column(col) and self._count_moves_d.get(king, 0) > 0:
+      return None
+    return col
 
 def _latin_to_piece(s: str) -> int:
   if s.islower():

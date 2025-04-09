@@ -19,6 +19,9 @@ Opening = IntEnum('Opening',
    'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SPEARING_THE_BIRD',
+
+   #internal usage
+   '_SWINGING_ROOK',
   ])
 
 _OPENINGS_D = {
@@ -77,7 +80,7 @@ _RECOGNIZER = Recognizer([
     ('P', '25,26'), ('P', '96,97'), ('P', '16,17'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39,48'), ('G', '69'), ('G', '58,69')] +
    adjacent_pawns(7, 3, 9, [5]), Opening.IJIMAS_BACK_BISHOP_STRATEGY),
-  ([('R', '88'), ('G', '77'), ('P', '76'), ('P', '26,27'),
+  ([('G', '77'), ('R', '88'), ('P', '76'), ('P', '26,27'), ('to', '88'),
     ('B', 1), ('b', 1), #bishops exchanged
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39'), ('S', '79'), ('G', '49'), ('P', '96,97'), ('P', '16,17')] +
     [('P', str(i) + '7') for i in range(3, 9) if i != 7], Opening.SAKATA_OPPOSING_ROOK),
@@ -121,37 +124,42 @@ def _position_update_set_of_openings(pos: PositionForPatternRecognition, sente_s
   s.add(ot)
   return ot
 
-def swinging_rook(rooks: Tuple[int, int]) -> bool:
-  return 1 <= rooks[0] <= 5
+_BEFORE_ROOK_OPENING_S = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBING_SILVER])
 
-def update_set_of_oppenings_by_rooks(rooks: Tuple[int, int], s: Set[Opening], rook_limit: int):
-  if rooks[1] >= rook_limit:
+def _almost_empty(s: Set[Opening]) -> bool:
+  return s.issubset(_BEFORE_ROOK_OPENING_S)
+
+def _update_set_of_oppenings_by_rooks(col: int, my_set: Set[Opening], opponent_set: Set[Opening]):
+  if col < 5:
+    if Opening._SWINGING_ROOK in opponent_set:
+      my_set.add(Opening.DOUBLE_SWINGING_ROOK)
+      return
+  if col == 2:
+    if _almost_empty(my_set):
+      my_set.add(Opening.OPPOSING_ROOK)
+    my_set.add(Opening._SWINGING_ROOK)
+  elif col == 3:
     'quick ishida != third file rook'
-    return
-  r = rooks[0]
-  if r == 2:
-    s.add(Opening.OPPOSING_ROOK)
-  elif r == 3:
-    s.add(Opening.THIRD_FILE_ROOK)
-  elif r == 4:
-    s.add(Opening.FORTH_FILE_ROOK)
-  elif r == 6:
-    s.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
-
-def _rooks_limit(moves_numbers: List[int], max_hands: int) -> int:
-  return max_hands if not moves_numbers else moves_numbers[0]
-
-'''
-def _unmovable_rooks(pos: Position) -> bool:
-  return (pos.board[64] == ROOK) and (pos.board[16] == -ROOK)
-
-def _exchanged_bishops(pos: Position) -> bool:
-  return (pos.sente_pieces[BISHOP-1] == 1) and (pos.gote_pieces[BISHOP-1] == 1)
-'''
+    if _almost_empty(my_set):
+      my_set.add(Opening.THIRD_FILE_ROOK)
+    my_set.add(Opening._SWINGING_ROOK)
+  elif col == 4:
+    if _almost_empty(my_set):
+      my_set.add(Opening.FORTH_FILE_ROOK)
+    my_set.add(Opening._SWINGING_ROOK)
+  elif col == 5:
+    my_set.add(Opening._SWINGING_ROOK)
+  elif col == 6:
+    if _almost_empty(my_set):
+      my_set.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
 
 def _remove_redundant(s):
+  s.discard(Opening._SWINGING_ROOK)
   if Opening.SAKATA_OPPOSING_ROOK in s:
     s.discard(Opening.BISHOP_EXCHANGE)
+    s.discard(Opening.OPPOSING_ROOK)
+  if Opening.AMAHIKO_OPPOSING_ROOK in s:
+    s.discard(Opening.OPPOSING_ROOK)
   if Opening.PRIMITIVE_CLIMBING_SILVER in s:
     s.discard(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
 
@@ -167,44 +175,15 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
     pass
   assert g.start_pos is None
   pos = PositionForPatternRecognition()
-  #assert _unmovable_rooks(pos)
-  sente_moves_numbers = []
-  gote_moves_numbers = []
-  #bishop_exchange = False
-  before_rook_openings = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBING_SILVER])
   for m in g.moves[:max_hands]:
-    #last_usi_move = m.usi_str()
+    col = pos.first_rook_move_rank(m)
+    if not col is None:
+      side = pos.side_to_move
+      my_set, opponent_set = (sente_openings, gote_openings) if side > 0 else (gote_openings, sente_openings)
+      _update_set_of_oppenings_by_rooks(col, my_set, opponent_set)
     pos.do_move(m)
-    '''
-    if (not bishop_exchange) and _unmovable_rooks(pos) and _exchanged_bishops(pos):
-      bishop_exchange = True
-    '''
-    ot = _position_update_set_of_openings(pos, sente_openings, gote_openings)
-    if (not ot is None) and (not ot in before_rook_openings):
-      m = sente_moves_numbers if pos.side_to_move < 0 else gote_moves_numbers
-      m.append(pos.move_no - 1)
+    _position_update_set_of_openings(pos, sente_openings, gote_openings)
 
-  sente_rook_limit = _rooks_limit(sente_moves_numbers, min(30, max_hands))
-  gote_rook_limit = _rooks_limit(gote_moves_numbers, min(30, max_hands))
-  sente_rooks, gote_rooks = g.rooks(max(sente_rook_limit, gote_rook_limit))
-  sente_double_swinging_rook = False
-  gote_double_swinging_rook = False
-  if swinging_rook(sente_rooks) and swinging_rook(gote_rooks):
-    if sente_rooks[1] > gote_rooks[1]:
-      sente_double_swinging_rook = True
-      sente_openings.add(Opening.DOUBLE_SWINGING_ROOK)
-    else:
-      gote_double_swinging_rook = True
-      gote_openings.add(Opening.DOUBLE_SWINGING_ROOK)
-  if not sente_double_swinging_rook:
-    update_set_of_oppenings_by_rooks(sente_rooks, sente_openings, sente_rook_limit)
-  if not gote_double_swinging_rook:
-    update_set_of_oppenings_by_rooks(gote_rooks, gote_openings, gote_rook_limit)
-  '''
-  if bishop_exchange:
-    sente_openings.add(Opening.BISHOP_EXCHANGE)
-    gote_openings.add(Opening.BISHOP_EXCHANGE)
-  '''
   _remove_redundant(sente_openings)
   _remove_redundant(gote_openings)
   return (sente_openings, gote_openings)
