@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import Optional, Tuple, Set
 from . import kifu
 from .game import Game
-from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns, last_row_pieces
+from ._pattern import Recognizer, SFENMap, PositionForPatternRecognition, adjacent_pawns, last_row_pieces
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
@@ -26,7 +26,7 @@ Opening = IntEnum('Opening',
    'SWINGING_ROOK',
   ])
 
-_OPENINGS_D = {
+_OPENINGS_D = SFENMap({
   'lnsgkgsnl/1r5b1/pppppp1pp/6p2/2P6/9/PP1PPPPPP/1B5R1/LNSGKGSNL w - 4' : Opening.QUICK_ISHIDA,
   'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER_37_SUPER_RAPID,
   'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
@@ -42,15 +42,15 @@ _OPENINGS_D = {
   'lnsgk1snl/6g2/p1ppppb1p/6R2/9/1rP6/P2PPPP1P/1BGK5/LNS2GSNL w 3P2p 18': Opening.YUUKI_STYLE,
   # 'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12': Opening.BISHOP_EXCHANGE,
   # 'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13' : Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
-}
+})
 
-_OPENINGS_POS_AND_MOVE_D = {
+_OPENINGS_POS_AND_MOVE_D = SFENMap({
   'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12 8h7g' : Opening.BISHOP_EXCHANGE, #[wars/0004]
   #'ln1gk1snl/1r1s2g2/p1pppp1pp/1p4p2/9/2P4P1/PPSPPPP1P/2G4R1/LN2KGSNL w Bb 12 6h7g': Opening.BISHOP_EXCHANGE, #[wars/0030]
   #'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13 2b3c': Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
   #'ln1gk2nl/1r1s2g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/2G2S1R1/LN2KG1NL b Bb 17 2b3c': Opening.BISHOP_EXCHANGE, #[vE-7Y9XLfgs]
   #'lnsgk2nl/1r4g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/5S1R1/LN1GKG1NL b Bb 15 2b3c': Opening.BISHOP_EXCHANGE, #[SPSX76u6-vA]
-}
+})
 
 #'ln1gkgsnl/1r1s3b1/p1pppp1pp/6p2/1p2P4/2P6/PPBP1PPPP/4R4/LNSGKGSNL w - 10': Opening.GOKIGEN_CENTRAL_ROOK,
 #'lnsgkgsnl/4r2b1/pppp1p1pp/6p2/4p4/2P4P1/PP1PPPP1P/1B2GS1R1/LNSGK2NL b - 9': Opening.GOKIGEN_CENTRAL_ROOK,
@@ -111,14 +111,12 @@ _RECOGNIZER = Recognizer([
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
   assert isinstance(pos, PositionForPatternRecognition)
-  sfen = pos.sfen()
-  ot = _OPENINGS_D.get(sfen)
+  ot = _OPENINGS_D.get(pos)
   if not ot is None:
     return ot
   m = pos.last_move
   if not m is None:
-    last_usi_move = m.usi_str()
-    ot = _OPENINGS_POS_AND_MOVE_D.get(sfen + ' ' + last_usi_move)
+    ot = _OPENINGS_POS_AND_MOVE_D.get(pos, m)
     if not ot is None:
       return ot
   return _RECOGNIZER.find(pos)

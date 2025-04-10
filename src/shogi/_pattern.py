@@ -38,7 +38,9 @@ class PositionForPatternRecognition(position.Position):
     self.last_move = None
     self._count_moves_d = {}
     self._was_drops = False
+    self._cached_sfen = None
   def do_move(self, m: Move):
+    self._cached_sfen = None
     u = super().do_move(m)
     if (not u is None) and abs(u.taken_piece) in _GENERALS_S:
       self._taken_general = True
@@ -48,6 +50,10 @@ class PositionForPatternRecognition(position.Position):
       self._count_moves_d[p] = self._count_moves_d.get(p, 0) + 1
     if (not self._was_drops) and m.is_drop():
       self._was_drops = True
+  def sfen(self) -> str:
+    if self._cached_sfen is None:
+      self._cached_sfen = super().sfen()
+    return self._cached_sfen
   def is_opening(self) -> bool:
     return not self._taken_general
   def count_piece_moves(self, p: int) -> int:
@@ -162,3 +168,33 @@ class Recognizer:
       st.add(ct)
       return True
     return False
+
+def _sfen_moveno(s: str) -> int:
+  a = s.split()
+  return int(a[3])
+
+class SFENMap:
+  def __init__(self, d):
+    a = []
+    max_moves = 0
+    for key, value in d.items():
+      n = _sfen_moveno(key)
+      a.append((key, n, value))
+      if max_moves < n:
+        max_moves = n
+    f = [None] * (max_moves + 1)
+    for key, n, value in a:
+      if f[n] is None:
+        f[n] = {}
+      f[n][key] = value
+    self._d = f
+  def get(self, pos: PositionForPatternRecognition, m: Optional[Move] = None):
+    if pos.move_no >= len(self._d):
+      return None
+    t = self._d[pos.move_no]
+    if t is None:
+      return None
+    s = pos.sfen()
+    if not m is None:
+      s += ' ' + m.usi_str()
+    return t.get(s)
