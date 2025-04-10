@@ -77,7 +77,7 @@ _RECOGNIZER = Recognizer( [
   ([('K', '89'), ('G', '79'), ('S', '88'), ('N', '77'), ('P', '87'), ('P', '76'), ('P', '67'), ('P','96,97'), ('L', '99')], Castle.MILLENIUM_CASTLE),
   ([('K', '69'), ('G', '78'), ('G', '58'), ('S', '67'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('N', '89'), ('L', '99')], Castle.SNOW_ROOF_CASTLE),
   ([('G', '79'), ('S', '68'), ('K', '78'), ('B', '88'), ('N', '89'), ('L', '99'),
-    ('P', '67'), ('P', '76'), ('P', '87'), ('P', '96,97')], Castle.ELMO_CASTLE),
+    ('P', '76'), ('P', '87'), ('P', '96,97')], Castle.ELMO_CASTLE), #('P', '67')
 ])
 
 def position_update_set_of_castles(pos: PositionForPatternRecognition, sente_set, gote_set):
