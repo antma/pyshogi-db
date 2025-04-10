@@ -163,9 +163,9 @@ def parse_time_control(s: str) -> Optional[TimeControl]:
     return TimeControl(int(m.group(1)), int(m.group(2)))
   return None
 
-def game_parse(s: str) -> Optional[Game]:
+def game_parse(s: str, disable_game_result_auto_detection: bool = False) -> Optional[Game]:
   try:
-    return _game_parse(s)
+    return _game_parse(s, disable_game_result_auto_detection)
   except ValueError as err:
     logging.debug(repr(err))
     return None
@@ -259,12 +259,12 @@ def _board_parse(s: List[str]) -> List[int]:
     log.raise_value_error('_board_parse: expected board separator')
   return b
 
-def _game_parse(game_kif: str) -> Optional[Game]:
+def _game_parse(game_kif: str, disable_game_result_auto_detection: bool) -> Optional[Game]:
   '''
   https://lishogi.org/explanation/kif
   '''
   it = filter(lambda t: t != '', map(_strip_comment, enumerate(game_kif.split('\n'))))
-  game = Game()
+  game = Game(None, disable_game_result_auto_detection)
   t = next(it)
   _version, _encoding = None, None
   try:

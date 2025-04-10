@@ -35,6 +35,8 @@ class Game:
       self.set_result(GameResult.CHECKMATE)
   def _insert_sfen(self):
     self._positions = None
+    if self._disable_game_result_auto_detection:
+      return
     sfen = self.pos.sfen(move_no = False)
     l = self._repetitions_dict[sfen]
     l.append(len(self._checks))
@@ -55,7 +57,8 @@ class Game:
     if move_no < self.start_move_no:
       log.raise_value_error('move number is too small')
     return self.start_side_to_move * pow(-1, (move_no - self.start_move_no) & 1)
-  def __init__(self, start_pos = None):
+  def __init__(self, start_pos = None, disable_game_result_auto_detection: bool = False):
+    self._disable_game_result_auto_detection = disable_game_result_auto_detection
     self.tags = {}
     self.moves = []
     #comments: move_no -> List[str]

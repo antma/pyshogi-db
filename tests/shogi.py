@@ -370,7 +370,7 @@ class TestCastles(unittest.TestCase):
     msg = f'game #{game_id:04d}'
     with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
       data = f.read()
-    g = shogi.kifu.game_parse(data)
+    g = shogi.kifu.game_parse(data, True)
     self.assertIsNotNone(g, msg)
     s1, s2 = shogi.castles.game_find_castles(g)
     self.assertEqual(set(sente_castles), s1, msg)
@@ -460,7 +460,7 @@ class TestOpenings(unittest.TestCase):
     msg = f'game #{game_id:04d}'
     with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
       data = f.read()
-    g = shogi.kifu.game_parse(data)
+    g = shogi.kifu.game_parse(data, True)
     self.assertIsNotNone(g, msg)
     s1, s2 = shogi.openings.game_find_openings(g)
     self.assertEqual(set(sente_openings), s1, msg)
