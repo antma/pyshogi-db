@@ -4,11 +4,11 @@ import logging
 from typing import Optional, Tuple, Set
 from enum import IntEnum
 from .game import Game
-from ._pattern import Recognizer, PositionForPatternRecognition
+from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns
 
 Castle = IntEnum('Castle',
   [ #static rook
-   'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA',
+   'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA',
    'MILLENIUM_CASTLE', 'ELMO_CASTLE',
     #double static rook
    'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE',
@@ -30,7 +30,7 @@ def _mirror_columns_in_pattern(pat):
 _SILVER_CROWN_BASE = [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26'), ('P', '15,16,17')]
 _SILVER_CROWN_PATTERN1 = _SILVER_CROWN_BASE + [('N', '29'), ('P', '46,47'), ('P', '37')]
 _SILVER_CROWN_PATTERN2 = _SILVER_CROWN_BASE + [('N', '37'), ('G', '47'), ('P', '46'), ('P', '36')]
-_LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '67'), ('L', '99'), ('N', '89'), ('P', '95,96,97')]
+_LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '66,67'), ('L', '99'), ('N', '89'), ('P', '95,96,97')]
 
 _STATIC_ROOK_ANAGUMA_BASE = [('K', '99'), ('S', '88'), ('L', '98'), ('N', '89'), ('P', '86,87'), ('P', '96,97')]
 _STATIC_ROOK_ANAGUMA_PATTERN1 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '69,78,87'), ('to', '88')]
@@ -46,6 +46,8 @@ _RECOGNIZER = Recognizer( [
   (_SILVER_CROWN_PATTERN1, Castle.SILVER_CROWN),
   (_SILVER_CROWN_PATTERN2, Castle.SILVER_CROWN),
   (_LEFT_HAND_SILVER_CROWN_PATTERN, Castle.SILVER_CROWN),
+  ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '97,96')] +
+   adjacent_pawns(6, 6, 9, []), Castle.SILVER_CROWN_ANAGUMA),
   ([('K', '28'), ('S', '38'), ('G', '47'), ('G', '49'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.HIGH_MINO_CASTLE),
   ([('K', '28'), ('S', '38'), ('S', '47'), ('G', '49'), ('N', '29'), ('L', '19'),
@@ -59,7 +61,7 @@ _RECOGNIZER = Recognizer( [
   (_KIMURA_MINO_PATTERN1, Castle.KIMURA_MINO),
   (_KIMURA_MINO_PATTERN2, Castle.KIMURA_MINO),
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('G', '58'),
-    ('P', '46,47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.MINO_CASTLE),
+    ('P', '46,47'), ('P', '37,36'), ('P', '27'), ('P', '15,16,17')], Castle.MINO_CASTLE),
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('!G', '58'), ('!S', '58'),
     ('P', '47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.HALF_MINO_CASTLE),
   ([('K', '38'), ('S', '28'), ('G', '48'), ('G', '58'), ('L', '19'), ('N', '29'),
@@ -69,7 +71,7 @@ _RECOGNIZER = Recognizer( [
   (_STATIC_ROOK_ANAGUMA_PATTERN1, Castle.STATIC_ROOK_ANAGUMA),
   (_STATIC_ROOK_ANAGUMA_PATTERN2, Castle.STATIC_ROOK_ANAGUMA),
   ([('K', '88'), ('S', '78'), ('G', '69'), ('G', '58'), ('L', '99'), ('N', '89'),
-    ('P', '87'), ('P', '76,77'), ('P', '67'), ('P', '95,96,97')], Castle.LEFT_HAND_MINO),
+    ('P', '87'), ('P', '76,77'), ('P', '66,67'), ('P', '95,96,97')], Castle.LEFT_HAND_MINO),
   ([('K', '68'), ('G', '58'), ('G', '78'), ('B', '88'), ('S', '79'), ('N', '89'), ('L', '99'),
     ('P', '96,97'), ('P', '87'), ('P', '76'), ('P', '67'), ('P', '57')], Castle.STRAWBERRY_CASTLE),
   ([('K', '89'), ('G', '79'), ('S', '88'), ('N', '77'), ('P', '87'), ('P', '76'), ('P', '67'), ('P','96,97'), ('L', '99')], Castle.MILLENIUM_CASTLE),
