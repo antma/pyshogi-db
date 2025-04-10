@@ -32,8 +32,8 @@ _SILVER_CROWN_PATTERN1 = _SILVER_CROWN_BASE + [('N', '29'), ('P', '46,47'), ('P'
 _SILVER_CROWN_PATTERN2 = _SILVER_CROWN_BASE + [('N', '37'), ('G', '47'), ('P', '46'), ('P', '36')]
 _LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '67'), ('L', '99'), ('N', '89'), ('P', '95,96,97')]
 
-_STATIC_ROOK_ANAGUMA_BASE = [('K', '99'), ('S', '88'), ('L', '98'), ('N', '89'), ('P', '87'), ('P', '96,97')]
-_STATIC_ROOK_ANAGUMA_PATTERN1 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '69,78'), ('to', '88')]
+_STATIC_ROOK_ANAGUMA_BASE = [('K', '99'), ('S', '88'), ('L', '98'), ('N', '89'), ('P', '86,87'), ('P', '96,97')]
+_STATIC_ROOK_ANAGUMA_PATTERN1 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '69,78,87'), ('to', '88')]
 _STATIC_ROOK_ANAGUMA_PATTERN2 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '79'), ('G', '78')]
 
 _KIMURA_MINO_BASE = [('K', '28'), ('G', '38'), ('S', '47'), ('L', '19'), ('P', '27'), ('P', '16,17')] #('P', '46'),
@@ -50,8 +50,8 @@ _RECOGNIZER = Recognizer( [
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.HIGH_MINO_CASTLE),
   ([('K', '28'), ('S', '38'), ('S', '47'), ('G', '49'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.SILVER_MINO),
-  ([('K', '28'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'),
-    ('P', '37'), ('P', '26'), ('P', '15,16,17')], Castle.TOPKNOT_MINO),
+  ([('K', '28'), ('S', '38'), ('G', '49'), ('L', '19'),
+    ('P', '37'), ('P', '26'), ('P', '15,16,17')], Castle.TOPKNOT_MINO), #('N', '29')
   ([('K', '87'), ('S', '78'), ('G', '69'), ('N', '89'), ('L', '99'),
     ('P', '67'), ('P', '76'), ('P', '86'), ('P', '95,96,97')], Castle.CASTLE_TOWER_MINO),
   ([('K', '78'), ('S', '79'), ('G', '69'), ('G', '58'), ('S', '48'), ('B', '88'), ('N', '89'), ('L', '99'),

@@ -10,7 +10,7 @@ Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
    'QUICK_ISHIDA', 'SAKATA_OPPOSING_ROOK',
    'AMAHIKO_OPPOSING_ROOK',
-   'FUJII_SYSTEM',
+   'FUJII_SYSTEM', 'MASUDAS_ISHIDA_STYLE',
     #static
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
    'BISHOP_EXCHANGE_RECLINING_SILVER', 'RECLINING_SILVER',
@@ -100,6 +100,10 @@ _RECOGNIZER = Recognizer([
     last_row_pieces('367'), Opening.FUJII_SYSTEM),
   ([('K', '69'), ('G', '78'), ('G', '58'), ('S', '67'), ('S', '47'),
     ('P', '76'), ('P', '66'), ('P', '57'), ('P', '46'), ('N', '89'), ('L', '99'), ('N', '29'), ('L', '19'), ('B', '88,77')], Opening.SILVER_HORNED_SNOW_ROOF),
+  ([('P', '75'), ('R', '28'), ('B', '88'), ('p', '34')] +
+   last_row_pieces('') + adjacent_pawns(7, 1, 10, [7]), Opening.QUICK_ISHIDA),
+  ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34')] +
+   last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDAS_ISHIDA_STYLE),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
