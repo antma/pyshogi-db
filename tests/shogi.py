@@ -406,7 +406,7 @@ _TEST_DATA_OPENINGS = [
   (24, [Opening.SIDE_PAWN_PICKER, Opening.AONO_STYLE], [Opening.BISHOP33_STRATEGY]),
   (25, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.IJIMAS_BACK_BISHOP_STRATEGY]),
   (26, [], [Opening.SAKATA_OPPOSING_ROOK]),
-  #(27, [], [Opening.BISHOP_EXCHANGE_CLIMBING_SILVER]),
+  (27, [], [Opening.BISHOP_EXCHANGE_CLIMBING_SILVER]),
   (28, [], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
   (29, [], [Opening.BISHOP_EXCHANGE]),
   (30, [Opening.BISHOP_EXCHANGE, Opening.RIGHT_HAND_KING], [Opening.BISHOP_EXCHANGE]),
@@ -458,9 +458,6 @@ class TestOpenings(unittest.TestCase):
       self.assertEqual(s, m.usi_str())
       pos.do_move(m)
       self.assertEqual(ct, shogi.openings.position_find_opening(pos))
-  def test_openings(self):
-    for game_id, sente, gote in _TEST_DATA_OPENINGS:
-      self.check(game_id, sente, gote)
   '''
 
 class TestClassifier(unittest.TestCase):
