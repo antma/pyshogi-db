@@ -370,6 +370,8 @@ _TEST_DATA_CASTLES = [
   (66, [], []),
   (67, [Castle.HALF_MINO_CASTLE], [Castle.ELMO_CASTLE]),
   (68, [], []),
+  (69, [], []),
+  (70, [Castle.CRAB_CASTLE, Castle.YAGURA_CASTLE], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -454,6 +456,8 @@ _TEST_DATA_OPENINGS = [
   (66, [Opening.SIDE_PAWN_PICKER], [Opening.BISHOP45_STRATEGY]),
   (67, [Opening.QUICK_ISHIDA, Opening.ISHIDA_STYLE], []),
   (68, [], []),
+  (69, [], []),
+  (70, [], []),
 ]
 
 class TestOpenings(unittest.TestCase):
