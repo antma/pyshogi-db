@@ -11,7 +11,7 @@ Castle = IntEnum('Castle',
    'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA',
    'MILLENIUM_CASTLE', 'GIRL_IN_THE_HOUSE',
    'YAGURA_CASTLE', 'SILVER_YAGURA', 'HALF_YAGURA', 'COMPLETE_YAGURA', 'YAGURA_ANAGUMA',
-   'KIKUSUI_YAGURA', 'SILVER_STANDING_YAGURA', 'DIAMOND_YAGURA',
+   'KIKUSUI_YAGURA', 'SILVER_STANDING_YAGURA', 'DIAMOND_YAGURA', 'RAPID_CASTLE', 'DOI_YAGURA',
    'CRAB_CASTLE',
    'ELMO_CASTLE', 'BONANZA_CASTLE',
     #double static rook
@@ -105,6 +105,10 @@ _RECOGNIZER = Recognizer( [
     ('P', '56,57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '97')], Castle.CRAB_CASTLE),
   ([('G', '58'), ('G', '68'), ('K', '78'), ('S', '77'), ('N', '89'), ('L', '99'),
     ('P', '67'), ('P', '76'), ('P', '87'), ('P', '96,97')], Castle.BONANZA_CASTLE),
+  ([('G', '67'), ('K', '78'), ('S', '77'), ('G', '69'), ('N', '89'), ('L', '99'),
+    ('P', '87'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '96,97')], Castle.RAPID_CASTLE),
+  ([('G', '58'), ('G', '67'), ('S', '77'), ('K', '78'), ('N', '89'), ('L', '99'),
+    ('P', '87'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '96,97')], Castle.DOI_YAGURA),
 ])
 
 def position_update_set_of_castles(pos: PositionForPatternRecognition, sente_set, gote_set):
