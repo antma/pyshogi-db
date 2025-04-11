@@ -7,12 +7,12 @@ from .game import Game
 from ._pattern import Recognizer, SFENMap, PositionForPatternRecognition, adjacent_pawns, last_row_pieces
 
 Opening = IntEnum('Opening',
-  ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK', 'DOUBLE_SWINGING_ROOK',
-   'QUICK_ISHIDA', 'SAKATA_OPPOSING_ROOK',
-   'AMAHIKO_OPPOSING_ROOK',
-   'FUJII_SYSTEM', 'MASUDAS_ISHIDA_STYLE',
+  ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'DOUBLE_SWINGING_ROOK',
+   'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE',
+   'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK',
+   'FUJII_SYSTEM',
     #static
-   'SLEEVE_ROOK',
+   'SLEEVE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK',
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
    'BISHOP_EXCHANGE_RECLINING_SILVER', 'RECLINING_SILVER',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY',
@@ -110,6 +110,7 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('') + adjacent_pawns(7, 1, 10, [7]), Opening.QUICK_ISHIDA),
   ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34')] +
    last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDAS_ISHIDA_STYLE),
+  ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99')], Opening.ISHIDA_STYLE),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
