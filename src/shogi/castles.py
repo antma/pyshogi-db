@@ -18,6 +18,7 @@ Castle = IntEnum('Castle',
    'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE',
     #swinging rook
    'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'HIGH_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN', 'KIMURA_MINO',
+   'DIAMOND_MINO',
    'PEERLESS_GOLDS', 'SWINGING_ROOK_ANAGUMA', 'SILVER_MINO',
   ])
 
@@ -55,9 +56,11 @@ _RECOGNIZER = Recognizer( [
   (_LEFT_HAND_SILVER_CROWN_PATTERN, Castle.SILVER_CROWN),
   ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '97,96')] +
    adjacent_pawns(6, 6, 9, []), Castle.SILVER_CROWN_ANAGUMA),
+  ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
+    ('P', '46'), ('P', '36'), ('P', '27'), ('P', '16,17')], Castle.DIAMOND_MINO),
   ([('K', '28'), ('S', '38'), ('G', '47'), ('G', '49'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.HIGH_MINO_CASTLE),
-  ([('K', '28'), ('S', '38'), ('S', '47'), ('G', '49'), ('N', '29'), ('L', '19'),
+  ([('K', '28'), ('S', '38'), ('S', '47'), ('G', '49'), (' ', '48'), ('!G', '58'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.SILVER_MINO),
   ([('K', '28'), ('S', '38'), ('G', '49'), ('L', '19'),
     ('P', '37'), ('P', '26'), ('P', '15,16,17')], Castle.TOPKNOT_MINO), #('N', '29')
