@@ -10,6 +10,8 @@ Castle = IntEnum('Castle',
   [ #static rook
    'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA',
    'MILLENIUM_CASTLE', 'ELMO_CASTLE', 'GIRL_IN_THE_HOUSE',
+   'YAGURA_CASTLE', 'SILVER_YAGURA', 'HALF_YAGURA', 'COMPLETE_YAGURA', 'YAGURA_ANAGUMA',
+   'KIKUSUI_YAGURA', 'SILVER_STANDING_YAGURA', 'DIAMOND_YAGURA',
     #double static rook
    'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE',
     #swinging rook
@@ -39,6 +41,9 @@ _STATIC_ROOK_ANAGUMA_PATTERN2 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '79'), ('G', 
 _KIMURA_MINO_BASE = [('K', '28'), ('G', '38'), ('S', '47'), ('L', '19'), ('P', '27'), ('P', '16,17')] #('P', '46'),
 _KIMURA_MINO_PATTERN1 = _KIMURA_MINO_BASE + [('N', '29'), ('P', '37')]
 _KIMURA_MINO_PATTERN2 = _KIMURA_MINO_BASE + [('N', '37'), ('P', '36')]
+
+_YAGURA_PATTERN = [('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'),
+    ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')]
 
 '''HALF_MINO_CASTLE should be after MINO_CASTLE since it's pattern is subset'''
 
@@ -80,6 +85,20 @@ _RECOGNIZER = Recognizer( [
     ('P', '76'), ('P', '87'), ('P', '96,97')], Castle.ELMO_CASTLE), #('P', '67')
   ([('G', '68'), ('K', '78'), ('G', '69'), ('S', '79'), ('N', '89'), ('L', '99'),
     ('P', '67'), ('P', '87'), ('P', '76,77'), ('P', '96,97')], Castle.GIRL_IN_THE_HOUSE),
+  (_YAGURA_PATTERN + [('P', '56'), ('S', '57')], Castle.COMPLETE_YAGURA),
+  (_YAGURA_PATTERN, Castle.YAGURA_CASTLE),
+  ([('S', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'),
+    ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.SILVER_YAGURA),
+  ([('G', '67'), ('G', '68'), ('S', '77'), ('K', '78'), ('N', '89'), ('L', '99'),
+    ('P', '56'), ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.HALF_YAGURA),
+  ([('G', '67'), ('G', '78'), ('S', '77'), ('K', '99'), ('N', '89'), ('L', '98'),
+    ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.YAGURA_ANAGUMA),
+  ([('G', '67'), ('G', '78'), ('S', '88'), ('K', '89'), ('N', '77'), ('L', '99'),  
+    ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.KIKUSUI_YAGURA),
+  ([('G', '67'), ('G', '78'), ('S', '76'), ('K', '88'), ('N', '89'), ('L', '99'),
+    ('P', '66'), ('P', '75'), ('P', '86'), ('P', '97,96')], Castle.SILVER_STANDING_YAGURA),
+  ([('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'), ('S', '66'),
+    ('P', '65'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.DIAMOND_YAGURA),
 ])
 
 def position_update_set_of_castles(pos: PositionForPatternRecognition, sente_set, gote_set):
