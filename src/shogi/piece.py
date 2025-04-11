@@ -20,7 +20,7 @@ ASCII_PIECES = 'plnsgbrk'
 ASCII_LONG_NAMES = [None, 'pawn', 'lance', 'knight', 'silver', 'gold', 'bishop', 'rook', 'king', 'tokin', \
  'promotedlance', 'promotedknight', 'promotedsilver', None, 'horse', 'dragon']
 
-KIFU_PIECES = '歩香桂銀金角飛玉と杏圭??馬龍'
+KIFU_PIECES = '歩香桂銀金角飛玉と杏圭全?馬龍'
 CSA_PIECES = ['FU', 'KY', 'KE', 'GI', 'KI', 'KA', 'HI', 'OU', 'TO', 'NY', 'NK', 'NG',  None, 'UM', 'RY']
 
 _UNPROMOTED_PIECES = set([FREE, GOLD, KING])
