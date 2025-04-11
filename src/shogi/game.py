@@ -210,3 +210,19 @@ class Game:
     if all(m.zero_or_none_time() for m in self.moves):
       for m in self.moves:
         m.drop_times()
+
+class GameCollection:
+  def __init__(self, path: str, suffix: str):
+    self._path = path
+    self._suffix = suffix
+    self._d = {}
+  def load(self, game_id: int, parse_func) -> Game:
+    g = self._d.get(game_id)
+    if not g is None:
+      return g
+    filename = os.path.join(self._path, 'f{game_id:04d}' + self._suffix)
+    with open(filename, 'r', encoding = 'UTF8') as f:
+      data = f.read()
+    g = parse_func(data)
+    self._d[game_id] = g
+    return g

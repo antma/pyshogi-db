@@ -3,6 +3,7 @@ import csv
 import gzip
 import inspect
 import io
+import itertools
 import logging
 import math
 import os
@@ -366,21 +367,9 @@ _TEST_DATA_CASTLES = [
 ]
 
 class TestCastles(unittest.TestCase):
-  def check(self, game_id, sente_castles, gote_castles):
-    msg = f'game #{game_id:04d}'
-    with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
-      data = f.read()
-    g = shogi.kifu.game_parse(data, True)
-    self.assertIsNotNone(g, msg)
-    s1, s2 = shogi.castles.game_find_castles(g)
-    self.assertEqual(set(sente_castles), s1, msg)
-    self.assertEqual(set(gote_castles), s2, msg)
   def test_positions(self):
     for sfen, side, ct in _TEST_CASTLE_BY_POSITIONS:
       self.assertEqual(ct, shogi.castles.sfen_find_castle(sfen))
-  def test_castles(self):
-    for game_id, sente, gote in _TEST_DATA_CASTLES:
-      self.check(game_id, sente, gote)
 
 _TEST_OPENINGS_BY_POSITIONS = [
   ('ln1gkgbnl/1r1s2s2/p1pp1pppp/4p4/1p7/2PP5/PPB1PPPPP/2SR1K3/LN1G1GSNL b - 13', -1, Opening.IJIMAS_BACK_BISHOP_STRATEGY),
@@ -456,15 +445,7 @@ _TEST_DATA_OPENINGS = [
 ]
 
 class TestOpenings(unittest.TestCase):
-  def check(self, game_id, sente_openings, gote_openings):
-    msg = f'game #{game_id:04d}'
-    with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
-      data = f.read()
-    g = shogi.kifu.game_parse(data, True)
-    self.assertIsNotNone(g, msg)
-    s1, s2 = shogi.openings.game_find_openings(g)
-    self.assertEqual(set(sente_openings), s1, msg)
-    self.assertEqual(set(gote_openings), s2, msg)
+  pass
   '''
   def test_positions(self):
     for sfen, side, ct in _TEST_OPENINGS_BY_POSITIONS:
@@ -477,10 +458,56 @@ class TestOpenings(unittest.TestCase):
       self.assertEqual(s, m.usi_str())
       pos.do_move(m)
       self.assertEqual(ct, shogi.openings.position_find_opening(pos))
-  '''
   def test_openings(self):
     for game_id, sente, gote in _TEST_DATA_OPENINGS:
       self.check(game_id, sente, gote)
+  '''
+
+class TestClassifier(unittest.TestCase):
+  def _check_gamelist_issorted(self, l):
+    for u, v in zip(l, l[1:]):
+      self.assertLess(u[0], v[0])
+  def _check_game(self, game_id, castles, openings):
+    msg = f'game #{game_id:04d}'
+    with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
+      data = f.read()
+    g = shogi.kifu.game_parse(data, True)
+    self.assertIsNotNone(g, msg)
+    if not castles is None:
+      sente_castles, gote_castles = castles
+      s1, s2 = shogi.castles.game_find_castles(g)
+      self.assertEqual(set(sente_castles), s1, msg)
+      self.assertEqual(set(gote_castles), s2, msg)
+    if not openings is None:
+      sente_openings, gote_openings = openings
+      s1, s2 = shogi.openings.game_find_openings(g)
+      self.assertEqual(set(sente_openings), s1, msg)
+      self.assertEqual(set(gote_openings), s2, msg)
+
+  def test_castles_and_openings(self):
+    self._check_gamelist_issorted(_TEST_DATA_CASTLES)
+    self._check_gamelist_issorted(_TEST_DATA_OPENINGS)
+    it = iter(_TEST_DATA_CASTLES)
+    jt = iter(_TEST_DATA_OPENINGS)
+    while True:
+      i = next(it, None)
+      if i is None:
+        for j in jt:
+          self._check_game(j[0], None, (j[1], j[2]))
+        break
+      j = next(jt, None)
+      if j is None:
+        for i in itertools.chain([i], it):
+          self._check_game(i[0], (i[1], i[2]), None)
+        break
+      if i[0] == j[0]:
+        self._check_game(i[0], (i[1], i[2]), (j[1], j[2]))
+      elif i[0] < j[0]:
+        self._check_game(i[0], (i[1], i[2]), None)
+        jt = itertools.chain([j], jt)
+      else:
+        self._check_game(j[0], None, (j[1], j[2]))
+        it = itertools.chain([i], it)
 
 if __name__ == '__main__':
   unittest.main()
