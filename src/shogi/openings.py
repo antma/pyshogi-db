@@ -47,6 +47,7 @@ _OPENINGS_D = SFENMap({
 
 _OPENINGS_POS_AND_MOVE_D = SFENMap({
   'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12 8h7g' : Opening.BISHOP_EXCHANGE, #[wars/0004]
+  'lnsgkgsnl/1r5b1/pppppp1pp/6p2/9/4P4/PPPP1PPPP/1B2R4/LNSGKGSNL w - 4 2h5h': Opening.GOKIGEN_CENTRAL_ROOK, #[wars/0064]
   #'ln1gk1snl/1r1s2g2/p1pppp1pp/1p4p2/9/2P4P1/PPSPPPP1P/2G4R1/LN2KGSNL w Bb 12 6h7g': Opening.BISHOP_EXCHANGE, #[wars/0030]
   #'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13 2b3c': Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
   #'ln1gk2nl/1r1s2g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/2G2S1R1/LN2KG1NL b Bb 17 2b3c': Opening.BISHOP_EXCHANGE, #[vE-7Y9XLfgs]
@@ -66,7 +67,7 @@ _RECOGNIZER = Recognizer([
     ('P', '46'), ('P', '36'), ('P', '57,56'), ('P', '25,26'), ('P', '16,17')], Opening.RIGHT_HAND_KING),
   ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '76,77')] +
     last_row_pieces('3') + adjacent_pawns(7, 1, 10, [2, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
-  ([('P', '55,56'), ('P', '76'), ('B', '88,77'), ('R', '58')] +
+  ([('R', '58'), ('to', '58'), ('P', '55,56'), ('P', '76'), ('B', '88,77')] +
     last_row_pieces('') + adjacent_pawns(7, 2, 9, [5, 7]), Opening.GOKIGEN_CENTRAL_ROOK),
   #([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
   ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85'),

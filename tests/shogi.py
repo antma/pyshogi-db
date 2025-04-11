@@ -365,6 +365,8 @@ _TEST_DATA_CASTLES = [
   (61, [Castle.ELMO_CASTLE, Castle.BOAT_CASTLE], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
   (62, [Castle.HALF_MINO_CASTLE], [Castle.LEFT_HAND_MINO, Castle.BOAT_CASTLE]),
   (63, [Castle.GIRL_IN_THE_HOUSE, Castle.STATIC_ROOK_ANAGUMA], [Castle.SWINGING_ROOK_ANAGUMA]),
+  (64, [Castle.HALF_MINO_CASTLE], []),
+  (65, [], [Castle.PEERLESS_GOLDS]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -444,6 +446,8 @@ _TEST_DATA_OPENINGS = [
   (61, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
   (62, [Opening.GOKIGEN_CENTRAL_ROOK], []),
   (63, [Opening.SLEEVE_ROOK], [Opening.THIRD_FILE_ROOK]),
+  (64, [Opening.GOKIGEN_CENTRAL_ROOK], []),
+  (65, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.DOUBLE_SWINGING_ROOK]),
 ]
 
 class TestOpenings(unittest.TestCase):
@@ -482,7 +486,6 @@ class TestClassifier(unittest.TestCase):
       s1, s2 = shogi.openings.game_find_openings(g)
       self.assertEqual(set(sente_openings), s1, msg)
       self.assertEqual(set(gote_openings), s2, msg)
-
   def test_castles_and_openings(self):
     self._check_gamelist_issorted(_TEST_DATA_CASTLES)
     self._check_gamelist_issorted(_TEST_DATA_OPENINGS)
