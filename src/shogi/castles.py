@@ -9,10 +9,11 @@ from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns
 Castle = IntEnum('Castle',
   [ #static rook
    'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA',
-   'MILLENIUM_CASTLE', 'ELMO_CASTLE', 'GIRL_IN_THE_HOUSE',
+   'MILLENIUM_CASTLE', 'GIRL_IN_THE_HOUSE',
    'YAGURA_CASTLE', 'SILVER_YAGURA', 'HALF_YAGURA', 'COMPLETE_YAGURA', 'YAGURA_ANAGUMA',
    'KIKUSUI_YAGURA', 'SILVER_STANDING_YAGURA', 'DIAMOND_YAGURA',
    'CRAB_CASTLE',
+   'ELMO_CASTLE', 'BONANZA_CASTLE',
     #double static rook
    'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE',
     #swinging rook
@@ -94,14 +95,16 @@ _RECOGNIZER = Recognizer( [
     ('P', '56'), ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.HALF_YAGURA),
   ([('G', '67'), ('G', '78'), ('S', '77'), ('K', '99'), ('N', '89'), ('L', '98'),
     ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.YAGURA_ANAGUMA),
-  ([('G', '67'), ('G', '78'), ('S', '88'), ('K', '89'), ('N', '77'), ('L', '99'),  
+  ([('G', '67'), ('G', '78'), ('S', '88'), ('K', '89'), ('N', '77'), ('L', '99'),
     ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.KIKUSUI_YAGURA),
   ([('G', '67'), ('G', '78'), ('S', '76'), ('K', '88'), ('N', '89'), ('L', '99'),
     ('P', '66'), ('P', '75'), ('P', '86'), ('P', '97,96')], Castle.SILVER_STANDING_YAGURA),
   ([('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'), ('S', '66'),
     ('P', '65'), ('P', '76'), ('P', '87'), ('P', '97,96')], Castle.DIAMOND_YAGURA),
   ([('G', '58'), ('G', '78'), ('S', '68'), ('K', '69'), ('B', '88'), ('N', '89'), ('L', '99'),
-    ('P', '56,57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '97')], Castle.CRAB_CASTLE), 
+    ('P', '56,57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '97')], Castle.CRAB_CASTLE),
+  ([('G', '58'), ('G', '68'), ('K', '78'), ('S', '77'), ('N', '89'), ('L', '99'),
+    ('P', '67'), ('P', '76'), ('P', '87'), ('P', '96,97')], Castle.BONANZA_CASTLE),
 ])
 
 def position_update_set_of_castles(pos: PositionForPatternRecognition, sente_set, gote_set):
