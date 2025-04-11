@@ -372,6 +372,7 @@ _TEST_DATA_CASTLES = [
   (68, [], []),
   (69, [], []),
   (70, [Castle.CRAB_CASTLE, Castle.YAGURA_CASTLE], []),
+  (71, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -458,6 +459,7 @@ _TEST_DATA_OPENINGS = [
   (68, [], []),
   (69, [], []),
   (70, [], []),
+  (71, [Opening.FORTH_FILE_ROOK], [Opening.CLIMBING_GOLD]),
 ]
 
 class TestOpenings(unittest.TestCase):

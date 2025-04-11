@@ -22,6 +22,7 @@ Opening = IntEnum('Opening',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SPEARING_THE_BIRD',
    'SILVER_HORNED_SNOW_ROOF',
+   'CLIMBING_GOLD',
 
    #internal usage
    'SWINGING_ROOK',
@@ -111,6 +112,8 @@ _RECOGNIZER = Recognizer([
   ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34')] +
    last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDAS_ISHIDA_STYLE),
   ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99')], Opening.ISHIDA_STYLE),
+  ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'), 
+    ('P', '37'), ('p', '35'), ('N', '29'), ('L', '19')], Opening.CLIMBING_GOLD),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
