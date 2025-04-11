@@ -12,6 +12,7 @@ Opening = IntEnum('Opening',
    'AMAHIKO_OPPOSING_ROOK',
    'FUJII_SYSTEM', 'MASUDAS_ISHIDA_STYLE',
     #static
+   'SLEEVE_ROOK',
    'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
    'BISHOP_EXCHANGE_RECLINING_SILVER', 'RECLINING_SILVER',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE',
@@ -136,7 +137,7 @@ _BEFORE_ROOK_OPENING_S = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBING_
 def _almost_empty(s: Set[Opening]) -> bool:
   return s.issubset(_BEFORE_ROOK_OPENING_S)
 
-def _update_set_of_oppenings_by_rooks(col: int, my_set: Set[Opening], opponent_set: Set[Opening]):
+def _update_set_of_oppenings_by_rooks(pos: PositionForPatternRecognition, col: int, my_set: Set[Opening], opponent_set: Set[Opening]):
   if col < 5:
     if Opening.SWINGING_ROOK in opponent_set:
       my_set.add(Opening.DOUBLE_SWINGING_ROOK)
@@ -159,6 +160,9 @@ def _update_set_of_oppenings_by_rooks(col: int, my_set: Set[Opening], opponent_s
   elif col == 6:
     if _almost_empty(my_set):
       my_set.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
+  elif col == 7:
+    if _almost_empty(my_set) and pos.move_no <= 5:
+      my_set.add(Opening.SLEEVE_ROOK)
 
 def _remove_redundant(s):
   s.discard(Opening.SWINGING_ROOK)
@@ -187,7 +191,7 @@ def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[
     if not col is None:
       side = pos.side_to_move
       my_set, opponent_set = (sente_openings, gote_openings) if side > 0 else (gote_openings, sente_openings)
-      _update_set_of_oppenings_by_rooks(col, my_set, opponent_set)
+      _update_set_of_oppenings_by_rooks(pos, col, my_set, opponent_set)
     pos.do_move(m)
     _position_update_set_of_openings(pos, sente_openings, gote_openings)
 

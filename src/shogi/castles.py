@@ -9,7 +9,7 @@ from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns
 Castle = IntEnum('Castle',
   [ #static rook
    'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA',
-   'MILLENIUM_CASTLE', 'ELMO_CASTLE',
+   'MILLENIUM_CASTLE', 'ELMO_CASTLE', 'GIRL_IN_THE_HOUSE',
     #double static rook
    'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE',
     #swinging rook
@@ -78,6 +78,8 @@ _RECOGNIZER = Recognizer( [
   ([('K', '69'), ('G', '78'), ('G', '58'), ('S', '67'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('N', '89'), ('L', '99')], Castle.SNOW_ROOF_CASTLE),
   ([('G', '79'), ('S', '68'), ('K', '78'), ('B', '88'), ('N', '89'), ('L', '99'),
     ('P', '76'), ('P', '87'), ('P', '96,97')], Castle.ELMO_CASTLE), #('P', '67')
+  ([('G', '68'), ('K', '78'), ('G', '69'), ('S', '79'), ('N', '89'), ('L', '99'),
+    ('P', '67'), ('P', '87'), ('P', '76,77'), ('P', '96,97')], Castle.GIRL_IN_THE_HOUSE),
 ])
 
 def position_update_set_of_castles(pos: PositionForPatternRecognition, sente_set, gote_set):
