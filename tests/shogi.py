@@ -367,6 +367,7 @@ _TEST_DATA_CASTLES = [
   (63, [Castle.GIRL_IN_THE_HOUSE, Castle.STATIC_ROOK_ANAGUMA], [Castle.SWINGING_ROOK_ANAGUMA]),
   (64, [Castle.HALF_MINO_CASTLE], []),
   (65, [], [Castle.PEERLESS_GOLDS]),
+  (66, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -448,6 +449,7 @@ _TEST_DATA_OPENINGS = [
   (63, [Opening.SLEEVE_ROOK], [Opening.THIRD_FILE_ROOK]),
   (64, [Opening.GOKIGEN_CENTRAL_ROOK], []),
   (65, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.DOUBLE_SWINGING_ROOK]),
+  (66, [Opening.SIDE_PAWN_PICKER], [Opening.BISHOP45_STRATEGY]),
 ]
 
 class TestOpenings(unittest.TestCase):
