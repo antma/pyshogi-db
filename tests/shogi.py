@@ -369,6 +369,7 @@ _TEST_DATA_CASTLES = [
   (65, [], [Castle.PEERLESS_GOLDS]),
   (66, [], []),
   (67, [Castle.HALF_MINO_CASTLE], [Castle.ELMO_CASTLE]),
+  (68, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -452,6 +453,7 @@ _TEST_DATA_OPENINGS = [
   (65, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.DOUBLE_SWINGING_ROOK]),
   (66, [Opening.SIDE_PAWN_PICKER], [Opening.BISHOP45_STRATEGY]),
   (67, [Opening.QUICK_ISHIDA, Opening.ISHIDA_STYLE], []),
+  (68, [], []),
 ]
 
 class TestOpenings(unittest.TestCase):
