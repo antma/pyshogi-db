@@ -13,12 +13,12 @@ Opening = IntEnum('Opening',
    'FUJII_SYSTEM',
     #static
    'SLEEVE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK',
-   'BISHOP_EXCHANGE', 'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
-   'BISHOP_EXCHANGE_RECLINING_SILVER', 'RECLINING_SILVER',
+   'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
+   'RECLINING_SILVER',
+   'BISHOP_EXCHANGE', 'ONE_TURN_LOSS_BISHOP_EXCHANGE', 'BISHOP_EXCHANGE_RECLINING_SILVER', 'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY',
-   'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SPEARING_THE_BIRD',
    'SILVER_HORNED_SNOW_ROOF',
@@ -50,6 +50,7 @@ _OPENINGS_POS_AND_MOVE_D = SFENMap({
   'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12 8h7g' : Opening.BISHOP_EXCHANGE, #[wars/0004]
   'lnsgkgsnl/1r5b1/pppppp1pp/6p2/9/4P4/PPPP1PPPP/1B2R4/LNSGKGSNL w - 4 2h5h': Opening.GOKIGEN_CENTRAL_ROOK, #[wars/0064]
   'lnsgk1snl/6g2/p1pppp2p/6R2/5b3/1rP6/P2PPPP1P/1SG4S1/LN2KG1NL b B4Pp 21 B*4e' : Opening.BISHOP45_STRATEGY, #[wars/0066]
+  #'lnsgk1snl/1r4g2/pppppp1pp/6p2/7P1/2P6/PP1PPPP1P/1+b5R1/LNSGKGSNL b b 7 2b8h+': Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE, #[wars/0074]
   #'ln1gk1snl/1r1s2g2/p1pppp1pp/1p4p2/9/2P4P1/PPSPPPP1P/2G4R1/LN2KGSNL w Bb 12 6h7g': Opening.BISHOP_EXCHANGE, #[wars/0030]
   #'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13 2b3c': Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
   #'ln1gk2nl/1r1s2g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/2G2S1R1/LN2KG1NL b Bb 17 2b3c': Opening.BISHOP_EXCHANGE, #[vE-7Y9XLfgs]
@@ -112,8 +113,10 @@ _RECOGNIZER = Recognizer([
   ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34')] +
    last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDAS_ISHIDA_STYLE),
   ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99')], Opening.ISHIDA_STYLE),
-  ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'), 
+  ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'),
     ('P', '37'), ('p', '35'), ('N', '29'), ('L', '19')], Opening.CLIMBING_GOLD),
+  ([('HORSE', '22'), ('to', '22'), ('from', '88'), ('R', '28'), ('G', '69,78'), ('P', '76')] +
+   adjacent_pawns(7, 3, 7, []) + last_row_pieces('6'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:

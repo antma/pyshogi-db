@@ -374,6 +374,8 @@ _TEST_DATA_CASTLES = [
   (70, [Castle.CRAB_CASTLE, Castle.YAGURA_CASTLE], []),
   (71, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], []),
   (72, [Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE], [Castle.HALF_MINO_CASTLE]),
+  (73, [], []),
+  (74, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -462,6 +464,8 @@ _TEST_DATA_OPENINGS = [
   (70, [], []),
   (71, [Opening.FORTH_FILE_ROOK], [Opening.CLIMBING_GOLD]),
   (72, [Opening.FORTH_FILE_ROOK], [Opening.GOKIGEN_CENTRAL_ROOK]),
+  (73, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
+  (74, [], [Opening.SAKATA_OPPOSING_ROOK, Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE]),
 ]
 
 class TestOpenings(unittest.TestCase):
