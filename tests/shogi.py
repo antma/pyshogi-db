@@ -377,6 +377,7 @@ _TEST_DATA_CASTLES = [
   (73, [], []),
   (74, [], []),
   (75, [], [Castle.SWINGING_ROOK_ANAGUMA]),
+  (76, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE], [Castle.CASTLE_TOWER_MINO, Castle.EDGE_KING_SILVER_CROWN]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -468,6 +469,7 @@ _TEST_DATA_OPENINGS = [
   (73, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
   (74, [], [Opening.SAKATA_OPPOSING_ROOK, Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE]),
   (75, [Opening.BISHOP_EXCHANGE], [Opening.LEGHORN_SPECIAL]),
+  (76, [Opening.FORTH_FILE_ROOK], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
 ]
 
 class TestOpenings(unittest.TestCase):
@@ -501,11 +503,15 @@ class TestClassifier(unittest.TestCase):
       s1, s2 = shogi.castles.game_find_castles(g)
       self.assertEqual(set(sente_castles), s1, msg)
       self.assertEqual(set(gote_castles), s2, msg)
+    else:
+      logging.warning("%s: castles aren't set", msg);
     if not openings is None:
       sente_openings, gote_openings = openings
       s1, s2 = shogi.openings.game_find_openings(g)
       self.assertEqual(set(sente_openings), s1, msg)
       self.assertEqual(set(gote_openings), s2, msg)
+    else:
+      logging.warning("%s: openings aren't set", msg);
   def test_castles_and_openings(self):
     self._check_gamelist_issorted(_TEST_DATA_CASTLES)
     self._check_gamelist_issorted(_TEST_DATA_OPENINGS)

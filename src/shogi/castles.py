@@ -53,9 +53,10 @@ _YAGURA_PATTERN = [('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89
     ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97,96')]
 
 _HIGH_MINO_CASTLE_BASE = [('G', '47'), ('to', '47'), ('K', '28'), ('S', '38'), ('G', '49'),  ('L', '19'),
-    ('P', '46'),  ('P', '27'), ('P', '15,16,17')]
-_HIGH_MINO_CASTLE_PATTERN1 = _HIGH_MINO_CASTLE_BASE + [('P', '37'), ('N', '29')]
-_HIGH_MINO_CASTLE_PATTERN2 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('N', '37')] 
+    ('P', '46'),  ('P', '15,16,17')]
+_HIGH_MINO_CASTLE_PATTERN1 = _HIGH_MINO_CASTLE_BASE + [('P', '37'), ('P', '27'), ('N', '29')]
+_HIGH_MINO_CASTLE_PATTERN2 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '27'), ('N', '37')] 
+_HIGH_MINO_CASTLE_PATTERN3 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '26'), ('N', '29')] 
 del _HIGH_MINO_CASTLE_BASE
 
 '''HALF_MINO_CASTLE should be after MINO_CASTLE since it's pattern is subset'''
@@ -65,13 +66,14 @@ _RECOGNIZER = Recognizer( [
   (_SILVER_CROWN_PATTERN2, Castle.SILVER_CROWN),
   (_LEFT_HAND_SILVER_CROWN_PATTERN, Castle.SILVER_CROWN),
   ([('K', '98'), ('S', '87'), ('G', '78'), ('to', '78'), ('N', '89'), ('L', '99'),
-  ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '58,68,67')], Castle.EDGE_KING_SILVER_CROWN),
+  ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '49,58,67,68')], Castle.EDGE_KING_SILVER_CROWN),
   ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '97,96')] +
    adjacent_pawns(6, 6, 9, []), Castle.SILVER_CROWN_ANAGUMA),
   ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '36'), ('P', '27'), ('P', '16,17')], Castle.DIAMOND_MINO),
   (_HIGH_MINO_CASTLE_PATTERN1, Castle.HIGH_MINO_CASTLE),
   (_HIGH_MINO_CASTLE_PATTERN2, Castle.HIGH_MINO_CASTLE),
+  (_HIGH_MINO_CASTLE_PATTERN3, Castle.HIGH_MINO_CASTLE),
   ([('K', '28'), ('S', '38'), ('S', '47'), ('G', '49'), (' ', '48'), ('!G', '58'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.SILVER_MINO),
   ([('K', '28'), ('S', '38'), ('G', '49'), ('L', '19'),
