@@ -11,6 +11,7 @@ Opening = IntEnum('Opening',
    'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK',
    'FUJII_SYSTEM',
+   'LEGHORN_SPECIAL',
     #static
    'SLEEVE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK',
    'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
@@ -25,8 +26,8 @@ Opening = IntEnum('Opening',
    'CLIMBING_GOLD',
 
    #internal usage
-   'SWINGING_ROOK',
-  ])
+    'NONE', 'SWINGING_ROOK'
+])
 
 _OPENINGS_D = SFENMap({
   'lnsgkgsnl/1r5b1/pppppp1pp/6p2/2P6/9/PP1PPPPPP/1B5R1/LNSGKGSNL w - 4' : Opening.QUICK_ISHIDA,
@@ -42,6 +43,7 @@ _OPENINGS_D = SFENMap({
   'lnsgk2nl/6gs1/p1ppppb1p/6R2/9/1rP3P2/P2PPP2P/1BG1K4/LNS2GSNL w 3P2p 20': Opening.AONO_STYLE,
   'lnsg2snl/4k1g2/p1ppppb1p/6R2/9/1rP3P2/P2PPP2P/1BG1K4/LNS2GSNL w 3P2p 20': Opening.AONO_STYLE,
   'lnsgk1snl/6g2/p1ppppb1p/6R2/9/1rP6/P2PPPP1P/1BGK5/LNS2GSNL w 3P2p 18': Opening.YUUKI_STYLE,
+  'lnsgkgsnl/1r5+B1/pppppp1pp/6p2/9/2P6/PP1PPPPPP/7R1/LNSGKGSNL w B 4': Opening.NONE, #[not BISHOP_EXCHANGE]
   # 'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12': Opening.BISHOP_EXCHANGE,
   # 'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13' : Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
 })
@@ -87,7 +89,7 @@ _RECOGNIZER = Recognizer([
     ('B', 1), ('b', 1), #bishops exchanged
     ('P', '96,97'), ('P', '16,17')] +
     last_row_pieces('6') + adjacent_pawns(7, 3, 9, [7]), Opening.SAKATA_OPPOSING_ROOK),
-  ([('S', '77'), ('R', '28'), ('r', '82'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'),
+  ([('S', '77'), ('R', '28'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'), #('r', '82'), 
    ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '88,68'), ('to', '77'), ('G', '78'),
    ('max-gold-moves', 2),
    ], Opening.BISHOP_EXCHANGE),
@@ -117,12 +119,16 @@ _RECOGNIZER = Recognizer([
     ('P', '37'), ('p', '35'), ('N', '29'), ('L', '19')], Opening.CLIMBING_GOLD),
   ([('HORSE', '22'), ('to', '22'), ('from', '88'), ('R', '28'), ('G', '69,78'), ('P', '76')] +
    adjacent_pawns(7, 3, 7, []) + last_row_pieces('6'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
+  ([('R', '68'), ('to', '68'), ('from', '28'), ('B', 1), ('b', 1), ('S', '77')] +
+   last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.LEGHORN_SPECIAL),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
   assert isinstance(pos, PositionForPatternRecognition)
   ot = _OPENINGS_D.get(pos)
   if not ot is None:
+    if ot == Opening.NONE:
+      ot = None
     return ot
   m = pos.last_move
   if not m is None:
@@ -182,6 +188,8 @@ def _remove_redundant(s):
     s.discard(Opening.OPPOSING_ROOK)
   if Opening.PRIMITIVE_CLIMBING_SILVER in s:
     s.discard(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
+  if Opening.LEGHORN_SPECIAL in s:
+    s.discard(Opening.FORTH_FILE_ROOK)
 
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 
