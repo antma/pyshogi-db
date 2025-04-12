@@ -14,11 +14,12 @@ Castle = IntEnum('Castle',
    'KIKUSUI_YAGURA', 'SILVER_STANDING_YAGURA', 'DIAMOND_YAGURA', 'RAPID_CASTLE', 'DOI_YAGURA',
    'CRAB_CASTLE',
    'ELMO_CASTLE', 'BONANZA_CASTLE',
+   'EDGE_KING_SILVER_CROWN',
     #double static rook
    'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE',
     #swinging rook
    'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'HIGH_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN', 'KIMURA_MINO',
-   'DIAMOND_MINO',
+   'DIAMOND_MINO', 'GOLD_MINO',
    'PEERLESS_GOLDS', 'SWINGING_ROOK_ANAGUMA', 'SILVER_MINO',
   ])
 
@@ -63,6 +64,8 @@ _RECOGNIZER = Recognizer( [
   (_SILVER_CROWN_PATTERN1, Castle.SILVER_CROWN),
   (_SILVER_CROWN_PATTERN2, Castle.SILVER_CROWN),
   (_LEFT_HAND_SILVER_CROWN_PATTERN, Castle.SILVER_CROWN),
+  ([('K', '98'), ('S', '87'), ('G', '78'), ('to', '78'), ('N', '89'), ('L', '99'),
+  ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '58,68,67')], Castle.EDGE_KING_SILVER_CROWN),
   ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '97,96')] +
    adjacent_pawns(6, 6, 9, []), Castle.SILVER_CROWN_ANAGUMA),
   ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
@@ -81,6 +84,7 @@ _RECOGNIZER = Recognizer( [
   (_KIMURA_MINO_PATTERN2, Castle.KIMURA_MINO),
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('G', '58'),
     ('P', '46,47'), ('P', '37,36'), ('P', '27'), ('P', '15,16,17')], Castle.MINO_CASTLE),
+  ([('K', '28'), ('G', '38'), ('S', '48'), ('N', '29'), ('L', '19'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.GOLD_MINO),
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('!G', '58'), ('!S', '58'),
     ('P', '47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.HALF_MINO_CASTLE),
   ([('K', '38'), ('G', '48'), ('G', '58'), ('S', '28,39'), ('N', '29'), ('L', '19'),
