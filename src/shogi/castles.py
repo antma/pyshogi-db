@@ -56,8 +56,8 @@ _YAGURA_PATTERN = [('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89
 _HIGH_MINO_CASTLE_BASE = [('G', '47'), ('to', '47'), ('K', '28'), ('S', '38'), ('G', '49'),  ('L', '19'),
     ('P', '46'),  ('P', '15,16,17')]
 _HIGH_MINO_CASTLE_PATTERN1 = _HIGH_MINO_CASTLE_BASE + [('P', '37'), ('P', '27'), ('N', '29')]
-_HIGH_MINO_CASTLE_PATTERN2 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '27'), ('N', '37')] 
-_HIGH_MINO_CASTLE_PATTERN3 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '26'), ('N', '29')] 
+_HIGH_MINO_CASTLE_PATTERN2 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '27'), ('N', '37')]
+_HIGH_MINO_CASTLE_PATTERN3 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '26'), ('N', '29')]
 del _HIGH_MINO_CASTLE_BASE
 
 '''HALF_MINO_CASTLE should be after MINO_CASTLE since it's pattern is subset'''

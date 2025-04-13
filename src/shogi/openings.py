@@ -117,7 +117,7 @@ _RECOGNIZER = Recognizer([
   ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99')], Opening.ISHIDA_STYLE),
   ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'),
     ('P', '37'), ('p', '35'), ('N', '29'), ('L', '19')], Opening.CLIMBING_GOLD),
-  ([('HORSE', '22'), ('to', '22'), ('from', '88'), ('R', '28'), ('G', '69,78'), ('P', '76')] +
+  ([('HORSE', '22'), ('to', '22'), ('from', '88'), ('side', -1), ('R', '28'), ('G', '69,78'), ('P', '76')] +
    adjacent_pawns(7, 3, 7, []) + last_row_pieces('6'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
   ([('R', '68'), ('to', '68'), ('from', '28'), ('B', 1), ('b', 1), ('S', '77')] +
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.LEGHORN_SPECIAL),

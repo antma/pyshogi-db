@@ -19,7 +19,7 @@ DRAGON = ROOK + PROMOTED
 ASCII_PIECES = 'plnsgbrk'
 ASCII_LONG_NAMES = [None, 'pawn', 'lance', 'knight', 'silver', 'gold', 'bishop', 'rook', 'king', 'tokin', \
  'promotedlance', 'promotedknight', 'promotedsilver', None, 'horse', 'dragon']
-_ASCII_LONG_NAMES_D = dict([(name, i) for i, name in enumerate(ASCII_LONG_NAMES) if not name is None])
+_ASCII_LONG_NAMES_D = {name: i for i, name in enumerate(ASCII_LONG_NAMES) if not name is None}
 
 KIFU_PIECES = '歩香桂銀金角飛玉と杏圭全?馬龍'
 CSA_PIECES = ['FU', 'KY', 'KE', 'GI', 'KI', 'KA', 'HI', 'OU', 'TO', 'NY', 'NK', 'NG',  None, 'UM', 'RY']
