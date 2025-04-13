@@ -15,6 +15,7 @@ Castle = IntEnum('Castle',
    'CRAB_CASTLE',
    'ELMO_CASTLE', 'BONANZA_CASTLE',
    'EDGE_KING_SILVER_CROWN',
+   'KUSHIKATSU_CASTLE',
     #double static rook
    'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE',
     #swinging rook
@@ -127,6 +128,7 @@ _RECOGNIZER = Recognizer( [
     ('P', '87'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '96,97')], Castle.RAPID_CASTLE),
   ([('G', '58'), ('G', '67'), ('S', '77'), ('K', '78'), ('N', '89'), ('L', '99'),
     ('P', '87'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '96,97')], Castle.DOI_YAGURA),
+  ([('K', '98'), ('S', '88'), ('to', '88'), ('N', '89'), ('L', '99'), ('P', '87'), ('P', '97')], Castle.KUSHIKATSU_CASTLE),
 ])
 
 def position_update_set_of_castles(pos: PositionForPatternRecognition, sente_set, gote_set):
