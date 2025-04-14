@@ -14,7 +14,9 @@ Opening = IntEnum('Opening',
    'LEGHORN_SPECIAL',
     #static
    'SLEEVE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK',
-   'RIGHT_HAND_KING', 'DOUBLE_WING_ATTACK',
+   'RIGHT_HAND_KING',
+   'DOUBLE_WING_ATTACK', 'DOUBLE_WING_ATTACK_CLIMBING_SILVER',
+   'UFO_SILVER',
    'RECLINING_SILVER',
    'BISHOP_EXCHANGE', 'ONE_TURN_LOSS_BISHOP_EXCHANGE', 'BISHOP_EXCHANGE_RECLINING_SILVER', 'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY',
@@ -54,6 +56,8 @@ _OPENINGS_POS_AND_MOVE_D = SFENMap({
   'lnsgk1snl/6g2/p1pppp2p/6R2/5b3/1rP6/P2PPPP1P/1SG4S1/LN2KG1NL b B4Pp 21 B*4e' : Opening.BISHOP45_STRATEGY, #[wars/0066]
   'lnsgk1snl/6gb1/p1pppp2p/6pR1/9/P1r6/3PPPP1P/1BG6/LNS1KGSNL b 2P3p 17 8f7f': Opening.SIDE_PAWN_PICKER, #[wars/0084]
   'lnsgk1snl/6gb1/p1pppp2p/6pR1/9/P1r6/2BPPPP1P/2G6/LNS1KGSNL w 2P3p 18 8h7g': Opening.BISHOP33_STRATEGY, #[wars/0084]
+  'lnsgk1snl/1r4gb1/p1ppppppp/7P1/1p7/9/PPPPPPP1P/1BG4R1/LNS1KGSNL w - 8 2e2d': Opening.DOUBLE_WING_ATTACK, #[wars/0088]
+  'ln1gk1snl/1rs3gb1/p1pppppp1/8p/1p7/9/PPPPPPPSP/1BG4R1/LNS1KG1NL w P 16 3h2g': Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER, #[wars/0088]
   #'lnsgk1snl/1r4g2/pppppp1pp/6p2/7P1/2P6/PP1PPPP1P/1+b5R1/LNSGKGSNL b b 7 2b8h+': Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE, #[wars/0074]
   #'ln1gk1snl/1r1s2g2/p1pppp1pp/1p4p2/9/2P4P1/PPSPPPP1P/2G4R1/LN2KGSNL w Bb 12 6h7g': Opening.BISHOP_EXCHANGE, #[wars/0030]
   #'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13 2b3c': Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
@@ -91,7 +95,7 @@ _RECOGNIZER = Recognizer([
     ('B', 1), ('b', 1), #bishops exchanged
     ('P', '96,97'), ('P', '16,17')] +
     last_row_pieces('6') + adjacent_pawns(7, 3, 9, [7]), Opening.SAKATA_OPPOSING_ROOK),
-  ([('S', '77'), ('R', '28'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'), #('r', '82'), 
+  ([('S', '77'), ('R', '28'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'), #('r', '82'),
    ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '88,68'), ('to', '77'), ('G', '78'),
    ('max-gold-moves', 2),
    ], Opening.BISHOP_EXCHANGE),
@@ -123,6 +127,8 @@ _RECOGNIZER = Recognizer([
    adjacent_pawns(7, 3, 7, []) + last_row_pieces('6'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
   ([('R', '68'), ('to', '68'), ('from', '28'), ('B', 1), ('b', 1), ('S', '77')] +
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.LEGHORN_SPECIAL),
+  ([('S', '36'), ('to', '36'), ('from', '27'), ('R', '28'), ('G', '78'), (' ', '25'), (' ', '24')] +
+   last_row_pieces('36') + adjacent_pawns(7, 3, 7, []), Opening.UFO_SILVER),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
