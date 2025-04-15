@@ -132,45 +132,57 @@ class _PiecePattern:
     self._piece = None
     self._count = None
     self._list = None
+    self._hits = 0
+    self._calls = 1
     if piece_latin_letter == 'side':
       self._op = _Operation.SIDE
-      self.match = _PiecePattern._op_side
+      self._match = _PiecePattern._op_side
       assert isinstance(cell_pattern, int)
       self._count = cell_pattern
       return
     if piece_latin_letter == 'max-gold-moves':
       self._op = _Operation.MAX_MOVES
-      self.match = _PiecePattern._op_max_moves
+      self._match = _PiecePattern._op_max_moves
       self._piece = piece.GOLD
       assert isinstance(cell_pattern, int)
       self._count = cell_pattern
       return
     self._op = _Operation.IN
-    self.match = _PiecePattern._op_in
+    self._match = _PiecePattern._op_in
     if piece_latin_letter.startswith('!'):
       self._op = _Operation.NOT_IN
-      self.match = _PiecePattern._op_not_in
+      self._match = _PiecePattern._op_not_in
       self._piece = _latin_to_piece(piece_latin_letter[1:])
     elif piece_latin_letter == ' ':
       self._piece = piece.FREE
     elif piece_latin_letter == 'from':
       self._op = _Operation.FROM_IN
-      self.match = _PiecePattern._op_from_in
+      self._match = _PiecePattern._op_from_in
     elif piece_latin_letter == 'to':
       self._op = _Operation.TO_IN
-      self.match = _PiecePattern._op_to_in
+      self._match = _PiecePattern._op_to_in
     else:
       self._piece = _latin_to_piece(piece_latin_letter)
     if isinstance(cell_pattern, int):
       self._op = _Operation.PIECES_EQ
-      self.match = _PiecePattern._op_pieces_eq
+      self._match = _PiecePattern._op_pieces_eq
       self._count = cell_pattern
     else:
       self._list = list(map(cell.digital_parse, cell_pattern.split(',')))
+      t = list(map(int, cell_pattern.split(',')))
+      assert all(u < v for u, v in zip(t, t[1:])), cell_pattern
   def __str__(self):
     return f'PiecePattern({self._repr})'
+  def better(self, other) -> bool:
+    return self._hits * other._calls > other._hits * self._calls
+  def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
+    r = self._match(self, pos, side)
+    self._calls += 1
+    if not r:
+      self._hits += 1
+    return r
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    res = self.match(self, pos, side)
+    res = self.match(pos, side)
     if not res:
       logging.debug('%s not matched', self)
     return res
@@ -192,9 +204,27 @@ class _PositionPattern:
   def __init__(self, data: list):
     self._patterns = list(map(_piece_pattern, data))
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    return all(p.match(p, pos, side) for p in self._patterns)
+    q = None
+    for i, p in enumerate(self._patterns):
+      if not p.match(pos, side):
+        if (not q is None) and p.better(q):
+          self._patterns[i-1] = p
+          self._patterns[i] = q
+        return False
+      q = p
+    return True
+    #return all(p.match(pos, side) for p in self._patterns)
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    return all(p.debug_match(pos, side) for p in self._patterns)
+    q = None
+    for i, p in enumerate(self._patterns):
+      if not p.debug_match(pos, side):
+        if (not q is None) and p.better(q):
+          self._patterns[i-1] = p
+          self._patterns[i] = q
+        return False
+      q = p
+    return True
+    #return all(p.debug_match(pos, side) for p in self._patterns)
 
 class Recognizer:
   def __init__(self, p, tp = None):
