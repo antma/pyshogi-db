@@ -175,17 +175,31 @@ class _PiecePattern:
       logging.debug('%s not matched', self)
     return res
 
+_PIECE_PATTERNS_D = {}
+_PIECE_PATTERNS_CALLS = 0
+
+def _piece_pattern(t):
+  global _PIECE_PATTERNS_D, _PIECE_PATTERNS_CALLS
+  _PIECE_PATTERNS_CALLS += 1
+  p = _PIECE_PATTERNS_D.get(t)
+  if not p is None:
+    return p
+  p = _PiecePattern(t[0], t[1])
+  _PIECE_PATTERNS_D[t] = p
+  return p
+
 class _PositionPattern:
   def __init__(self, data: list):
-    self._patterns = list(map(lambda t: _PiecePattern(t[0], t[1]), data))
+    self._patterns = list(map(_piece_pattern, data))
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return all(p.match(p, pos, side) for p in self._patterns)
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return all(p.debug_match(pos, side) for p in self._patterns)
 
 class Recognizer:
-  def __init__(self, p):
+  def __init__(self, p, tp = None):
     self._position_patterns = [(_PositionPattern(data), value) for data, value in p]
+    logging.info('%s: %d unique piece patterns, %d total piece patterns', tp, len(_PIECE_PATTERNS_D), _PIECE_PATTERNS_CALLS)
   def find(self, pos: PositionForPatternRecognition):
     side = -pos.side_to_move
     f = _PositionPattern.debug_match if log.is_debug() else _PositionPattern.match

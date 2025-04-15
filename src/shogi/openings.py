@@ -134,7 +134,7 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('36') + adjacent_pawns(7, 3, 7, []), Opening.UFO_SILVER),
   ([ ('R', '78'), ('from', '68'), ('to', '78'), ('P', '75'), ('K', '38'), ('B', '88')] +
   last_row_pieces('5') + adjacent_pawns(7, 2, 9, [7]), Opening.FORTH_THIRD_FILE_ROOK_STRATEGY),
-])
+], 'openings')
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
   assert isinstance(pos, PositionForPatternRecognition)
