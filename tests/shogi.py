@@ -404,6 +404,9 @@ _TEST_DATA_CASTLES = [
   (100, [Castle.BOAT_CASTLE], []),
   (101, [], [Castle.CRAB_CASTLE]),
   (102, [Castle.STATIC_ROOK_ANAGUMA], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE]),
+  (103, [Castle.BOAT_CASTLE], [Castle.HALF_MINO_CASTLE]),
+  (104, [], []),
+  (105, [Castle.ELMO_CASTLE], [Castle.HALF_MINO_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -498,7 +501,7 @@ _TEST_DATA_OPENINGS = [
   (76, [Opening.FORTH_FILE_ROOK], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
   (77, [], []),
   (78, [], [Opening.SILVER_HORNED_SNOW_ROOF]),
-  #(79, [Opening.DOUBLE_WING_ATTACK, Opening.PRIMITIVE_CLIMBING_SILVER], []),
+  (79, [Opening.DOUBLE_WING_ATTACK, Opening.PRIMITIVE_CLIMBING_SILVER], []),
   (80, [Opening.GOKIGEN_CENTRAL_ROOK], []),
   (81, [], []),
   (82, [Opening.THIRD_FILE_ROOK], [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE]),
@@ -522,6 +525,9 @@ _TEST_DATA_OPENINGS = [
   (100, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
   (101, [Opening.URESINO_STYLE, Opening.RIGHT_HAND_KING], []),
   (102, [], [Opening.FORTH_FILE_ROOK, Opening.FORTH_THIRD_FILE_ROOK_STRATEGY]),
+  (103, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
+  (104, [Opening.PRIMITIVE_CLIMBING_SILVER], []),
+  (105, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.FORTH_FILE_ROOK]),
 ]
 
 class TestOpenings(unittest.TestCase):

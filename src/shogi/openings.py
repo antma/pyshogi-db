@@ -79,6 +79,8 @@ _RECOGNIZER = Recognizer([
     ('P', '46'), ('P', '36'), ('P', '57,56'), ('P', '25,26'), ('P', '16,17')], Opening.RIGHT_HAND_KING),
   ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '76,77')] +
     last_row_pieces('3') + adjacent_pawns(7, 1, 10, [2, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
+  ([('S', '37'), ('to', '37'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '36'), ('P', '76,77'), ('G', '78')] +
+    last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
   ([('R', '58'), ('to', '58'), ('P', '55,56'), ('P', '76'), ('B', '88,77')] +
     last_row_pieces('') + adjacent_pawns(7, 2, 9, [5, 7]), Opening.GOKIGEN_CENTRAL_ROOK),
   #([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
