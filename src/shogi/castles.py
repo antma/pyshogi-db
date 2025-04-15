@@ -45,7 +45,7 @@ _STATIC_ROOK_ANAGUMA_PATTERN1 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '69,78,87'), 
 _STATIC_ROOK_ANAGUMA_PATTERN2 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '79'), ('G', '78')]
 del _STATIC_ROOK_ANAGUMA_BASE
 
-_KIMURA_MINO_BASE = [('K', '28'), ('G', '38'), ('S', '47'), ('L', '19'), ('P', '27'), ('P', '16,17')] #('P', '46'),
+_KIMURA_MINO_BASE = [('K', '28'), ('G', '38'), ('S', '47'), ('L', '19'), ('P', '27'), ('P', '16,17'), ('!S', '46')] #('P', '46'),
 _KIMURA_MINO_PATTERN1 = _KIMURA_MINO_BASE + [('N', '29'), ('P', '37')]
 _KIMURA_MINO_PATTERN2 = _KIMURA_MINO_BASE + [('N', '37'), ('P', '36')]
 del _KIMURA_MINO_BASE
