@@ -5,6 +5,9 @@ import logging
 import os
 import sys
 
+def is_debug():
+  return logging.getLogger().getEffectiveLevel() == logging.DEBUG
+
 def raise_value_error(msg, level = logging.ERROR):
   '''log error and raise ValueError'''
   logging.log(level, msg)
