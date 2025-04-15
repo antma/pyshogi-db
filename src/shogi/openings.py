@@ -8,6 +8,7 @@ from ._pattern import Recognizer, SFENMap, PositionForPatternRecognition, adjace
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'DOUBLE_SWINGING_ROOK',
+   'FORTH_THIRD_FILE_ROOK_STRATEGY',
    'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK',
    'FUJII_SYSTEM',
@@ -102,7 +103,7 @@ _RECOGNIZER = Recognizer([
   ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
     ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58,67'),
-   ('P', '87'), ('P', '76'), ('P', '66,67'), ('P', '56'), ('S', '57,48'), ('R', '28')] +
+   ('P', '87'), ('P', '76'), ('P', '66,67'), ('P', '56'), ('S', '57,48'), ('R', '28'), ('!p', '43')] +
    last_row_pieces('2345'), Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
   ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76')] +
     last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.AMAHIKO_OPPOSING_ROOK),
@@ -116,7 +117,7 @@ _RECOGNIZER = Recognizer([
     last_row_pieces('367'), Opening.FUJII_SYSTEM),
   ([('K', '69'), ('G', '78'), ('G', '58'), ('S', '67'), ('S', '47'), ('to', '47'),
     ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '46'), ('N', '89'), ('L', '99'), ('N', '29,37'), ('L', '19'), ('B', '88,77')], Opening.SILVER_HORNED_SNOW_ROOF),
-  ([('P', '75'), ('R', '28'), ('B', '88'), ('p', '34')] +
+  ([('P', '75'), ('R', '78'), ('to', '78'), ('from', '28'), ('B', '88'), ('p', '34')] +
    last_row_pieces('') + adjacent_pawns(7, 1, 10, [7]), Opening.QUICK_ISHIDA),
   ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34')] +
    last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDAS_ISHIDA_STYLE),
@@ -129,6 +130,8 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.LEGHORN_SPECIAL),
   ([('S', '36'), ('to', '36'), ('from', '27'), ('R', '28'), ('G', '78'), (' ', '25'), (' ', '24')] +
    last_row_pieces('36') + adjacent_pawns(7, 3, 7, []), Opening.UFO_SILVER),
+  ([ ('R', '78'), ('from', '68'), ('to', '78'), ('P', '75'), ('K', '38'), ('B', '88')] +
+  last_row_pieces('5') + adjacent_pawns(7, 2, 9, [7]), Opening.FORTH_THIRD_FILE_ROOK_STRATEGY),
 ])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
@@ -198,6 +201,8 @@ def _remove_redundant(s):
     s.discard(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
   if Opening.LEGHORN_SPECIAL in s:
     s.discard(Opening.FORTH_FILE_ROOK)
+  if Opening.QUICK_ISHIDA in s:
+    s.discard(Opening.THIRD_FILE_ROOK)
 
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 

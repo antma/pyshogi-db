@@ -34,7 +34,7 @@ def _mirror_columns(s):
 def _mirror_columns_in_pattern(pat):
   return [(piece, _mirror_columns(s)) for piece, s in pat]
 
-_SILVER_CROWN_BASE = [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26'), ('P', '15,16,17')]
+_SILVER_CROWN_BASE = [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26'), ('P', '16,17')]
 _SILVER_CROWN_PATTERN1 = _SILVER_CROWN_BASE + [('N', '29'), ('P', '46,47'), ('P', '37')]
 _SILVER_CROWN_PATTERN2 = _SILVER_CROWN_BASE + [('N', '37'), ('G', '47'), ('P', '46'), ('P', '36')]
 _LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '66,67'), ('L', '99'), ('N', '89'), ('P', '95,96,97')]
