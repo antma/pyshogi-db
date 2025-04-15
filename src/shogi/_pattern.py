@@ -12,6 +12,7 @@ from .move import Move
 _Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE'])
 _GENERALS_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER])
 _BISHOP_S = set([piece.BISHOP, piece.HORSE])
+_ROOK_S = set([piece.ROOK, piece.DRAGON])
 
 def adjacent_pawns(row: int, start_col: int, end_col: int, excl: List[int]):
   row = str(row)
@@ -37,6 +38,7 @@ class PositionForPatternRecognition(position.Position):
     super().__init__(sfen)
     self._taken_general = False
     self._taken_bishop = False
+    self._taken_rook = False
     self.last_move = None
     self._count_moves_d = {}
     self._was_drops = False
@@ -50,6 +52,8 @@ class PositionForPatternRecognition(position.Position):
         self._taken_general = True
       if (not self._taken_bishop) and tp in _BISHOP_S:
         self._taken_bishop = True
+      if (not self._taken_rook) and tp in _ROOK_S:
+        self._taken_rook = True
     self.last_move = m
     p = m.from_piece
     if not p is None:
@@ -63,7 +67,7 @@ class PositionForPatternRecognition(position.Position):
       self._cached_sfen = super().sfen()
     return self._cached_sfen
   def is_opening(self) -> bool:
-    return not self._taken_general
+    return not (self._taken_general or self._taken_rook)
   def count_piece_moves(self, p: int) -> int:
     return self._count_moves_d.get(p, 0)
   def first_rook_move_rank(self, m: Move) -> Optional[int]:
