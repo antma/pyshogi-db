@@ -132,8 +132,8 @@ class _PiecePattern:
     self._piece = None
     self._count = None
     self._list = None
-    self._hits = 0
-    self._calls = 1
+    self.hits = 0
+    self.calls = 1
     if piece_latin_letter == 'side':
       self._op = _Operation.SIDE
       self._match = _PiecePattern._op_side
@@ -174,12 +174,12 @@ class _PiecePattern:
   def __str__(self):
     return f'PiecePattern({self._repr})'
   def better(self, other) -> bool:
-    return self._hits * other._calls > other._hits * self._calls
+    return self.hits * other.calls > other.hits * self.calls
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     r = self._match(self, pos, side)
-    self._calls += 1
+    self.calls += 1
     if not r:
-      self._hits += 1
+      self.hits += 1
     return r
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     res = self.match(pos, side)
