@@ -411,6 +411,8 @@ _TEST_DATA_CASTLES = [
   (107, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE], [Castle.STATIC_ROOK_ANAGUMA]),
   (108, [], [Castle.HALF_MINO_CASTLE]),
   (109, [Castle.HALF_MINO_CASTLE, Castle.SILVER_CROWN], [Castle.CASTLE_TOWER_MINO]),
+  (110, [], []),
+  (111, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE])
 ]
 
 class TestCastles(unittest.TestCase):
@@ -536,6 +538,8 @@ _TEST_DATA_OPENINGS = [
   (107, [Opening.FORTH_FILE_ROOK], [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE]),
   (108, [Opening.DOUBLE_SWINGING_ROOK], []),
   (109, [Opening.URESINO_STYLE], []),
+  (110, [], [Opening.FORTH_FILE_ROOK, Opening.FUJII_SYSTEM]),
+  (111, [Opening.QUICK_ISHIDA], [Opening.DOUBLE_SWINGING_ROOK]),
 ]
 
 class TestOpenings(unittest.TestCase):
