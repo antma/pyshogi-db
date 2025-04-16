@@ -36,7 +36,7 @@ def _mirror_columns_in_pattern(pat):
 
 _SILVER_CROWN_BASE = [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26'), ('P', '16,17')]
 _SILVER_CROWN_PATTERN1 = _SILVER_CROWN_BASE + [('N', '29'), ('P', '46,47'), ('P', '37')]
-_SILVER_CROWN_PATTERN2 = _SILVER_CROWN_BASE + [('N', '37'), ('G', '47'), ('P', '46'), ('P', '36')]
+_SILVER_CROWN_PATTERN2 = _SILVER_CROWN_BASE + [('N', '37'), ('P', '46'), ('P', '36')] #('G', '47'), 
 _LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '66,67'), ('L', '99'), ('N', '89'), ('P', '95,96,97')]
 del _SILVER_CROWN_BASE
 
@@ -60,6 +60,12 @@ _HIGH_MINO_CASTLE_PATTERN2 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '27'),
 _HIGH_MINO_CASTLE_PATTERN3 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '26'), ('N', '29')]
 del _HIGH_MINO_CASTLE_BASE
 
+_CASTLE_TOWER_MINO_BASE = [('K', '87'), ('S', '78'), ('G', '69'), ('N', '89'), ('L', '99'), ('P', '76'), ('P', '86'), ('P', '95,96,97')]
+_CASTLE_TOWER_MINO_PATTERN1 = _CASTLE_TOWER_MINO_BASE + [('P', '67')]
+_CASTLE_TOWER_MINO_PATTERN2 = _CASTLE_TOWER_MINO_BASE + [('G', '67'), ('P', '66')]
+
+del _CASTLE_TOWER_MINO_BASE
+
 '''HALF_MINO_CASTLE should be after MINO_CASTLE since it's pattern is subset'''
 
 _RECOGNIZER = Recognizer( [
@@ -79,8 +85,8 @@ _RECOGNIZER = Recognizer( [
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.SILVER_MINO),
   ([('K', '28'), ('S', '38'), ('G', '49'), ('L', '19'),
     ('P', '37'), ('P', '26'), ('P', '15,16,17')], Castle.TOPKNOT_MINO), #('N', '29')
-  ([('K', '87'), ('S', '78'), ('G', '69'), ('N', '89'), ('L', '99'),
-    ('P', '67'), ('P', '76'), ('P', '86'), ('P', '95,96,97')], Castle.CASTLE_TOWER_MINO),
+  (_CASTLE_TOWER_MINO_PATTERN1, Castle.CASTLE_TOWER_MINO), 
+  (_CASTLE_TOWER_MINO_PATTERN2, Castle.CASTLE_TOWER_MINO), 
   ([('K', '78'), ('S', '79'), ('G', '69'), ('G', '58'), ('S', '48'), ('B', '88'), ('N', '89'), ('L', '99'),
     ('P', '56,57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '95,96,97')], Castle.BOAT_CASTLE),
   (_KIMURA_MINO_PATTERN1, Castle.KIMURA_MINO),
