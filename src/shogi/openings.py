@@ -10,7 +10,7 @@ Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'DOUBLE_SWINGING_ROOK',
    'FORTH_THIRD_FILE_ROOK_STRATEGY',
    'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE',
-   'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK',
+   'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK', 'DIRECT_OPPOSING_ROOK',
    'FUJII_SYSTEM',
    'LEGHORN_SPECIAL',
     #static
@@ -137,6 +137,8 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('36') + adjacent_pawns(7, 3, 7, []), Opening.UFO_SILVER),
   ([ ('R', '78'), ('from', '68'), ('to', '78'), ('P', '75'), ('K', '38'), ('B', '88')] +
   last_row_pieces('5') + adjacent_pawns(7, 2, 9, [7]), Opening.FORTH_THIRD_FILE_ROOK_STRATEGY),
+  ([ ('R', '88'), ('from', '28'), ('to', '88'), ('S', '77'), ('P', '76')] +
+   last_row_pieces('7') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.DIRECT_OPPOSING_ROOK),
 ], 'openings')
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
