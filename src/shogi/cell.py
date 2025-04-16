@@ -62,5 +62,4 @@ def can_drop(cell: int, p: int) -> bool:
   return True
 
 def swap_side(cell: int) -> int:
-  row, col = divmod(cell, 9)
-  return (8 - row) * 9 + (8 - col)
+  return 80 - cell
