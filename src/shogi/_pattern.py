@@ -200,8 +200,18 @@ def _piece_pattern(t):
   _PIECE_PATTERNS_D[t] = p
   return p
 
+def _unique_data(data, value):
+  s = set()
+  for t in data:
+    if t in s:
+      logging.error('%s is not unique in %s. data = %s', t, value.name, data)
+      return False
+    s.add(t)
+  return True
+
 class _PositionPattern:
-  def __init__(self, data: list):
+  def __init__(self, data: list, value):
+    assert _unique_data(data, value), data
     self._patterns = list(map(_piece_pattern, data))
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     q = None
@@ -228,7 +238,7 @@ class _PositionPattern:
 
 class Recognizer:
   def __init__(self, p, tp = None):
-    self._position_patterns = [(_PositionPattern(data), value) for data, value in p]
+    self._position_patterns = [(_PositionPattern(data, value), value) for data, value in p]
     logging.info('%s: %d unique piece patterns, %d total piece patterns', tp, len(_PIECE_PATTERNS_D), _PIECE_PATTERNS_CALLS)
   def find(self, pos: PositionForPatternRecognition):
     side = -pos.side_to_move
