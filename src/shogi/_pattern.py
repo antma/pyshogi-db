@@ -97,6 +97,9 @@ def _latin_to_piece(s: str) -> int:
   return p
 
 class _PiecePattern:
+  def _op_eq(self, pos: PositionForPatternRecognition, side: int) -> bool:
+    c = self._count
+    return pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece
   def _op_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return any(pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece for c in self._list)
   def _op_not_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -169,8 +172,14 @@ class _PiecePattern:
       self._count = cell_pattern
     else:
       self._list = list(map(cell.digital_parse, cell_pattern.split(',')))
-      t = list(map(int, cell_pattern.split(',')))
-      assert all(u < v for u, v in zip(t, t[1:])), cell_pattern
+      l = len(self._list)
+      if l == 1 and self._op == _Operation.IN:
+        self._count = self._list[0]
+        self._list = None
+        self._match = _PiecePattern._op_eq
+      if l > 1:
+        t = list(map(int, cell_pattern.split(',')))
+        assert all(u < v for u, v in zip(t, t[1:])), cell_pattern
   def __str__(self):
     return f'PiecePattern({self._repr})'
   def better(self, other) -> bool:
