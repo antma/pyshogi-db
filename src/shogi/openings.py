@@ -22,9 +22,8 @@ Opening = IntEnum('Opening',
    'BISHOP_EXCHANGE', 'ONE_TURN_LOSS_BISHOP_EXCHANGE', 'BISHOP_EXCHANGE_RECLINING_SILVER', 'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY',
    'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID', 'SUPER_RAPID_ATTACK',
-   'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY',
+   'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY', 'MURATA_SYSTEM', 'SPEARING_THE_BIRD',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
-   'SPEARING_THE_BIRD',
    'SILVER_HORNED_SNOW_ROOF',
    'CLIMBING_GOLD',
 
@@ -139,7 +138,14 @@ _RECOGNIZER = Recognizer([
   last_row_pieces('5') + adjacent_pawns(7, 2, 9, [7]), Opening.FORTH_THIRD_FILE_ROOK_STRATEGY),
   ([ ('R', '88'), ('from', '28'), ('to', '88'), ('S', '77'), ('P', '76')] +
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.DIRECT_OPPOSING_ROOK),
+  ([('P', '56'), ('to', '56'), ('G', '78'), ('S', '68'), ('S', '48'), ('B', '88'), ('R', '28'), ('P', '25,26')] +
+    adjacent_pawns(7, 3, 9, [5]) + last_row_pieces('367'), Opening.MURATA_SYSTEM),
 ], 'openings')
+
+_RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
+  #recognize before move, so pawn had inverted color and mirrored cell position
+  ([('p', '64')], Opening.RIGHT_HAND_FORTH_FILE_ROOK),
+], 'right hand forth file rook')
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
   assert isinstance(pos, PositionForPatternRecognition)
@@ -191,7 +197,7 @@ def _update_set_of_oppenings_by_rooks(pos: PositionForPatternRecognition, col: i
   elif col == 5:
     my_set.add(Opening.SWINGING_ROOK)
   elif col == 6:
-    if _almost_empty(my_set):
+    if _almost_empty(my_set) and _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER.find(pos) == Opening.RIGHT_HAND_FORTH_FILE_ROOK:
       my_set.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
   elif col == 7:
     if _almost_empty(my_set) and pos.move_no <= 5:
