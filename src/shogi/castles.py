@@ -34,43 +34,19 @@ def _mirror_columns(s):
 def _mirror_columns_in_pattern(pat):
   return [(piece, _mirror_columns(s)) for piece, s in pat]
 
-_SILVER_CROWN_BASE = [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26'), ('P', '16,17')]
-_SILVER_CROWN_PATTERN1 = _SILVER_CROWN_BASE + [('N', '29'), ('P', '46,47'), ('P', '37')]
-_SILVER_CROWN_PATTERN2 = _SILVER_CROWN_BASE + [('N', '37'), ('P', '46'), ('P', '36')] #('G', '47'), 
 _LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '66,67'), ('L', '99'), ('N', '89'), ('P', '95,96,97')]
-del _SILVER_CROWN_BASE
-
-_STATIC_ROOK_ANAGUMA_BASE = [('K', '99'), ('S', '88'), ('L', '98'), ('N', '89'), ('P', '86,87'), ('P', '96,97')]
-_STATIC_ROOK_ANAGUMA_PATTERN1 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '69,78,87'), ('to', '88')]
-_STATIC_ROOK_ANAGUMA_PATTERN2 = _STATIC_ROOK_ANAGUMA_BASE + [('G', '79'), ('G', '78')]
-del _STATIC_ROOK_ANAGUMA_BASE
-
-_KIMURA_MINO_BASE = [('K', '28'), ('G', '38'), ('S', '47'), ('L', '19'), ('P', '27'), ('P', '16,17'), ('!S', '46')] #('P', '46'),
-_KIMURA_MINO_PATTERN1 = _KIMURA_MINO_BASE + [('N', '29'), ('P', '37')]
-_KIMURA_MINO_PATTERN2 = _KIMURA_MINO_BASE + [('N', '37'), ('P', '36')]
-del _KIMURA_MINO_BASE
-
 _YAGURA_PATTERN = [('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'),
     ('P', '66'), ('P', '76'), ('P', '87'), ('P', '97')]
-
 _HIGH_MINO_CASTLE_BASE = [('G', '47'), ('to', '47'), ('K', '28'), ('S', '38'), ('G', '49'),  ('L', '19'),
     ('P', '46'),  ('P', '15,16,17')]
-_HIGH_MINO_CASTLE_PATTERN1 = _HIGH_MINO_CASTLE_BASE + [('P', '37'), ('P', '27'), ('N', '29')]
-_HIGH_MINO_CASTLE_PATTERN2 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '27'), ('N', '37')]
-_HIGH_MINO_CASTLE_PATTERN3 = _HIGH_MINO_CASTLE_BASE + [('P', '36'), ('P', '26'), ('N', '29')]
-del _HIGH_MINO_CASTLE_BASE
-
 _CASTLE_TOWER_MINO_BASE = [('K', '87'), ('S', '78'), ('G', '69'), ('N', '89'), ('L', '99'), ('P', '76'), ('P', '86'), ('P', '95,96,97')]
-_CASTLE_TOWER_MINO_PATTERN1 = _CASTLE_TOWER_MINO_BASE + [('P', '67')]
-_CASTLE_TOWER_MINO_PATTERN2 = _CASTLE_TOWER_MINO_BASE + [('G', '67'), ('P', '66')]
-
-del _CASTLE_TOWER_MINO_BASE
 
 '''HALF_MINO_CASTLE should be after MINO_CASTLE since it's pattern is subset'''
 
 _RECOGNIZER = Recognizer( [
-  (_SILVER_CROWN_PATTERN1, Castle.SILVER_CROWN),
-  (_SILVER_CROWN_PATTERN2, Castle.SILVER_CROWN),
+  ( [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26'), ('P', '16,17')], 'SILVER_CROWN'),
+  ( [('base-pattern', 'SILVER_CROWN'), ('N', '29'), ('P', '46,47'), ('P', '37')], Castle.SILVER_CROWN),
+  ( [('base-pattern', 'SILVER_CROWN'), ('N', '37'), ('P', '46'), ('P', '36')], Castle.SILVER_CROWN),
   (_LEFT_HAND_SILVER_CROWN_PATTERN, Castle.SILVER_CROWN),
   ([('K', '98'), ('S', '87'), ('G', '78'), ('to', '78'), ('N', '89'), ('L', '99'),
   ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '49,58,67,68')], Castle.EDGE_KING_SILVER_CROWN),
@@ -78,19 +54,22 @@ _RECOGNIZER = Recognizer( [
    adjacent_pawns(6, 6, 9, []), Castle.SILVER_CROWN_ANAGUMA),
   ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '36'), ('P', '27'), ('P', '16,17')], Castle.DIAMOND_MINO),
-  (_HIGH_MINO_CASTLE_PATTERN1, Castle.HIGH_MINO_CASTLE),
-  (_HIGH_MINO_CASTLE_PATTERN2, Castle.HIGH_MINO_CASTLE),
-  (_HIGH_MINO_CASTLE_PATTERN3, Castle.HIGH_MINO_CASTLE),
+  (_HIGH_MINO_CASTLE_BASE, 'HIGH_MINO'),
+  ([('base-pattern', 'HIGH_MINO'), ('P', '37'), ('P', '27'), ('N', '29')], Castle.HIGH_MINO_CASTLE),
+  ([('base-pattern', 'HIGH_MINO'), ('P', '36'), ('P', '27'), ('N', '37')], Castle.HIGH_MINO_CASTLE),
+  ([('base-pattern', 'HIGH_MINO'), ('P', '36'), ('P', '26'), ('N', '29')], Castle.HIGH_MINO_CASTLE),
   ([('K', '28'), ('S', '38'), ('S', '47'), ('G', '49'), (' ', '48'), ('!G', '58'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.SILVER_MINO),
   ([('K', '28'), ('S', '38'), ('G', '49'), ('L', '19'),
     ('P', '37'), ('P', '26'), ('P', '15,16,17')], Castle.TOPKNOT_MINO), #('N', '29')
-  (_CASTLE_TOWER_MINO_PATTERN1, Castle.CASTLE_TOWER_MINO), 
-  (_CASTLE_TOWER_MINO_PATTERN2, Castle.CASTLE_TOWER_MINO), 
+  (_CASTLE_TOWER_MINO_BASE, 'TOWER_MINO'),
+  ([('base-pattern', 'TOWER_MINO'), ('P', '67')], Castle.CASTLE_TOWER_MINO),
+  ([('base-pattern', 'TOWER_MINO'), ('G', '67'), ('P', '66')], Castle.CASTLE_TOWER_MINO),
   ([('K', '78'), ('S', '79'), ('G', '69'), ('G', '58'), ('S', '48'), ('B', '88'), ('N', '89'), ('L', '99'),
     ('P', '56,57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '95,96,97')], Castle.BOAT_CASTLE),
-  (_KIMURA_MINO_PATTERN1, Castle.KIMURA_MINO),
-  (_KIMURA_MINO_PATTERN2, Castle.KIMURA_MINO),
+  ([('K', '28'), ('G', '38'), ('S', '47'), ('L', '19'), ('P', '27'), ('P', '16,17'), ('!S', '46')], 'KIMURA_MINO'),
+  ([('base-pattern', 'KIMURA_MINO'), ('N', '29'), ('P', '37')], Castle.KIMURA_MINO),
+  ([('base-pattern', 'KIMURA_MINO'), ('N', '37'), ('P', '36')], Castle.KIMURA_MINO),
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('G', '58'),
     ('P', '46,47'), ('P', '36,37'), ('P', '27'), ('P', '15,16,17')], Castle.MINO_CASTLE),
   ([('K', '28'), ('G', '38'), ('S', '48'), ('N', '29'), ('L', '19'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.GOLD_MINO),
@@ -100,8 +79,9 @@ _RECOGNIZER = Recognizer( [
     ('P', '27'), ('P', '37'), ('P', '47'), ('P', '15,16,17')], Castle.PEERLESS_GOLDS),
   ([('K', '19'), ('S', '28'), ('G', '39,49'), ('L', '18'), ('N', '29'),
     ('P', '27'), ('P', '16,17')], Castle.SWINGING_ROOK_ANAGUMA),
-  (_STATIC_ROOK_ANAGUMA_PATTERN1, Castle.STATIC_ROOK_ANAGUMA),
-  (_STATIC_ROOK_ANAGUMA_PATTERN2, Castle.STATIC_ROOK_ANAGUMA),
+  ([('K', '99'), ('S', '88'), ('L', '98'), ('N', '89'), ('P', '86,87'), ('P', '96,97')], 'STATIC_ROOK_ANAGUMA'),
+  ([('base-pattern', 'STATIC_ROOK_ANAGUMA'), ('G', '69,78,87'), ('to', '88')], Castle.STATIC_ROOK_ANAGUMA),
+  ([('base-pattern', 'STATIC_ROOK_ANAGUMA'), ('G', '79'), ('G', '78')], Castle.STATIC_ROOK_ANAGUMA),
   ([('K', '88'), ('S', '78'), ('G', '69'), ('G', '58,67'), ('L', '99'), ('N', '89'),
     ('P', '87'), ('P', '76,77'), ('P', '66,67'), ('P', '95,96,97')], Castle.LEFT_HAND_MINO),
   ([('K', '68'), ('G', '58'), ('G', '78'), ('B', '88'), ('S', '79'), ('N', '89'), ('L', '99'),
@@ -112,8 +92,9 @@ _RECOGNIZER = Recognizer( [
     ('P', '76'), ('P', '87'), ('P', '96,97')], Castle.ELMO_CASTLE), #('P', '67')
   ([('G', '68'), ('K', '78'), ('G', '69'), ('S', '79'), ('N', '89'), ('L', '99'),
     ('P', '67'), ('P', '87'), ('P', '76,77'), ('P', '96,97')], Castle.GIRL_IN_THE_HOUSE),
-  (_YAGURA_PATTERN + [('P', '56'), ('S', '57')], Castle.COMPLETE_YAGURA),
-  (_YAGURA_PATTERN, Castle.YAGURA_CASTLE),
+  (_YAGURA_PATTERN, 'YAGURA'),
+  ([('base-pattern', 'YAGURA'), ('P', '56'), ('S', '57')], Castle.COMPLETE_YAGURA),
+  ([('base-pattern', 'YAGURA')], Castle.YAGURA_CASTLE),
   ([('S', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'),
     ('P', '66'), ('P', '76'), ('P', '87'), ('P', '96,97')], Castle.SILVER_YAGURA),
   ([('G', '67'), ('G', '68'), ('S', '77'), ('K', '78'), ('N', '89'), ('L', '99'),
@@ -136,6 +117,11 @@ _RECOGNIZER = Recognizer( [
     ('P', '87'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '96,97')], Castle.DOI_YAGURA),
   ([('K', '98'), ('S', '88'), ('to', '88'), ('N', '89'), ('L', '99'), ('P', '87'), ('P', '97')], Castle.KUSHIKATSU_CASTLE),
 ], 'castles')
+
+del _LEFT_HAND_SILVER_CROWN_PATTERN
+del _HIGH_MINO_CASTLE_BASE
+del _YAGURA_PATTERN
+del _CASTLE_TOWER_MINO_BASE
 
 def position_update_set_of_castles(pos: PositionForPatternRecognition, sente_set, gote_set):
   _RECOGNIZER.update_set(pos, sente_set, gote_set)

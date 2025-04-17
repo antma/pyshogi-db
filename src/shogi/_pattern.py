@@ -10,7 +10,7 @@ from . import piece
 from . import position
 from .move import Move
 
-_Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE'])
+_Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN'])
 _GENERALS_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER])
 _BISHOP_S = set([piece.BISHOP, piece.HORSE])
 _ROOK_S = set([piece.ROOK, piece.DRAGON])
@@ -44,6 +44,15 @@ class PositionForPatternRecognition(position.Position):
     self._count_moves_d = {}
     self._was_drops = False
     self._cached_sfen = None
+    self._patterns_d = {}
+  def clear_patterns_matches(self):
+    self._patterns_d = {}
+  def set_pattern_match(self, key: str, value: bool):
+    self._patterns_d[key] = value
+  def get_pattern_match(self, key: str):
+    p = self._patterns_d.get(key)
+    assert not p is None
+    return p
   def do_move(self, m: Move):
     self._cached_sfen = None
     u = super().do_move(m)
@@ -97,6 +106,8 @@ def _latin_to_piece(s: str) -> int:
   return p
 
 class _PiecePattern:
+  def _op_base_pattern(self, pos: PositionForPatternRecognition, side: int) -> bool:
+    return pos.get_pattern_match(self._count)
   def _op_eq(self, pos: PositionForPatternRecognition, side: int) -> bool:
     c = self._count
     return pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece
@@ -137,6 +148,12 @@ class _PiecePattern:
     self._list = None
     self.hits = 0
     self.calls = 1
+    if piece_latin_letter == 'base-pattern':
+      self._op = _Operation.BASE_PATTERN
+      assert isinstance(cell_pattern, str)
+      self._count = cell_pattern
+      self._match = _PiecePattern._op_base_pattern
+      return
     if piece_latin_letter == 'side':
       self._op = _Operation.SIDE
       self._match = _PiecePattern._op_side
@@ -250,12 +267,20 @@ class Recognizer:
     self._position_patterns = [(_PositionPattern(data, value), value) for data, value in p]
     logging.info('%s: %d unique piece patterns, %d total piece patterns', tp, len(_PIECE_PATTERNS_D), _PIECE_PATTERNS_CALLS)
   def find(self, pos: PositionForPatternRecognition):
+    pos.clear_patterns_matches()
     side = -pos.side_to_move
     f = _PositionPattern.debug_match if log.is_debug() else _PositionPattern.match
     for p, ct in self._position_patterns:
-      if f(p, pos, side):
-        return ct
-      logging.debug('Pattern %s not matched', ct.name)
+      r = f(p, pos, side)
+      if isinstance(ct, str):
+        pos.set_pattern_match(ct, r)
+        if not r:
+          logging.debug('Pattern %s not matched', ct)
+      else:
+        if r:
+          return ct
+        else:
+          logging.debug('Pattern %s not matched', ct.name)
     return None
   def update_set(self, pos: PositionForPatternRecognition, sente_set: set, gote_set: set):
     ct = self.find(pos)
