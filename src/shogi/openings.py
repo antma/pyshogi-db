@@ -11,6 +11,7 @@ Opening = IntEnum('Opening',
    'FORTH_THIRD_FILE_ROOK_STRATEGY',
    'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK', 'DIRECT_OPPOSING_ROOK',
+   'HIDE_CHAN_STYLE_CENTRAL_ROOK',
    'FUJII_SYSTEM',
    'LEGHORN_SPECIAL',
     #static
@@ -107,12 +108,12 @@ _RECOGNIZER = Recognizer([
   ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
     ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58,67'),
-   ('P', '87'), ('P', '76'), ('P', '66,67'), ('P', '56'), ('S', '48,57'), ('R', '28'), ('!p', '43')] +
+   ('P', '87'), ('P', '76'), ('P', '66,67'), ('P', '56'), ('S', '48,57'), ('R', '28'), ('!p', '43'), ('r', '22,32,42')] +
    last_row_pieces('2345'), Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
   ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76')] +
     last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.AMAHIKO_OPPOSING_ROOK),
-  ([('B', '79'), ('K', '78'), ('S', '57'), ('R', '28'), ('P', '56'), ('P', '25')] +
-    last_row_pieces('357') + adjacent_pawns(7, 3, 9, [5]), Opening.SPEARING_THE_BIRD),
+  ([('B', '79'), ('K', '78'), ('S', '57'), ('R', '28'), ('P', '56'), ('P', '25'), ('P', '36,37')] +
+    last_row_pieces('357') + adjacent_pawns(7, 4, 9, [5]), Opening.SPEARING_THE_BIRD),
   ([('P', '36'), ('to', '36'), ('R', '68'), ('S', '38'), ('S', '67,78'), ('G', '58,69'), ('B', '77'),
     ('P', '76'), ('P', '66,67'), ('P', '57'), ('P', '87'), ('P', '27'), ('P', '15,16')] +
     last_row_pieces('367'), Opening.FUJII_SYSTEM),
@@ -140,6 +141,8 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.DIRECT_OPPOSING_ROOK),
   ([('P', '56'), ('to', '56'), ('G', '78'), ('S', '68'), ('S', '48'), ('B', '88'), ('R', '28'), ('P', '25,26')] +
     adjacent_pawns(7, 3, 9, [5]) + last_row_pieces('367'), Opening.MURATA_SYSTEM),
+  ([('R', '58'), ('to', '58'), ('from', '28'), ('B', '77,88'), ('S', '67,68'), ('P', '76'), ('P', '66')] + last_row_pieces('7')
+   + adjacent_pawns(7, 2, 9, [6, 7]), Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK),
 ], 'openings')
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
