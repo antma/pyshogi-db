@@ -107,21 +107,21 @@ def _latin_to_piece(s: str) -> int:
 
 class _PiecePattern:
   def _op_base_pattern(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    return pos.get_pattern_match(self._count)
+    return pos.get_pattern_match(self._arg)
   def _op_eq(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    c = self._count
+    c = self._arg
     return pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece
   def _op_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    return any(pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece for c in self._list)
+    return any(pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece for c in self._arg)
   def _op_not_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    return all(pos.board[c if side > 0 else cell.swap_side(c)] != side * self._piece for c in self._list)
+    return all(pos.board[c if side > 0 else cell.swap_side(c)] != side * self._piece for c in self._arg)
   def _op_pieces_eq(self, pos: PositionForPatternRecognition, side: int) -> bool:
     p = pos.sente_pieces if side * self._piece > 0 else pos.gote_pieces
-    return p[abs(self._piece) - 1] == self._count
+    return p[abs(self._piece) - 1] == self._arg
   def _op_max_moves(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    return pos.count_piece_moves(self._piece * side) <= self._count
+    return pos.count_piece_moves(self._piece * side) <= self._arg
   def _op_side(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    return side == self._count
+    return side == self._arg
   def _op_from_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
     m = pos.last_move
     if m is None:
@@ -131,7 +131,7 @@ class _PiecePattern:
       return False
     if side < 0:
       c = cell.swap_side(c)
-    return c in self._list
+    return c in self._arg
   def _op_to_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
     m = pos.last_move
     if m is None:
@@ -140,32 +140,31 @@ class _PiecePattern:
     assert not c is None
     if side < 0:
       c = cell.swap_side(c)
-    return c in self._list
+    return c in self._arg
   def __init__(self, piece_latin_letter: str, cell_pattern: Union[str,int]):
     self._repr = (piece_latin_letter, cell_pattern)
     self._piece = None
-    self._count = None
-    self._list = None
+    self._arg = None
     self.hits = 0
     self.calls = 1
     if piece_latin_letter == 'base-pattern':
       self._op = _Operation.BASE_PATTERN
       assert isinstance(cell_pattern, str)
-      self._count = cell_pattern
+      self._arg = cell_pattern
       self._match = _PiecePattern._op_base_pattern
       return
     if piece_latin_letter == 'side':
       self._op = _Operation.SIDE
       self._match = _PiecePattern._op_side
       assert isinstance(cell_pattern, int)
-      self._count = cell_pattern
+      self._arg = cell_pattern
       return
     if piece_latin_letter == 'max-gold-moves':
       self._op = _Operation.MAX_MOVES
       self._match = _PiecePattern._op_max_moves
       self._piece = piece.GOLD
       assert isinstance(cell_pattern, int)
-      self._count = cell_pattern
+      self._arg = cell_pattern
       return
     self._op = _Operation.IN
     self._match = _PiecePattern._op_in
@@ -186,13 +185,12 @@ class _PiecePattern:
     if isinstance(cell_pattern, int):
       self._op = _Operation.PIECES_EQ
       self._match = _PiecePattern._op_pieces_eq
-      self._count = cell_pattern
+      self._arg = cell_pattern
     else:
-      self._list = list(map(cell.digital_parse, cell_pattern.split(',')))
-      l = len(self._list)
+      self._arg = list(map(cell.digital_parse, cell_pattern.split(',')))
+      l = len(self._arg)
       if l == 1 and self._op == _Operation.IN:
-        self._count = self._list[0]
-        self._list = None
+        self._arg = self._arg[0]
         self._match = _PiecePattern._op_eq
       if l > 1:
         t = list(map(int, cell_pattern.split(',')))
@@ -217,7 +215,7 @@ _PIECE_PATTERNS_D = {}
 _PIECE_PATTERNS_CALLS = 0
 
 def _piece_pattern(t):
-  global _PIECE_PATTERNS_D, _PIECE_PATTERNS_CALLS
+  global _PIECE_PATTERNS_CALLS
   _PIECE_PATTERNS_CALLS += 1
   p = _PIECE_PATTERNS_D.get(t)
   if not p is None:
@@ -279,8 +277,7 @@ class Recognizer:
       else:
         if r:
           return ct
-        else:
-          logging.debug('Pattern %s not matched', ct.name)
+        logging.debug('Pattern %s not matched', ct.name)
     return None
   def update_set(self, pos: PositionForPatternRecognition, sente_set: set, gote_set: set):
     ct = self.find(pos)
