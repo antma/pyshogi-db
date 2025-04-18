@@ -3,6 +3,7 @@
 from enum import IntEnum
 import logging
 from typing import List, Optional, Union
+from functools import reduce
 
 import log
 from . import cell
@@ -10,7 +11,7 @@ from . import piece
 from . import position
 from .move import Move
 
-_Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN'])
+_Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW'])
 _GENERALS_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER])
 _BISHOP_S = set([piece.BISHOP, piece.HORSE])
 _ROOK_S = set([piece.ROOK, piece.DRAGON])
@@ -23,13 +24,11 @@ def adjacent_pawns(row: int, start_col: int, end_col: int, excl: List[int]):
 _FIRST_ROW = 'LNSGKGSNL'
 
 def last_row_pieces(excl: str):
-  a = []
-  s = set(map(int, excl))
-  for i, c in enumerate(_FIRST_ROW):
-    col = i + 1
-    if not col in s:
-      a.append((c, str(col) + '9'))
-  return a
+  s = excl
+  for u, v in zip(s, s[1:]):
+    assert u < v, excl
+  m = 511 - reduce(lambda x, y: x | y, ((1 << (int(c) - 1)) for c in s), 0)
+  return [('last-row', m)]
 
 def _swinging_rook_column(col: int) -> bool:
   return 1 <= col <= 5
@@ -45,6 +44,11 @@ class PositionForPatternRecognition(position.Position):
     self._was_drops = False
     self._cached_sfen = None
     self._patterns_d = {}
+    self._sente_unmovable_pieces = 511
+    self._gote_unmovable_pieces = 511
+  def check_last_row(self, mask: int, side: int) -> bool:
+    m = self._sente_unmovable_pieces if side > 0 else self._gote_unmovable_pieces
+    return (m & mask) == mask
   def clear_patterns_matches(self):
     self._patterns_d = {}
   def set_pattern_match(self, key: str, value: bool):
@@ -55,6 +59,16 @@ class PositionForPatternRecognition(position.Position):
     return p
   def do_move(self, m: Move):
     self._cached_sfen = None
+    if self.side_to_move > 0:
+      if (not m.from_cell is None) and m.from_cell >= 72:
+        self._sente_unmovable_pieces &= 511 ^ (1 << (m.from_cell % 9))
+      if m.to_cell < 9:
+        self._gote_unmovable_pieces &= 511 ^ (1 << (8 - (m.to_cell % 9)))
+    else:
+      if (not m.from_cell is None) and m.from_cell < 9:
+        self._gote_unmovable_pieces &= 511 ^ (1 << (8 - (m.from_cell % 9)))
+      if m.to_cell >= 72:
+        self._sente_unmovable_pieces &= 511 ^ (1 << (m.to_cell % 9))
     u = super().do_move(m)
     if not u is None:
       tp = abs(u.taken_piece)
@@ -106,6 +120,8 @@ def _latin_to_piece(s: str) -> int:
   return p
 
 class _PiecePattern:
+  def _op_last_row(self, pos: PositionForPatternRecognition, side: int) -> bool:
+    return pos.check_last_row(self._arg, side)
   def _op_base_pattern(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return pos.get_pattern_match(self._arg)
   def _op_eq(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -147,6 +163,12 @@ class _PiecePattern:
     self._arg = None
     self.hits = 0
     self.calls = 1
+    if piece_latin_letter == 'last-row':
+      self._op = _Operation.LAST_ROW
+      assert isinstance(cell_pattern, int)
+      self._arg = cell_pattern
+      self._match = _PiecePattern._op_last_row
+      return
     if piece_latin_letter == 'base-pattern':
       self._op = _Operation.BASE_PATTERN
       assert isinstance(cell_pattern, str)
