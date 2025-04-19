@@ -236,6 +236,13 @@ class _PiecePattern:
 _PIECE_PATTERNS_D = {}
 _PIECE_PATTERNS_CALLS = 0
 
+def piece_patterns_stats():
+  calls, hits = 0, 0
+  for p in _PIECE_PATTERNS_D.values():
+    hits += p.hits
+    calls += p.calls - 1
+  logging.info('%d hits, %d calls (%.2f%%)', hits, calls, (hits * 100.0) / calls)
+
 def _piece_pattern(t):
   global _PIECE_PATTERNS_CALLS
   _PIECE_PATTERNS_CALLS += 1
@@ -263,16 +270,22 @@ class _PositionPattern:
     return all(p.match(pos, side) for p in self._patterns)
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return all(p.debug_match(pos, side) for p in self._patterns)
-  def reoder(self):
+  def reorder(self):
     self._patterns.sort()
 
 class Recognizer:
   def __init__(self, p, tp = None):
     self._position_patterns = [(_PositionPattern(data, value), value) for data, value in p]
+    self._u = 1
+    self._v = 2
+    self._n = 0
     logging.info('%s: %d unique piece patterns, %d total piece patterns', tp, len(_PIECE_PATTERNS_D), _PIECE_PATTERNS_CALLS)
-  def reoder(self):
-    for p, _ in self._position_patterns:
-      p.reoder()
+  def reorder(self):
+    self._n += 1
+    if self._n >= self._v:
+      self._u, self._v = self._v, self._u + self._v
+      for p, _ in self._position_patterns:
+        p.reorder()
   def find(self, pos: PositionForPatternRecognition):
     pos.clear_patterns_matches()
     side = -pos.side_to_move

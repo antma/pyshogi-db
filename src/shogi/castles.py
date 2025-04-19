@@ -4,7 +4,7 @@ import logging
 from typing import Optional, Tuple, Set
 from enum import IntEnum
 from .game import Game
-from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns
+from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns, piece_patterns_stats
 
 Castle = IntEnum('Castle',
   [ #static rook
@@ -134,7 +134,7 @@ def sfen_find_castle(sfen: str) -> Optional[Castle]:
   return position_find_castle(pos)
 
 def game_find_castles(g: Game, max_hands: int = 50) -> Tuple[Set[Castle], Set[Castle]]:
-  _RECOGNIZER.reoder()
+  _RECOGNIZER.reorder()
   sente_castles = set()
   gote_castles = set()
   assert g.start_pos is None

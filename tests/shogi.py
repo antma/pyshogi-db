@@ -628,6 +628,7 @@ class TestClassifier(unittest.TestCase):
       else:
         self._check_game(j[0], None, (j[1], j[2]))
         it = itertools.chain([i], it)
+    shogi.castles.piece_patterns_stats()
 
 if __name__ == '__main__':
   unittest.main()

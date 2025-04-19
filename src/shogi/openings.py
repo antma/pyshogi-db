@@ -223,7 +223,7 @@ def _remove_redundant(s):
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 
 def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[Opening]]:
-  _RECOGNIZER.reoder()
+  _RECOGNIZER.reorder()
   sente_openings = set()
   gote_openings = set()
   try:
