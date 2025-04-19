@@ -219,7 +219,7 @@ class _PiecePattern:
         assert all(u < v for u, v in zip(t, t[1:])), cell_pattern
   def __str__(self):
     return f'PiecePattern({self._repr})'
-  def better(self, other) -> bool:
+  def __lt__(self, other):
     return self.hits * other.calls > other.hits * self.calls
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     r = self._match(self, pos, side)
@@ -260,32 +260,19 @@ class _PositionPattern:
     assert _unique_data(data, value), data
     self._patterns = list(map(_piece_pattern, data))
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    q = None
-    for i, p in enumerate(self._patterns):
-      if not p.match(pos, side):
-        if (not q is None) and p.better(q):
-          self._patterns[i-1] = p
-          self._patterns[i] = q
-        return False
-      q = p
-    return True
-    #return all(p.match(pos, side) for p in self._patterns)
+    return all(p.match(pos, side) for p in self._patterns)
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
-    q = None
-    for i, p in enumerate(self._patterns):
-      if not p.debug_match(pos, side):
-        if (not q is None) and p.better(q):
-          self._patterns[i-1] = p
-          self._patterns[i] = q
-        return False
-      q = p
-    return True
-    #return all(p.debug_match(pos, side) for p in self._patterns)
+    return all(p.debug_match(pos, side) for p in self._patterns)
+  def reoder(self):
+    self._patterns.sort()
 
 class Recognizer:
   def __init__(self, p, tp = None):
     self._position_patterns = [(_PositionPattern(data, value), value) for data, value in p]
     logging.info('%s: %d unique piece patterns, %d total piece patterns', tp, len(_PIECE_PATTERNS_D), _PIECE_PATTERNS_CALLS)
+  def reoder(self):
+    for p, _ in self._position_patterns:
+      p.reoder()
   def find(self, pos: PositionForPatternRecognition):
     pos.clear_patterns_matches()
     side = -pos.side_to_move

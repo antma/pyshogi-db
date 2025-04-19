@@ -134,6 +134,7 @@ def sfen_find_castle(sfen: str) -> Optional[Castle]:
   return position_find_castle(pos)
 
 def game_find_castles(g: Game, max_hands: int = 50) -> Tuple[Set[Castle], Set[Castle]]:
+  _RECOGNIZER.reoder()
   sente_castles = set()
   gote_castles = set()
   assert g.start_pos is None
