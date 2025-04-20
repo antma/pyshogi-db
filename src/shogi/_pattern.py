@@ -11,15 +11,14 @@ from . import piece
 from . import position
 from .move import Move
 
-_Operation = IntEnum('_Operation', ['IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW'])
+_Operation = IntEnum('_Operation', ['EQ', 'IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW', 'PAWNS_IN', 'PAWNS_MASK'])
 _GENERALS_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER])
 _BISHOP_S = set([piece.BISHOP, piece.HORSE])
 _ROOK_S = set([piece.ROOK, piece.DRAGON])
 
 def adjacent_pawns(row: int, start_col: int, end_col: int, excl: List[int]):
-  row = str(row)
   s = set(excl)
-  return [('P', str(col) + row) for col in range(start_col, end_col) if not col in s]
+  return [('adj-pawns', sum(1 << (col - 1) for col in range(start_col, end_col) if not col in s) << (9 * (row - 1)))]
 
 _FIRST_ROW = 'LNSGKGSNL'
 
@@ -46,6 +45,22 @@ class PositionForPatternRecognition(position.Position):
     self._patterns_d = {}
     self._sente_unmovable_pieces = 511
     self._gote_unmovable_pieces = 511
+    self._sente_pawns = 511 << 54
+    self._gote_rev_pawns = self._sente_pawns
+  def pawns_in(self, side: int, mask: int) -> bool:
+    return ((self._sente_pawns if side > 0 else self._gote_rev_pawns) & mask) != 0
+  def pawns_mask(self, side: int, mask: int) -> bool:
+    return ((self._sente_pawns if side > 0 else self._gote_rev_pawns) & mask) == mask
+  def _check_pawns(self):
+    s = 0
+    g = 0
+    for i, c in enumerate(self.board):
+      if c == piece.PAWN:
+        s += 1 << i
+      elif c == -piece.PAWN:
+        g += 1 << cell.swap_side(i)
+    assert self._sente_pawns == s
+    assert self._gote_rev_pawns == g
   def check_last_row(self, mask: int, side: int) -> bool:
     m = self._sente_unmovable_pieces if side > 0 else self._gote_unmovable_pieces
     return (m & mask) == mask
@@ -60,15 +75,25 @@ class PositionForPatternRecognition(position.Position):
   def do_move(self, m: Move):
     self._cached_sfen = None
     if self.side_to_move > 0:
-      if (not m.from_cell is None) and m.from_cell >= 72:
-        self._sente_unmovable_pieces &= 511 ^ (1 << (m.from_cell % 9))
+      if not m.from_cell is None:
+        if m.from_cell >= 72:
+          self._sente_unmovable_pieces &= 511 ^ (1 << (m.from_cell % 9))
+        if m.from_piece == piece.PAWN:
+          self._sente_pawns -= 1 << m.from_cell
       if m.to_cell < 9:
         self._gote_unmovable_pieces &= 511 ^ (1 << (8 - (m.to_cell % 9)))
+      if m.to_piece == piece.PAWN:
+        self._sente_pawns += 1 << m.to_cell
     else:
-      if (not m.from_cell is None) and m.from_cell < 9:
-        self._gote_unmovable_pieces &= 511 ^ (1 << (8 - (m.from_cell % 9)))
+      if not m.from_cell is None:
+        if m.from_cell < 9:
+          self._gote_unmovable_pieces &= 511 ^ (1 << (8 - (m.from_cell % 9)))
+        if m.from_piece == -piece.PAWN:
+          self._gote_rev_pawns -= 1 << cell.swap_side(m.from_cell)
       if m.to_cell >= 72:
         self._sente_unmovable_pieces &= 511 ^ (1 << (m.to_cell % 9))
+      if m.to_piece == -piece.PAWN:
+        self._gote_rev_pawns += 1 << cell.swap_side(m.to_cell)
     u = super().do_move(m)
     if not u is None:
       tp = abs(u.taken_piece)
@@ -78,12 +103,18 @@ class PositionForPatternRecognition(position.Position):
         self._taken_bishop = True
       if (not self._taken_rook) and tp in _ROOK_S:
         self._taken_rook = True
+      if tp == piece.PAWN:
+        if u.taken_piece > 0:
+          self._sente_pawns -= 1 << m.to_cell
+        else:
+          self._gote_rev_pawns -= 1 << cell.swap_side(m.to_cell)
     self.last_move = m
     p = m.from_piece
     if not p is None:
       self._count_moves_d[p] = self._count_moves_d.get(p, 0) + 1
     if (not self._was_drops) and m.is_drop():
       self._was_drops = True
+    #self._check_pawns()
   def sfen(self, move_no = True) -> str:
     if not move_no:
       return super().sfen(move_no)
@@ -120,6 +151,10 @@ def _latin_to_piece(s: str) -> int:
   return p
 
 class _PiecePattern:
+  def _op_pawns_mask(self, pos: PositionForPatternRecognition, side: int) -> bool:
+    return pos.pawns_mask(side, self._arg)
+  def _op_pawns_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
+    return pos.pawns_in(side, self._arg)
   def _op_last_row(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return pos.check_last_row(self._arg, side)
   def _op_base_pattern(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -163,6 +198,12 @@ class _PiecePattern:
     self._arg = None
     self.hits = 0
     self.calls = 1
+    if piece_latin_letter == 'adj-pawns':
+      self._op = _Operation.PAWNS_MASK
+      assert isinstance(cell_pattern, int)
+      self._arg = cell_pattern
+      self._match = _PiecePattern._op_pawns_mask
+      return
     if piece_latin_letter == 'last-row':
       self._op = _Operation.LAST_ROW
       assert isinstance(cell_pattern, int)
@@ -211,12 +252,20 @@ class _PiecePattern:
     else:
       self._arg = list(map(cell.digital_parse, cell_pattern.split(',')))
       l = len(self._arg)
-      if l == 1 and self._op == _Operation.IN:
+      logging.debug('%s: %s, l = %d', self._repr, self._arg, l)
+      if (l == 1) and (self._op == _Operation.IN):
         self._arg = self._arg[0]
+        self._op = _Operation.EQ
         self._match = _PiecePattern._op_eq
       if l > 1:
         t = list(map(int, cell_pattern.split(',')))
         assert all(u < v for u, v in zip(t, t[1:])), cell_pattern
+    logging.debug('op = %s, arg = %s', self._op.name, self._arg)
+    if (self._op == _Operation.IN) and (self._piece == piece.PAWN):
+      assert isinstance(self._arg, list), self._repr
+      self._arg = sum(1 << i for i in self._arg)
+      self._op = _Operation.PAWNS_IN
+      self._match = _PiecePattern._op_pawns_in
   def __str__(self):
     return f'PiecePattern({self._repr})'
   def __lt__(self, other):
