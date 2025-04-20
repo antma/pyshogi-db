@@ -266,6 +266,9 @@ class _PiecePattern:
       self._arg = sum(1 << i for i in self._arg)
       self._op = _Operation.PAWNS_IN
       self._match = _PiecePattern._op_pawns_in
+    if self._op in (_Operation.TO_IN, _Operation.FROM_IN):
+      assert isinstance(self._arg, list)
+      self._arg = set(self._arg)
   def __str__(self):
     return f'PiecePattern({self._repr})'
   def __lt__(self, other):
