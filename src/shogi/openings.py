@@ -8,7 +8,7 @@ from ._pattern import Recognizer, SFENMap, PositionForPatternRecognition, adjace
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'DOUBLE_SWINGING_ROOK',
-   'FORTH_THIRD_FILE_ROOK_STRATEGY',
+   'FORTH_THIRD_FILE_ROOK_STRATEGY', 'ROOK32_STRATEGY',
    'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK', 'DIRECT_OPPOSING_ROOK',
    'HIDE_CHAN_STYLE_CENTRAL_ROOK',
@@ -189,8 +189,9 @@ def _update_set_of_oppenings_by_rooks(pos: PositionForPatternRecognition, col: i
       my_set.add(Opening.OPPOSING_ROOK)
     my_set.add(Opening.SWINGING_ROOK)
   elif col == 3:
-    'quick ishida != third file rook'
-    if _almost_empty(my_set):
+    if pos.move_no == 2:
+      my_set.add(Opening.ROOK32_STRATEGY)
+    elif _almost_empty(my_set):
       my_set.add(Opening.THIRD_FILE_ROOK)
     my_set.add(Opening.SWINGING_ROOK)
   elif col == 4:
