@@ -220,11 +220,11 @@ class _PiecePattern:
   def __str__(self):
     return f'PiecePattern({self._repr})'
   def __lt__(self, other):
-    return self.hits * other.calls > other.hits * self.calls
+    return self.hits * other.calls < other.hits * self.calls
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     r = self._match(self, pos, side)
     self.calls += 1
-    if not r:
+    if r:
       self.hits += 1
     return r
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -239,8 +239,9 @@ _PIECE_PATTERNS_CALLS = 0
 def piece_patterns_stats():
   calls, hits = 0, 0
   for p in _PIECE_PATTERNS_D.values():
-    hits += p.hits
-    calls += p.calls - 1
+    c = p.calls - 1
+    calls += c
+    hits += c - p.hits
   logging.info('%d hits, %d calls (%.2f%%)', hits, calls, (hits * 100.0) / calls)
 
 def _piece_pattern(t):
