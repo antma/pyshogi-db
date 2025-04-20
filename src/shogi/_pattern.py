@@ -284,6 +284,22 @@ class _PiecePattern:
     if not res:
       logging.debug('%s not matched', self)
     return res
+  def get_pawn_mask(self) -> Optional[int]:
+    if (self._piece == piece.PAWN) and (self._op == _Operation.EQ):
+      assert isinstance(self._arg, int)
+      return 1 << self._arg
+    if self._op == _Operation.PAWNS_MASK:
+      assert isinstance(self._arg, int)
+      return self._arg
+    return None
+  def find_global(self):
+    global _PIECE_PATTERNS_CALLS
+    _PIECE_PATTERNS_CALLS += 1
+    p = _PIECE_PATTERNS_D.get(self._repr)
+    if not p is None:
+      return p
+    _PIECE_PATTERNS_D[self._repr] = self
+    return self
 
 _PIECE_PATTERNS_D = {}
 _PIECE_PATTERNS_CALLS = 0
@@ -318,7 +334,18 @@ def _unique_data(data, value):
 class _PositionPattern:
   def __init__(self, data: list, value):
     assert _unique_data(data, value), data
-    self._patterns = list(map(_piece_pattern, data))
+    t = []
+    pm = 0
+    for p in map(lambda t: _PiecePattern(t[0], t[1]), data):
+      x = p.get_pawn_mask()
+      if x is None:
+        t.append(p.find_global())
+      else:
+        assert (pm & x) == 0
+        pm |= x
+    if pm > 0:
+      t.append(_piece_pattern(('adj-pawns', pm)))
+    self._patterns = t
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return all(p.match(pos, side) for p in self._patterns)
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
