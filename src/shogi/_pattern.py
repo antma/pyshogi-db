@@ -156,6 +156,8 @@ def _latin_to_piece(s: str) -> int:
   assert p > 0
   return p
 
+_PIECE_PATTERNS_D = {}
+
 class _PiecePattern:
   def _op_pawns_mask(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return pos.pawns_mask(side, self._arg)
@@ -299,8 +301,6 @@ class _PiecePattern:
       return self._arg
     return None
   def find_global(self):
-    global _PIECE_PATTERNS_CALLS
-    _PIECE_PATTERNS_CALLS += 1
     p = _PIECE_PATTERNS_D.get(self._repr)
     if not p is None:
       return p
@@ -320,9 +320,6 @@ class _PiecePattern:
   def is_king_pattern(self) -> bool:
     return (self._piece == piece.KING) and (self._op in (_Operation.EQ, _Operation.IN))
 
-_PIECE_PATTERNS_D = {}
-_PIECE_PATTERNS_CALLS = 0
-
 def piece_patterns_stats():
   calls, hits = 0, 0
   for p in _PIECE_PATTERNS_D.values():
@@ -332,8 +329,6 @@ def piece_patterns_stats():
   logging.info('%d hits, %d calls (%.2f%%)', hits, calls, (hits * 100.0) / calls)
 
 def _piece_pattern(t):
-  global _PIECE_PATTERNS_CALLS
-  _PIECE_PATTERNS_CALLS += 1
   p = _PIECE_PATTERNS_D.get(t)
   if not p is None:
     return p
@@ -395,7 +390,7 @@ class _PositionPattern:
       self._patterns.pop(i)
 
 class Recognizer:
-  def __init__(self, p, tp = None):
+  def __init__(self, p):
     self._position_patterns = [(_PositionPattern(data, value), value) for data, value in p]
     self._by_king = [ [] for _ in range(81)]
     d = {}
@@ -410,7 +405,6 @@ class Recognizer:
     self._u = 1
     self._v = 2
     self._n = 0
-    logging.info('%s: %d unique piece patterns, %d total piece patterns', tp, len(_PIECE_PATTERNS_D), _PIECE_PATTERNS_CALLS)
   def reorder(self):
     self._n += 1
     if self._n >= self._v:

@@ -143,12 +143,12 @@ _RECOGNIZER = Recognizer([
     adjacent_pawns(7, 3, 9, [5]) + last_row_pieces('367'), Opening.MURATA_SYSTEM),
   ([('R', '58'), ('to', '58'), ('from', '28'), ('B', '77,88'), ('S', '67,68'), ('P', '76'), ('P', '66')] + last_row_pieces('7')
    + adjacent_pawns(7, 2, 9, [6, 7]), Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK),
-], 'openings')
+])
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
   #recognize before move, so pawn had inverted color and mirrored cell position
   ([('p', '64')], Opening.RIGHT_HAND_FORTH_FILE_ROOK),
-], 'right hand forth file rook')
+])
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
   assert isinstance(pos, PositionForPatternRecognition)
