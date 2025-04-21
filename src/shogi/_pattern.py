@@ -311,12 +311,16 @@ class _PiecePattern:
   def king_possible_cells(self, d):
     if self._op == _Operation.BASE_PATTERN:
       return d[self._arg]
+    if (self._op == _Operation.LAST_ROW) and (self._arg & (1 << 4) != 0):
+      return set([76])
     if self._piece == piece.KING:
       if self._op == _Operation.EQ:
         return set([self._arg])
       if self._op == _Operation.IN:
         return self._arg
     return None
+  def king_pattern(self) -> bool:
+    return (self._piece == piece.KING) and (self._op in (_Operation.EQ, _Operation.IN))
 
 _PIECE_PATTERNS_D = {}
 _PIECE_PATTERNS_CALLS = 0
