@@ -75,8 +75,8 @@ _RECOGNIZER = Recognizer( [
   ([('K', '28'), ('G', '38'), ('S', '48'), ('N', '29'), ('L', '19'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.GOLD_MINO),
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('!G', '58'), ('!S', '58'),
     ('P', '47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.HALF_MINO_CASTLE),
-  ([('K', '38'), ('G', '48'), ('G', '58'), ('S', '28,39'), ('N', '29'), ('L', '19'),
-    ('P', '27'), ('P', '37'), ('P', '47'), ('P', '15,16,17')], Castle.PEERLESS_GOLDS),
+  ([('K', '38'), ('G', '48'), ('G', '58'), ('S', '28,39'), ('N', '29,37'), ('L', '19'),
+    ('P', '26,27'), ('P', '36,37'), ('P', '47'), ('P', '15,16,17')], Castle.PEERLESS_GOLDS),
   ([('K', '19'), ('S', '28'), ('G', '39,49'), ('L', '18'), ('N', '29'),
     ('P', '27'), ('P', '16,17')], Castle.SWINGING_ROOK_ANAGUMA),
   ([('K', '99'), ('S', '88'), ('L', '98'), ('N', '89'), ('P', '86,87'), ('P', '96,97')], 'STATIC_ROOK_ANAGUMA'),
@@ -139,18 +139,8 @@ def game_find_castles(g: Game, max_hands: int = 50) -> Tuple[Set[Castle], Set[Ca
   gote_castles = set()
   assert g.start_pos is None
   pos = PositionForPatternRecognition()
-  #sente_drops, gote_drops = False, False
   for m in g.moves[:max_hands]:
     pos.do_move(m)
-    '''
-    side = -pos.side_to_move
-    if m.is_drop():
-      if side > 0:
-        sente_drops = True
-      else:
-        gote_drops = True
-    drops = sente_drops if side > 0 else gote_drops
-    '''
     if not pos.is_opening():
       logging.debug('Out of opening: %s', pos.sfen())
       break
