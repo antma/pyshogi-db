@@ -47,6 +47,10 @@ class PositionForPatternRecognition(position.Position):
     self._gote_unmovable_pieces = 511
     self._sente_pawns = 511 << 54
     self._gote_rev_pawns = self._sente_pawns
+    self._sente_king = 76
+    self._gote_rev_king = 76
+  def get_king_normalized_pos(self, side: int) -> int:
+    return self._sente_king if side > 0 else self._gote_rev_king
   def pawns_in(self, side: int, mask: int) -> bool:
     return ((self._sente_pawns if side > 0 else self._gote_rev_pawns) & mask) != 0
   def pawns_mask(self, side: int, mask: int) -> bool:
@@ -84,6 +88,8 @@ class PositionForPatternRecognition(position.Position):
         self._gote_unmovable_pieces &= 511 ^ (1 << (8 - (m.to_cell % 9)))
       if m.to_piece == piece.PAWN:
         self._sente_pawns += 1 << m.to_cell
+      elif m.to_piece == piece.KING:
+        self._sente_king = m.to_cell
     else:
       if not m.from_cell is None:
         if m.from_cell < 9:
@@ -94,6 +100,8 @@ class PositionForPatternRecognition(position.Position):
         self._sente_unmovable_pieces &= 511 ^ (1 << (m.to_cell % 9))
       if m.to_piece == -piece.PAWN:
         self._gote_rev_pawns += 1 << cell.swap_side(m.to_cell)
+      elif m.to_piece == -piece.KING:
+        self._gote_rev_king = cell.swap_side(m.to_cell)
     u = super().do_move(m)
     if not u is None:
       tp = abs(u.taken_piece)
@@ -300,6 +308,15 @@ class _PiecePattern:
       return p
     _PIECE_PATTERNS_D[self._repr] = self
     return self
+  def king_possible_cells(self, d):
+    if self._op == _Operation.BASE_PATTERN:
+      return d[self._arg]
+    if self._piece == piece.KING:
+      if self._op == _Operation.EQ:
+        return set([self._arg])
+      if self._op == _Operation.IN:
+        return self._arg
+    return None
 
 _PIECE_PATTERNS_D = {}
 _PIECE_PATTERNS_CALLS = 0
@@ -346,6 +363,19 @@ class _PositionPattern:
     if pm > 0:
       t.append(_piece_pattern(('adj-pawns', pm)))
     self._patterns = t
+  def king_possible_cells(self, d):
+    r = None
+    for p in self._patterns:
+      q = p.king_possible_cells(d)
+      if not q is None:
+        if r is None:
+          r = q.copy()
+        else:
+          r = r.intersection(q)
+    if r is None:
+      r = set(range(81))
+    assert len(r) > 0
+    return r
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return all(p.match(pos, side) for p in self._patterns)
   def debug_match(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -356,6 +386,15 @@ class _PositionPattern:
 class Recognizer:
   def __init__(self, p, tp = None):
     self._position_patterns = [(_PositionPattern(data, value), value) for data, value in p]
+    self._by_king = [ [] for _ in range(81)]
+    d = {}
+    for i, t in enumerate(self._position_patterns):
+      p, value = t
+      s = p.king_possible_cells(d)
+      if isinstance(value, str):
+        d[value] = s
+      for j in s:
+        self._by_king[j].append(i)
     self._u = 1
     self._v = 2
     self._n = 0
@@ -370,7 +409,8 @@ class Recognizer:
     pos.clear_patterns_matches()
     side = -pos.side_to_move
     f = _PositionPattern.debug_match if log.is_debug() else _PositionPattern.match
-    for p, ct in self._position_patterns:
+    for i in self._by_king[pos.get_king_normalized_pos(side)]:
+      p, ct = self._position_patterns[i]
       r = f(p, pos, side)
       if isinstance(ct, str):
         pos.set_pattern_match(ct, r)
