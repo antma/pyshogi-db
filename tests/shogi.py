@@ -427,6 +427,8 @@ _TEST_DATA_CASTLES = [
   (123, [], []),
   (124, [Castle.PEERLESS_GOLDS], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
   (125, [], [Castle.CRAB_CASTLE]),
+  (126, [Castle.BOAT_CASTLE, Castle.KUSHIKATSU_CASTLE], [Castle.HALF_MINO_CASTLE]),
+  (127, [Castle.INVINCIBLE_CASTLE], [Castle.MINO_CASTLE]),
   (128, [], []),
 ]
 
@@ -569,6 +571,8 @@ _TEST_DATA_OPENINGS = [
   (123, [Opening.URESINO_STYLE, Opening.MURATA_SYSTEM], []),
   (124, [Opening.DOUBLE_SWINGING_ROOK], [Opening.ROOK32_STRATEGY]),
   (125, [], []),
+  (126, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
+  (127, [Opening.URESINO_STYLE, Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK], [Opening.DOUBLE_SWINGING_ROOK]),
   (128, [Opening.CRAB_SILVERS], []),
 ]
 

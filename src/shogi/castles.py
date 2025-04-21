@@ -4,7 +4,7 @@ import logging
 from typing import Optional, Tuple, Set
 from enum import IntEnum
 from .game import Game
-from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns, piece_patterns_stats
+from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns, piece_patterns_stats, last_row_pieces
 
 Castle = IntEnum('Castle',
   [ #static rook
@@ -22,6 +22,7 @@ Castle = IntEnum('Castle',
    'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'HIGH_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN', 'KIMURA_MINO',
    'DIAMOND_MINO', 'GOLD_MINO',
    'PEERLESS_GOLDS', 'SWINGING_ROOK_ANAGUMA', 'SILVER_MINO',
+   'INVINCIBLE_CASTLE',
   ])
 
 def _mirror_columns(s):
@@ -65,7 +66,7 @@ _RECOGNIZER = Recognizer( [
   (_CASTLE_TOWER_MINO_BASE, 'TOWER_MINO'),
   ([('base-pattern', 'TOWER_MINO'), ('P', '67')], Castle.CASTLE_TOWER_MINO),
   ([('base-pattern', 'TOWER_MINO'), ('G', '67'), ('P', '66')], Castle.CASTLE_TOWER_MINO),
-  ([('K', '78'), ('S', '79'), ('G', '69'), ('G', '58'), ('S', '48'), ('B', '88'), ('N', '89'), ('L', '99'),
+  ([('K', '78'), ('S', '79'), ('G', '69'), ('G', '58'), ('S', '48'), ('B', '77,88'), ('N', '89'), ('L', '99'),
     ('P', '56,57'), ('P', '67'), ('P', '76'), ('P', '87'), ('P', '95,96,97')], Castle.BOAT_CASTLE),
   ([('K', '28'), ('G', '38'), ('S', '47'), ('L', '19'), ('P', '27'), ('P', '16,17'), ('!S', '46')], 'KIMURA_MINO'),
   ([('base-pattern', 'KIMURA_MINO'), ('N', '29'), ('P', '37')], Castle.KIMURA_MINO),
@@ -116,6 +117,8 @@ _RECOGNIZER = Recognizer( [
   ([('G', '58'), ('G', '67'), ('S', '77'), ('K', '78'), ('N', '89'), ('L', '99'),
     ('P', '87'), ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '96,97')], Castle.DOI_YAGURA),
   ([('K', '98'), ('S', '88'), ('to', '88'), ('N', '89'), ('L', '99'), ('P', '87'), ('P', '97')], Castle.KUSHIKATSU_CASTLE),
+  ([('R', '58'), ('S', '48'), ('S', '68'), ('P', '67'), ('P', '47'), ('P', '56,57')] +
+    last_row_pieces('123789'), Castle.INVINCIBLE_CASTLE),
 ])
 
 del _LEFT_HAND_SILVER_CROWN_PATTERN

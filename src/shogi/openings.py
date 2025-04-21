@@ -142,7 +142,7 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.DIRECT_OPPOSING_ROOK),
   ([('P', '56'), ('to', '56'), ('G', '78'), ('S', '68'), ('S', '48'), ('B', '88'), ('R', '28'), ('P', '25,26')] +
     adjacent_pawns(7, 3, 9, [5]) + last_row_pieces('367'), Opening.MURATA_SYSTEM),
-  ([('R', '58'), ('to', '58'), ('from', '28'), ('B', '77,88'), ('S', '67,68'), ('P', '76'), ('P', '66')] + last_row_pieces('7')
+  ([('R', '58'), ('to', '58'), ('from', '28'), ('B', '77,88'), ('S', '67,68'), ('P', '76,77'), ('P', '66,67')] + last_row_pieces('7')
    + adjacent_pawns(7, 2, 9, [6, 7]), Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK),
   ([('R', '58'), ('N', '77,89'), ('S', '66'), ('S', '46'), ('P', '23,24,25'), ('P', '56'), ('P', '76')]
    + last_row_pieces('378') + adjacent_pawns(7, 3, 9, [5, 7]), Opening.CRAB_SILVERS),
