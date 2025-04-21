@@ -73,9 +73,7 @@ class PositionForPatternRecognition(position.Position):
   def set_pattern_match(self, key: str, value: bool):
     self._patterns_d[key] = value
   def get_pattern_match(self, key: str):
-    p = self._patterns_d.get(key)
-    assert not p is None
-    return p
+    return self._patterns_d[key]
   def do_move(self, m: Move):
     self._cached_sfen = None
     if self.side_to_move > 0:
