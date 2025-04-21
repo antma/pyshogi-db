@@ -282,7 +282,8 @@ def _game_parse(game_kif: str, disable_game_result_auto_detection: bool) -> Opti
       log.raise_value_error(f'Expected "encoding", but "{a[2]}" found', logging.INFO)
     _encoding = p[1]
   except ValueError:
-    it = itertools.chain([t], it)
+    if not t.startswith('#'):
+      it = itertools.chain([t], it)
   while True:
     t = next(it)
     if t == _HEADER_MOVES_SEPARATOR:
