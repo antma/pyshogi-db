@@ -319,7 +319,7 @@ class _PiecePattern:
       if self._op == _Operation.IN:
         return self._arg
     return None
-  def king_pattern(self) -> bool:
+  def is_king_pattern(self) -> bool:
     return (self._piece == piece.KING) and (self._op in (_Operation.EQ, _Operation.IN))
 
 _PIECE_PATTERNS_D = {}
@@ -386,6 +386,15 @@ class _PositionPattern:
     return all(p.debug_match(pos, side) for p in self._patterns)
   def reorder(self):
     self._patterns.sort()
+  def _find_king_pattern_index(self) -> Optional[int]:
+    for i, p in enumerate(self._patterns):
+      if p.is_king_pattern():
+        return i
+    return None
+  def remove_king_pattern(self):
+    i = self._find_king_pattern_index()
+    if not i is None:
+      self._patterns.pop(i)
 
 class Recognizer:
   def __init__(self, p, tp = None):
@@ -399,6 +408,7 @@ class Recognizer:
         d[value] = s
       for j in s:
         self._by_king[j].append(i)
+      p.remove_king_pattern()
     self._u = 1
     self._v = 2
     self._n = 0
