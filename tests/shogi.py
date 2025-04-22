@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 import csv
+import glob
 import gzip
 import inspect
 import io
@@ -596,12 +597,15 @@ class TestClassifier(unittest.TestCase):
   def _check_gamelist_issorted(self, l):
     for u, v in zip(l, l[1:]):
       self.assertLess(u[0], v[0])
-  def _check_game(self, game_id, castles, openings):
-    msg = f'game #{game_id:04d}'
-    with open(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'), 'r', encoding = 'UTF8') as f:
+  def _kifu_game_load(self, filename):
+    with open(filename, 'r', encoding = 'UTF8') as f:
       data = f.read()
     g = shogi.kifu.game_parse(data, True)
-    self.assertIsNotNone(g, msg)
+    self.assertIsNotNone(g, filename)
+    return g
+  def _check_game(self, game_id, castles, openings):
+    msg = f'game #{game_id:04d}'
+    g = self._kifu_game_load(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'))
     if not castles is None:
       sente_castles, gote_castles = castles
       s1, s2 = shogi.castles.game_find_castles(g)
@@ -616,6 +620,26 @@ class TestClassifier(unittest.TestCase):
       self.assertEqual(set(gote_openings), s2, msg)
     else:
       logging.warning("%s: openings aren't set", msg);
+  def test_partial_castles(self):
+    for fn in glob.glob(os.path.join(MODULE_DIR, 'castles', '*.kif')):
+      g = self._kifu_game_load(fn)
+      s = os.path.basename(fn)
+      i = s.index('-')
+      c = Castle[s[:i]]
+      side = -g.pos.side_to_move
+      sente_castles, gote_castles = shogi.castles.game_find_castles(g)
+      castles = sente_castles if side > 0 else gote_castles
+      self.assertIn(c, castles, fn)
+  def test_partial_openings(self):
+    for fn in glob.glob(os.path.join(MODULE_DIR, 'openings', '*.kif')):
+      g = self._kifu_game_load(fn)
+      s = os.path.basename(fn)
+      i = s.index('-')
+      o = Opening[s[:i]]
+      side = -g.pos.side_to_move
+      sente_openings, gote_openings = shogi.openings.game_find_openings(g)
+      openings = sente_openings if side > 0 else gote_openings
+      self.assertIn(o, openings, fn)
   def test_castles_and_openings(self):
     self._check_gamelist_issorted(_TEST_DATA_CASTLES)
     self._check_gamelist_issorted(_TEST_DATA_OPENINGS)
