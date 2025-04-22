@@ -28,6 +28,7 @@ Opening = IntEnum('Opening',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SILVER_HORNED_SNOW_ROOF',
    'CLIMBING_GOLD',
+   'SILVER37_STRATEGY',
 
    #internal usage
     'NONE', 'SWINGING_ROOK'
@@ -149,6 +150,9 @@ _RECOGNIZER = Recognizer([
    + adjacent_pawns(7, 2, 9, [6, 7]), Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK),
   ([('R', '58'), ('N', '77,89'), ('S', '66'), ('S', '46'), ('P', '23,24,25'), ('P', '56'), ('P', '76')]
    + last_row_pieces('378') + adjacent_pawns(7, 3, 9, [5, 7]), Opening.CRAB_SILVERS),
+  ([('S', '37'), ('to', '37'), ('from', '48'), ('K', '69'), ('S', '77'), ('G', '78'), ('G', '58'), ('R', '28'), ('B', '79'),
+    ('P', '25,26'), ('P', '16,17'), ('P', '96,97')]
+   + last_row_pieces('34567') + adjacent_pawns(6, 3, 8, [4, 6]) + adjacent_pawns(7, 4, 9, [5, 7]), Opening.SILVER37_STRATEGY),
 ])
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
