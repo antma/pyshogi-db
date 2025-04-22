@@ -12,9 +12,8 @@ from . import position
 from .move import Move
 
 _Operation = IntEnum('_Operation', ['EQ', 'IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW', 'PAWNS_IN', 'PAWNS_MASK'])
-_GENERALS_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER])
 _BISHOP_S = set([piece.BISHOP, piece.HORSE])
-_ROOK_S = set([piece.ROOK, piece.DRAGON])
+_END_OF_THE_OPENING_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER, piece.LANCE, piece.PROMOTED + piece.LANCE, piece.ROOK, piece.DRAGON])
 
 def adjacent_pawns(row: int, start_col: int, end_col: int, excl: Optional[List[int]] = None):
   s = set() if excl is None else set(excl)
@@ -35,9 +34,7 @@ def _swinging_rook_column(col: int) -> bool:
 class PositionForPatternRecognition(position.Position):
   def __init__(self, sfen: str = None):
     super().__init__(sfen)
-    self._taken_general = False
-    self._taken_bishop = False
-    self._taken_rook = False
+    self._taken = set()
     self.last_move = None
     self._count_moves_d = {}
     self._was_drops = False
@@ -103,17 +100,13 @@ class PositionForPatternRecognition(position.Position):
     u = super().do_move(m)
     if not u is None:
       tp = abs(u.taken_piece)
-      if (not self._taken_general) and tp in _GENERALS_S:
-        self._taken_general = True
-      if (not self._taken_bishop) and tp in _BISHOP_S:
-        self._taken_bishop = True
-      if (not self._taken_rook) and tp in _ROOK_S:
-        self._taken_rook = True
       if tp == piece.PAWN:
         if u.taken_piece > 0:
           self._sente_pawns -= 1 << m.to_cell
         else:
           self._gote_rev_pawns -= 1 << cell.swap_side(m.to_cell)
+      else:
+        self._taken.add(tp)
     self.last_move = m
     p = m.from_piece
     if not p is None:
@@ -128,11 +121,11 @@ class PositionForPatternRecognition(position.Position):
       self._cached_sfen = super().sfen()
     return self._cached_sfen
   def is_opening(self) -> bool:
-    return not (self._taken_general or self._taken_rook)
+    return self._taken.isdisjoint(_END_OF_THE_OPENING_S)
   def count_piece_moves(self, p: int) -> int:
     return self._count_moves_d.get(p, 0)
   def first_rook_move_rank(self, m: Move) -> Optional[int]:
-    if self._was_drops or self._taken_bishop:
+    if self._was_drops or (not self._taken.isdisjoint(_BISHOP_S)):
       return None
     side = self.side_to_move
     assert side * m.to_piece > 0

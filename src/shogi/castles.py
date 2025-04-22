@@ -8,7 +8,8 @@ from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns,
 
 Castle = IntEnum('Castle',
   [ #static rook
-   'BOAT_CASTLE', 'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA',
+   'BOAT_CASTLE',
+   'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA', 'BIG_FOUR',
    'LEFT_HAND_MINO', 'FOUR_PIECE_MINO',
    'MILLENIUM_CASTLE', 'GIRL_IN_THE_HOUSE',
    'YAGURA_CASTLE', 'SILVER_YAGURA', 'HALF_YAGURA', 'COMPLETE_YAGURA', 'YAGURA_ANAGUMA',
@@ -46,6 +47,8 @@ _CASTLE_TOWER_MINO_BASE = [('K', '87'), ('S', '78'), ('G', '69'), ('N', '89'), (
 '''HALF_MINO_CASTLE should be after MINO_CASTLE since it's pattern is subset'''
 
 _RECOGNIZER = Recognizer( [
+  ( [('K', '99'), ('G', '88'), ('G', '78'), ('S', '87'), ('S', '77'), ('P', '67'),
+     ('P', '76'), ('P', '86'), ('P', '96,97'), ('L', '98'), ('N', '89')], Castle.BIG_FOUR),
   ( [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26'), ('P', '16,17')], 'SILVER_CROWN'),
   ( [('base-pattern', 'SILVER_CROWN'), ('N', '29'), ('P', '46,47'), ('P', '37')], Castle.SILVER_CROWN),
   ( [('base-pattern', 'SILVER_CROWN'), ('N', '37'), ('P', '46'), ('P', '36')], Castle.SILVER_CROWN),
@@ -64,7 +67,7 @@ _RECOGNIZER = Recognizer( [
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.SILVER_MINO),
   ([('K', '28'), ('S', '38'), ('G', '49'), ('L', '19'),
     ('P', '37'), ('P', '26'), ('P', '15,16,17')], Castle.TOPKNOT_MINO), #('N', '29')
-  ([('K', '87'), ('G', '58,67'), ('S', '77'), ('S', '78'), ('P', '66,67'), ('P', '95,96,97')] + 
+  ([('K', '87'), ('G', '58,67'), ('S', '77'), ('S', '78'), ('P', '66,67'), ('P', '95,96,97')] +
    last_row_pieces('123457') + adjacent_pawns(6, 7, 9), Castle.FOUR_PIECE_MINO),
   (_CASTLE_TOWER_MINO_BASE, 'TOWER_MINO'),
   ([('base-pattern', 'TOWER_MINO'), ('P', '67')], Castle.CASTLE_TOWER_MINO),
@@ -139,7 +142,7 @@ def sfen_find_castle(sfen: str) -> Optional[Castle]:
   pos = PositionForPatternRecognition(sfen)
   return position_find_castle(pos)
 
-def game_find_castles(g: Game, max_hands: int = 50) -> Tuple[Set[Castle], Set[Castle]]:
+def game_find_castles(g: Game, max_hands: int = 60) -> Tuple[Set[Castle], Set[Castle]]:
   _RECOGNIZER.reorder()
   sente_castles = set()
   gote_castles = set()
