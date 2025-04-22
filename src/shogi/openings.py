@@ -23,7 +23,7 @@ Opening = IntEnum('Opening',
    'RECLINING_SILVER',
    'BISHOP_EXCHANGE', 'ONE_TURN_LOSS_BISHOP_EXCHANGE', 'BISHOP_EXCHANGE_RECLINING_SILVER', 'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SIDE_PAWN_PICKER', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY',
-   'MARUYAMA_VACCINE', 'SILVER_37_SUPER_RAPID', 'SUPER_RAPID_ATTACK',
+   'MARUYAMA_VACCINE', 'SILVER37_SUPER_RAPID', 'SUPER_RAPID_ATTACK',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'IJIMAS_BACK_BISHOP_STRATEGY', 'MURATA_SYSTEM', 'SPEARING_THE_BIRD',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SILVER_HORNED_SNOW_ROOF',
@@ -36,7 +36,7 @@ Opening = IntEnum('Opening',
 
 _OPENINGS_D = SFENMap({
   'lnsgkgsnl/1r5b1/pppppp1pp/6p2/2P6/9/PP1PPPPPP/1B5R1/LNSGKGSNL w - 4' : Opening.QUICK_ISHIDA,
-  'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER_37_SUPER_RAPID,
+  'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER37_SUPER_RAPID,
   'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
   'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1S3R1/LN1GKGSNL w - 2': Opening.URESINO_STYLE,
   'lnsgk1snl/1r4gb1/p1ppppppp/9/1p5P1/9/PPPPPPP1P/1BG3SR1/LNS1KG1NL w - 8': Opening.DOUBLE_WING_ATTACK,
@@ -150,9 +150,9 @@ _RECOGNIZER = Recognizer([
    + adjacent_pawns(7, 2, 9, [6, 7]), Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK),
   ([('R', '58'), ('N', '77,89'), ('S', '66'), ('S', '46'), ('P', '23,24,25'), ('P', '56'), ('P', '76')]
    + last_row_pieces('378') + adjacent_pawns(7, 3, 9, [5, 7]), Opening.CRAB_SILVERS),
-  ([('S', '37'), ('to', '37'), ('from', '48'), ('K', '69'), ('S', '77'), ('G', '78'), ('G', '58'), ('R', '28'), ('B', '79'),
-    ('P', '25,26'), ('P', '16,17'), ('P', '96,97')]
-   + last_row_pieces('34567') + adjacent_pawns(6, 3, 8, [4, 6]) + adjacent_pawns(7, 4, 9, [5, 7]), Opening.SILVER37_STRATEGY),
+  ([('S', '37'), ('to', '37'), ('from', '48'), ('K', '69'), ('S', '77'), ('G', '78'), ('G', '58,67'), ('R', '28'), ('B', '46,79'),
+    ('P', '25,26'), ('P', '16,17'), ('P', '96,97'), ('P', '66,67')]
+   + last_row_pieces('34567') + adjacent_pawns(6, 3, 8, [4, 6]) + adjacent_pawns(7, 4, 9, [5, 6, 7]), Opening.SILVER37_STRATEGY),
 ])
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
