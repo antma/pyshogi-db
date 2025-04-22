@@ -112,6 +112,8 @@ _RECOGNIZER = Recognizer([
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '58,67'),
    ('P', '87'), ('P', '76'), ('P', '66,67'), ('P', '56'), ('S', '48,57'), ('R', '28'), ('!p', '43'), ('r', '22,32,42')] +
    last_row_pieces('2345'), Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
+  ([('K', '78'), ('B', '88'), ('from', '87'), ('to', '86'), ('R', '28'), ('P', '86'), ('S', '57'), ('G', '58'), ('r', '22,32,42'), ('P', '56'), ('P', '25,26'), ('P', '96,97'), ('P', '76') ]
+   + last_row_pieces('345') + adjacent_pawns(7, 3, 7, [5]), Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
   ([('B', '66'), ('R', '88'), ('to', '88'), ('S', '77'), ('P', '76')] +
     last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.AMAHIKO_OPPOSING_ROOK),
   ([('B', '79'), ('K', '78'), ('S', '57'), ('R', '28'), ('P', '56'), ('P', '25'), ('P', '36,37')] +
