@@ -8,7 +8,8 @@ from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns,
 
 Castle = IntEnum('Castle',
   [ #static rook
-   'BOAT_CASTLE', 'LEFT_HAND_MINO', 'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA',
+   'BOAT_CASTLE', 'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA',
+   'LEFT_HAND_MINO', 'FOUR_PIECE_MINO',
    'MILLENIUM_CASTLE', 'GIRL_IN_THE_HOUSE',
    'YAGURA_CASTLE', 'SILVER_YAGURA', 'HALF_YAGURA', 'COMPLETE_YAGURA', 'YAGURA_ANAGUMA',
    'KIKUSUI_YAGURA', 'SILVER_STANDING_YAGURA', 'DIAMOND_YAGURA', 'RAPID_CASTLE', 'DOI_YAGURA',
@@ -52,7 +53,7 @@ _RECOGNIZER = Recognizer( [
   ([('K', '98'), ('S', '87'), ('G', '78'), ('to', '78'), ('N', '89'), ('L', '99'),
   ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '49,58,67,68')], Castle.EDGE_KING_SILVER_CROWN),
   ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '96,97')] +
-   adjacent_pawns(6, 6, 9, []), Castle.SILVER_CROWN_ANAGUMA),
+   adjacent_pawns(6, 6, 9), Castle.SILVER_CROWN_ANAGUMA),
   ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '36'), ('P', '27'), ('P', '16,17')], Castle.DIAMOND_MINO),
   (_HIGH_MINO_CASTLE_BASE, 'HIGH_MINO'),
@@ -63,6 +64,8 @@ _RECOGNIZER = Recognizer( [
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.SILVER_MINO),
   ([('K', '28'), ('S', '38'), ('G', '49'), ('L', '19'),
     ('P', '37'), ('P', '26'), ('P', '15,16,17')], Castle.TOPKNOT_MINO), #('N', '29')
+  ([('K', '87'), ('G', '58,67'), ('S', '77'), ('S', '78'), ('P', '66,67'), ('P', '95,96,97')] + 
+   last_row_pieces('123457') + adjacent_pawns(6, 7, 9), Castle.FOUR_PIECE_MINO),
   (_CASTLE_TOWER_MINO_BASE, 'TOWER_MINO'),
   ([('base-pattern', 'TOWER_MINO'), ('P', '67')], Castle.CASTLE_TOWER_MINO),
   ([('base-pattern', 'TOWER_MINO'), ('G', '67'), ('P', '66')], Castle.CASTLE_TOWER_MINO),

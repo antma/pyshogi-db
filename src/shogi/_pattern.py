@@ -16,8 +16,8 @@ _GENERALS_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER])
 _BISHOP_S = set([piece.BISHOP, piece.HORSE])
 _ROOK_S = set([piece.ROOK, piece.DRAGON])
 
-def adjacent_pawns(row: int, start_col: int, end_col: int, excl: List[int]):
-  s = set(excl)
+def adjacent_pawns(row: int, start_col: int, end_col: int, excl: Optional[List[int]] = None):
+  s = set() if excl is None else set(excl)
   return [('adj-pawns', sum(1 << (col - 1) for col in range(start_col, end_col) if not col in s) << (9 * (row - 1)))]
 
 _FIRST_ROW = 'LNSGKGSNL'
