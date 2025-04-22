@@ -36,4 +36,4 @@ def init_logging(log_filename = None, logging_level = logging.INFO):
         'CRITICAL': 'red,bg_white',
       })
       handler.setFormatter(formatter)
-      logging.basicConfig(level = level, handlers=[handler])
+      logging.basicConfig(level = level, handlers=[handler], force = True)
