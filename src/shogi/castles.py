@@ -10,6 +10,7 @@ Castle = IntEnum('Castle',
   [ #static rook
    'BOAT_CASTLE',
    'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA', 'BIG_FOUR',
+   'KUSHIKATSU_CASTLE',
    'LEFT_HAND_MINO', 'FOUR_PIECE_MINO',
    'MILLENIUM_CASTLE', 'GIRL_IN_THE_HOUSE',
    'YAGURA_CASTLE', 'SILVER_YAGURA', 'HALF_YAGURA', 'COMPLETE_YAGURA', 'YAGURA_ANAGUMA',
@@ -17,9 +18,8 @@ Castle = IntEnum('Castle',
    'CRAB_CASTLE',
    'ELMO_CASTLE', 'BONANZA_CASTLE',
    'EDGE_KING_SILVER_CROWN',
-   'KUSHIKATSU_CASTLE',
     #double static rook
-   'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE',
+   'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE', 'CENTRAL_HOUSE',
     #swinging rook
    'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'HIGH_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN', 'KIMURA_MINO',
    'DIAMOND_MINO', 'GOLD_MINO',
@@ -125,6 +125,8 @@ _RECOGNIZER = Recognizer( [
   ([('K', '98'), ('S', '88'), ('to', '88'), ('N', '89'), ('L', '99'), ('P', '87'), ('P', '97')], Castle.KUSHIKATSU_CASTLE),
   ([('R', '58'), ('S', '48'), ('S', '68'), ('P', '67'), ('P', '47'), ('P', '56,57')] +
     last_row_pieces('123789'), Castle.INVINCIBLE_CASTLE),
+  ([('K', '58'), ('S', '48'), ('G', '38'), ('G', '78')]
+   + last_row_pieces('1234567') + adjacent_pawns(7, 4, 7), Castle.CENTRAL_HOUSE),
 ])
 
 del _LEFT_HAND_SILVER_CROWN_PATTERN
