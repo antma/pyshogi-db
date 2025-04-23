@@ -28,7 +28,7 @@ Opening = IntEnum('Opening',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SILVER_HORNED_SNOW_ROOF',
    'CLIMBING_GOLD',
-   'SILVER37_STRATEGY', 'WAKI_SYSTEM',
+   'SILVER37_STRATEGY', 'WAKI_SYSTEM', 'MORISHITA_SYSTEM',
 
    #internal usage
     'NONE', 'SWINGING_ROOK'
@@ -166,6 +166,13 @@ _RECOGNIZER = Recognizer([
     ('p', '74'), ('p', '54'), ('p', '44'), ('p', '34'), ('p', '63')] +
    last_row_pieces('34567') +
    adjacent_pawns(6, 3, 8, [4]), Opening.WAKI_SYSTEM),
+  ([('K', '69'), ('R', '28'), ('B', '68'), ('from', '79'), ('to', '68'), ('S', '77'), ('G', '67'), ('G', '78'),
+   ('P', '87'), ('P', '47'), ('P', '25,26,27'), ('P', '16,17'), ('P', '96,97'),
+   ('k', '41'), ('r', '82'), ('b', '31'), ('g', '32'), ('g', '52'), ('s', '33'), ('s', '62'),
+   ('n', '21'), ('n', '81'), ('l', '11'), ('l', '91'),
+   ('p', '34'), ('p', '44'), ('p', '54'), ('p', '74'), ('p', '63'), ('p', '23'),
+   ('p', '13,14'), ('p', '93,94'), ('p', '23,24,25')] +
+  last_row_pieces('34567') + adjacent_pawns(6, 3, 8, [4]), Opening.MORISHITA_SYSTEM),
 ])
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
