@@ -9,7 +9,7 @@ from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns,
 Castle = IntEnum('Castle',
   [ #static rook
    'BOAT_CASTLE',
-   'STATIC_ROOK_ANAGUMA', 'SILVER_CROWN_ANAGUMA', 'BIG_FOUR',
+   'STATIC_ROOK_ANAGUMA', 'MATSUO_STYLE_ANAGUMA', 'SILVER_CROWN_ANAGUMA', 'BIG_FOUR',
    'KUSHIKATSU_CASTLE',
    'LEFT_HAND_MINO', 'FOUR_PIECE_MINO',
    'MILLENIUM_CASTLE', 'GIRL_IN_THE_HOUSE',
@@ -49,6 +49,8 @@ _CASTLE_TOWER_MINO_BASE = [('K', '87'), ('S', '78'), ('G', '69'), ('N', '89'), (
 _RECOGNIZER = Recognizer( [
   ( [('K', '99'), ('G', '88'), ('G', '78'), ('S', '87'), ('S', '77'), ('P', '67'),
      ('P', '76'), ('P', '86'), ('P', '96,97'), ('L', '98'), ('N', '89')], Castle.BIG_FOUR),
+  ( [('K', '99'), ('G', '67'), ('G', '78'), ('S', '88'), ('S', '79'), ('P', '66'),
+     ('P', '76'), ('P', '87'), ('P', '96,97'), ('L', '98'), ('N', '89')], Castle.MATSUO_STYLE_ANAGUMA),
   ( [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26'), ('P', '16,17')], 'SILVER_CROWN'),
   ( [('base-pattern', 'SILVER_CROWN'), ('N', '29'), ('P', '46,47'), ('P', '37')], Castle.SILVER_CROWN),
   ( [('base-pattern', 'SILVER_CROWN'), ('N', '37'), ('P', '46'), ('P', '36')], Castle.SILVER_CROWN),
