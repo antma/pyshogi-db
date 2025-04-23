@@ -65,7 +65,7 @@ _OPENINGS_POS_AND_MOVE_D = SFENMap({
   'lnsgkgsnl/4r4/pppp1pb1p/6pR1/9/2P1P4/PP1P1PP1P/1S2G4/LN1GK1SNL b B2Pp 17 B*3c': Opening.SUPER_RAPID_ATTACK,
   'lnsgkgs+Rl/4r4/pppp1pb1p/6p2/9/2P1P4/PP1P1PP1P/1S2G4/LN1GK1SNL w BN2Pp 18 2d2a+': Opening.SUPER_RAPID_ATTACK,
   'lnsgkgsnl/1r5b1/pppppp1p1/6p1p/2P6/8P/PP1PPPPP1/1B5R1/LNSGKGSNL w - 6 7f7e': Opening.QUICK_ISHIDA, #[wars/0111]
-  'lnsgkgsnl/1r5b1/p1pp1pppp/4p4/1p2P4/9/PPPP1PPPP/1BG1R4/LNS1KGSNL w - 8 5f5e': Opening.PRIMITIVE_CENTRAL_ROOK, #[mdE98YduMCU]
+  #'lnsgkgsnl/1r5b1/p1pp1pppp/4p4/1p2P4/9/PPPP1PPPP/1BG1R4/LNS1KGSNL w - 8 5f5e': Opening.PRIMITIVE_CENTRAL_ROOK, #[mdE98YduMCU]
   #'lnsgk1snl/1r4g2/pppppp1pp/6p2/7P1/2P6/PP1PPPP1P/1+b5R1/LNSGKGSNL b b 7 2b8h+': Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE, #[wars/0074]
   #'ln1gk1snl/1r1s2g2/p1pppp1pp/1p4p2/9/2P4P1/PPSPPPP1P/2G4R1/LN2KGSNL w Bb 12 6h7g': Opening.BISHOP_EXCHANGE, #[wars/0030]
   #'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13 2b3c': Opening.BISHOP_EXCHANGE, #[EveEnfc-Jv8]
@@ -177,6 +177,8 @@ _RECOGNIZER = Recognizer([
   ([('K', '29'), ('from', '38'), ('to', '29'), ('N', '37'), ('G', '39,49'), ('S', '28'), ('P', '76'), ('P', '96,97'), ('P', '87'),
     ('R', '68,78,88')] +
    last_row_pieces('234567'), Opening.SWINGING_ROOK_MILLENIUM),
+  ([('R', '58'), ('B', '88'), ('G', '78'), ('P', '55'), ('from', '56'), ('to', '55'), ('S', '57,66,68,79')] +
+   last_row_pieces('67') + adjacent_pawns(7, 2, 9, [5]), Opening.PRIMITIVE_CENTRAL_ROOK),
 ])
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
