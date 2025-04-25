@@ -441,6 +441,8 @@ _TEST_DATA_CASTLES = [
   (136, [Castle.GOLD_MINO], [Castle.LEFT_HAND_MINO]),
   (137, [], []),
   (138, [], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
+  (139, [Castle.CASTLE_TOWER_MINO], []),
+  (140, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -595,23 +597,9 @@ _TEST_DATA_OPENINGS = [
   (136, [Opening.OPPOSING_ROOK], []),
   (137, [Opening.SIDE_PAWN_PICKER], [Opening.BISHOP45_STRATEGY]),
   (138, [Opening.SAGINOMIYA_JOSEKI], [Opening.FORTH_FILE_ROOK]),
+  (139, [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE], [Opening.FORTH_FILE_ROOK]),
+  (140, [], []),
 ]
-
-class TestOpenings(unittest.TestCase):
-  pass
-  '''
-  def test_positions(self):
-    for sfen, side, ct in _TEST_OPENINGS_BY_POSITIONS:
-      pos = PositionWithHistory(sfen)
-      self.assertEqual(ct, shogi.openings.position_find_opening(pos))
-  def test_positions_and_move(self):
-    for sfen, s, ct in _TEST_OPENINGS_BY_POSITIONS_AND_MOVE:
-      pos = PositionWithHistory(sfen)
-      m = pos.parse_usi_move(s)
-      self.assertEqual(s, m.usi_str())
-      pos.do_move(m)
-      self.assertEqual(ct, shogi.openings.position_find_opening(pos))
-  '''
 
 class TestClassifier(unittest.TestCase):
   def _check_gamelist_issorted(self, l):
