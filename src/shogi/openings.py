@@ -88,8 +88,8 @@ _OPENINGS_POS_AND_MOVE_D = SFENMap({
 _RECOGNIZER = Recognizer([
   ([('K', '48'), ('G', '58'), ('S', '47'), ('N', '37'), ('L', '19'), ('R', '29') ,
     ('P', '46'), ('P', '36'), ('P', '56,57'), ('P', '25,26'), ('P', '16,17')], Opening.RIGHT_HAND_KING),
-  ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '76,77')] +
-    last_row_pieces('3') + adjacent_pawns(7, 1, 10, [2, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
+  ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '76,77'), ('G', '69,78')] +
+    last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
   ([('S', '37'), ('to', '37'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '36'), ('P', '76,77'), ('G', '78')] +
     last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
   ([('R', '58'), ('to', '58'), ('P', '55,56'), ('P', '76'), ('B', '77,88')] +
