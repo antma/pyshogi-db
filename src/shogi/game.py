@@ -211,6 +211,8 @@ class Game:
     if all(m.zero_or_none_time() for m in self.moves):
       for m in self.moves:
         m.drop_times()
+  def usi_moves(self):
+    return ' '.join(m.usi_str() for m in self.moves)
 
 class GameCollection:
   def __init__(self, path: str, suffix: str):

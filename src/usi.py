@@ -360,6 +360,7 @@ class USIGame:
   '''for running game between two engine with tkinter (single threaded)'''
   STATE = IntEnum('STATE', ['IDLE', 'ENGINE_THINKING', 'COMPLETE'])
   def __init__(self, sente_engine: USIEngine, gote_engine: USIEngine, start_sfen: Optional[str], usi_moves: Optional[str], output_kifu_filename: Optional[str], resign_score: Optional[int]):
+    assert isinstance(usi_moves, str)
     assert (resign_score is None) or (resign_score > 1000)
     if sente_engine.params.time_ms != gote_engine.params.time_ms:
       log.raise_value_error('Engines have different thinking move settings')
