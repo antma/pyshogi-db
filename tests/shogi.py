@@ -447,6 +447,7 @@ _TEST_DATA_CASTLES = [
   (142, [Castle.MINO_CASTLE], [Castle.BOAT_CASTLE, Castle.STATIC_ROOK_ANAGUMA]),
   (143, [], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
   (144, [], []),
+  (145, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -607,6 +608,7 @@ _TEST_DATA_OPENINGS = [
   (142, [Opening.FORTH_FILE_ROOK, Opening.FUJII_SYSTEM], [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE]),
   (143, [], [Opening.THIRD_FILE_ROOK]),
   (144, [Opening.DOUBLE_WING_ATTACK, Opening.PRIMITIVE_CLIMBING_SILVER], [Opening.DOUBLE_WING_ATTACK]),
+  (145, [], []),
 ]
 
 class TestClassifier(unittest.TestCase):
