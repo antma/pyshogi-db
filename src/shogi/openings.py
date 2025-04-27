@@ -12,7 +12,7 @@ Opening = IntEnum('Opening',
    'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK', 'DIRECT_OPPOSING_ROOK',
    'HIDE_CHAN_STYLE_CENTRAL_ROOK', 'PRIMITIVE_CENTRAL_ROOK',
-   'FUJII_SYSTEM',
+   'FUJII_SYSTEM', 'TATEISHI_STYLE',
    'SWINGING_ROOK_MILLENIUM',
    'LEGHORN_SPECIAL',
     #static
@@ -192,6 +192,9 @@ _RECOGNIZER = Recognizer([
   ([('K', '78'), ('R', '38'), ('to', '38'), ('from', '28'), ('B', '88'), ('S', '68'), ('G', '58'),
     ('S', '57'), ('P', '46,47'), ('P', '25'), ('P', '16,17'), ('P', '96,97')] +
     last_row_pieces('3457') + adjacent_pawns(6, 3, 8, [4,6]), Opening.KATO_STYLE_SLEEVE_ROOK),
+  ([('K', '28,38'), ('B', '88'), ('G', '78'), ('R', '68'), ('S', '78,79'), ('P', '16,17'), ('P', '96,97'),
+    ('P', '75'), ('P', '65'), ('to', '65'), ('P', '87')] +
+   last_row_pieces('356') + adjacent_pawns(7, 2, 6), Opening.TATEISHI_STYLE),
 ])
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
