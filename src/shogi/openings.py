@@ -143,7 +143,7 @@ _RECOGNIZER = Recognizer([
    adjacent_pawns(7, 3, 7, []) + last_row_pieces('6'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
   ([('R', '68'), ('to', '68'), ('from', '28'), ('B', 1), ('b', 1), ('S', '77')] +
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.LEGHORN_SPECIAL),
-  ([('S', '36'), ('to', '36'), ('from', '27'), ('R', '28'), ('G', '78'), (' ', '25'), (' ', '24')] +
+  ([('S', '36'), ('to', '36'), ('from', '27'), ('R', '28'), ('G', '78'), (' ', '25'), (' ', '24'), ('g', '32')] +
    last_row_pieces('36') + adjacent_pawns(7, 3, 7, []), Opening.UFO_SILVER),
   ([ ('R', '78'), ('from', '68'), ('to', '78'), ('P', '75'), ('K', '38'), ('B', '88')] +
   last_row_pieces('5') + adjacent_pawns(7, 2, 9, [7]), Opening.FORTH_THIRD_FILE_ROOK_STRATEGY),
