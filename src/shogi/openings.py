@@ -14,7 +14,7 @@ Opening = IntEnum('Opening',
    'HIDE_CHAN_STYLE_CENTRAL_ROOK', 'PRIMITIVE_CENTRAL_ROOK',
    'FUJII_SYSTEM', 'TATEISHI_STYLE',
    'SWINGING_ROOK_MILLENIUM',
-   'LEGHORN_SPECIAL',
+   'LEGHORN_SPECIAL', 'BISHOP_EXCHANGE_SWINGING_ROOK',
     #static
    'SLEEVE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK',
    'CRAB_SILVERS',
@@ -195,6 +195,8 @@ _RECOGNIZER = Recognizer([
   ([('K', '28,38'), ('B', '88'), ('G', '78'), ('R', '68'), ('S', '78,79'), ('P', '16,17'), ('P', '96,97'),
     ('P', '75'), ('P', '65'), ('to', '65'), ('P', '87')] +
    last_row_pieces('356') + adjacent_pawns(7, 2, 6), Opening.TATEISHI_STYLE),
+  ([('K', '59,68,78,88'), ('R', '68,78'), ('HORSE', '22'), ('to', '22'), ('from', '88'), ('B', 1)]
+   + last_row_pieces('5'), Opening.BISHOP_EXCHANGE_SWINGING_ROOK),
 ])
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
