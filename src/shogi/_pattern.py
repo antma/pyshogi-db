@@ -2,7 +2,7 @@
 
 from enum import IntEnum
 import logging
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 from functools import reduce
 
 import log
@@ -382,6 +382,38 @@ class _PositionPattern:
     if not i is None:
       self._patterns.pop(i)
 
+class RecognizerSet:
+  def __init__(self):
+    self._s = set()
+    self._d = {}
+  def __contains__(self, key):
+    return key in self._s
+  def add(self, value, move_no: int):
+    if value not in self._s:
+      self._s.add(value)
+      self._d[value] = move_no
+      return True
+    return False
+  def get_move_no(self, value):
+    return self._d.get(value)
+  def issubset(self, other_set) -> bool:
+    return self._s.issubset(other_set)
+  def discard(self, value):
+    if value in self._s:
+      self._s.remove(value)
+      del self._d[value]
+  def as_set(self):
+    return self._s
+
+class RecognizerResult:
+  def __init__(self):
+    self._sente = RecognizerSet()
+    self._gote = RecognizerSet()
+  def get_set(self, side: int) -> RecognizerSet:
+    return self._sente if side > 0 else self._gote
+  def get_sets(self, side: int) -> Tuple[RecognizerSet, RecognizerSet]:
+    return (self._sente, self._gote) if side > 0 else (self._gote, self._sente)
+
 class Recognizer:
   def __init__(self, p):
     self._position_patterns = [(_PositionPattern(data, value), value) for data, value in p]
@@ -420,14 +452,11 @@ class Recognizer:
           return ct
         logging.debug('Pattern %s not matched', ct.name)
     return None
-  def update_set(self, pos: PositionForPatternRecognition, sente_set: set, gote_set: set):
+  def update_set(self, rr: RecognizerResult, pos: PositionForPatternRecognition) -> bool:
     ct = self.find(pos)
     if not ct is None:
-      st = sente_set if pos.side_to_move < 0 else gote_set
-      if ct in st:
-        return False
-      st.add(ct)
-      return True
+      st = rr.get_set(-pos.side_to_move)
+      return st.add(ct, pos.move_no - 1)
     return False
 
 def _sfen_moveno(s: str) -> int:

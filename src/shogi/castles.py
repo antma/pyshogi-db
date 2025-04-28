@@ -1,10 +1,10 @@
 # -*- coding: UTF8 -*-
 
 import logging
-from typing import Optional, Tuple, Set
+from typing import Optional
 from enum import IntEnum
 from .game import Game
-from ._pattern import Recognizer, PositionForPatternRecognition, adjacent_pawns, piece_patterns_stats, last_row_pieces
+from ._pattern import Recognizer, RecognizerResult, PositionForPatternRecognition, adjacent_pawns, piece_patterns_stats, last_row_pieces
 
 Castle = IntEnum('Castle',
   [ #static rook
@@ -136,8 +136,8 @@ del _HIGH_MINO_CASTLE_BASE
 del _YAGURA_PATTERN
 del _CASTLE_TOWER_MINO_BASE
 
-def position_update_set_of_castles(pos: PositionForPatternRecognition, sente_set, gote_set):
-  _RECOGNIZER.update_set(pos, sente_set, gote_set)
+def _position_update_set_of_castles(rr: RecognizerResult, pos: PositionForPatternRecognition):
+  _RECOGNIZER.update_set(rr, pos)
 
 def position_find_castle(pos: PositionForPatternRecognition) -> Optional[Castle]:
   return _RECOGNIZER.find(pos)
@@ -146,16 +146,15 @@ def sfen_find_castle(sfen: str) -> Optional[Castle]:
   pos = PositionForPatternRecognition(sfen)
   return position_find_castle(pos)
 
-def game_find_castles(g: Game, max_hands: int = 60) -> Tuple[Set[Castle], Set[Castle]]:
-  _RECOGNIZER.reorder()
-  sente_castles = set()
-  gote_castles = set()
+def game_find_castles(g: Game, max_hands: int = 60) -> RecognizerResult:
   assert g.start_pos is None
+  _RECOGNIZER.reorder()
+  rr = RecognizerResult()
   pos = PositionForPatternRecognition()
   for m in g.moves[:max_hands]:
     pos.do_move(m)
     if not pos.is_opening():
       logging.debug('Out of opening: %s', pos.sfen())
       break
-    position_update_set_of_castles(pos, sente_castles, gote_castles)
-  return (sente_castles, gote_castles)
+    _position_update_set_of_castles(rr, pos)
+  return rr

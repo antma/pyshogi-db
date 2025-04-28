@@ -634,16 +634,16 @@ class TestClassifier(unittest.TestCase):
     g = self._kifu_game_load(os.path.join(MODULE_DIR, 'wars', f'{game_id:04d}.kif'))
     if not castles is None:
       sente_castles, gote_castles = castles
-      s1, s2 = shogi.castles.game_find_castles(g)
-      self.assertEqual(set(sente_castles), s1, msg)
-      self.assertEqual(set(gote_castles), s2, msg)
+      rr = shogi.castles.game_find_castles(g)
+      self.assertEqual(set(sente_castles), rr.get_set(1).as_set(), msg)
+      self.assertEqual(set(gote_castles), rr.get_set(-1).as_set(), msg)
     else:
       logging.warning("%s: castles aren't set", msg);
     if not openings is None:
       sente_openings, gote_openings = openings
-      s1, s2 = shogi.openings.game_find_openings(g)
-      self.assertEqual(set(sente_openings), s1, msg)
-      self.assertEqual(set(gote_openings), s2, msg)
+      rr = shogi.openings.game_find_openings(g)
+      self.assertEqual(set(sente_openings), rr.get_set(1).as_set(), msg)
+      self.assertEqual(set(gote_openings), rr.get_set(-1).as_set(), msg)
     else:
       logging.warning("%s: openings aren't set", msg);
   def test_partial_castles(self):
@@ -652,20 +652,22 @@ class TestClassifier(unittest.TestCase):
       s = os.path.basename(fn)
       i = s.index('-')
       c = Castle[s[:i]]
+      rr = shogi.castles.game_find_castles(g)
       side = -g.pos.side_to_move
-      sente_castles, gote_castles = shogi.castles.game_find_castles(g)
-      castles = sente_castles if side > 0 else gote_castles
-      self.assertIn(c, castles, fn)
+      s = rr.get_set(side)
+      self.assertIn(c, s.as_set(), fn)
+      self.assertEqual(g.pos.move_no - 1, s.get_move_no(c))
   def test_partial_openings(self):
     for fn in glob.glob(os.path.join(MODULE_DIR, 'openings', '*.kif')):
       g = self._kifu_game_load(fn)
       s = os.path.basename(fn)
       i = s.index('-')
       o = Opening[s[:i]]
+      rr = shogi.openings.game_find_openings(g)
       side = -g.pos.side_to_move
-      sente_openings, gote_openings = shogi.openings.game_find_openings(g)
-      openings = sente_openings if side > 0 else gote_openings
-      self.assertIn(o, openings, fn)
+      s = rr.get_set(side)
+      self.assertIn(o, s.as_set(), fn)
+      self.assertEqual(g.pos.move_no - 1, s.get_move_no(o))
   def test_castles_and_openings(self):
     self._check_gamelist_issorted(_TEST_DATA_CASTLES)
     self._check_gamelist_issorted(_TEST_DATA_OPENINGS)

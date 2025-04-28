@@ -1,10 +1,10 @@
 # -*- coding: UTF8 -*-
 
 from enum import IntEnum
-from typing import Optional, Tuple, Set
+from typing import Optional
 from . import kifu
 from .game import Game
-from ._pattern import Recognizer, SFENMap, PositionForPatternRecognition, adjacent_pawns, last_row_pieces
+from ._pattern import Recognizer, RecognizerResult, SFENMap, PositionForPatternRecognition, adjacent_pawns, last_row_pieces
 
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'DOUBLE_SWINGING_ROOK',
@@ -186,7 +186,7 @@ _RECOGNIZER = Recognizer([
   ([('K', '69'), ('B', '88'), ('G', '78'), ('G', '58'), ('R', '28'), ('S', '47'), ('N', '37'),
     ('S', '66'), ('to', '66'), ('from', '77'), ('P', '25,26'), ('P', '87'), ('P', '16,17'), ('P', '96,97')] +
    last_row_pieces('234567') + adjacent_pawns(6, 3, 8, [6]), Opening.YONENAGA_STYLE_RAPID_ENGAGING_YAGURA),
-  ([('K', '78'), ('to', '38'), ('from', '28'), ('B', '88'), ('G', '68,69'), ('G', '58'), ('S', '48'), ('R', '38'), 
+  ([('K', '78'), ('to', '38'), ('from', '28'), ('B', '88'), ('G', '68,69'), ('G', '58'), ('S', '48'), ('R', '38'),
     ('S', '57'), ('P', '16,17'), ('P', '25'), ('P', '36'), ('P', '47'), ('P', '56'), ('P', '67'), ('P', '76'),
     ('P', '87'), ('P', '96,97')] + last_row_pieces('34567'), Opening.SAGINOMIYA_JOSEKI),
   ([('K', '78'), ('R', '38'), ('to', '38'), ('from', '28'), ('B', '88'), ('S', '68'), ('G', '58'),
@@ -216,50 +216,52 @@ def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Openin
       return ot
   return _RECOGNIZER.find(pos)
 
-def _position_update_set_of_openings(pos: PositionForPatternRecognition, sente_set, gote_set) -> Opening:
+def _position_update_set_of_openings(rr: RecognizerResult, pos: PositionForPatternRecognition) -> Opening:
   ot = position_find_opening(pos)
   if ot is None:
     return None
-  s = sente_set if pos.side_to_move < 0 else gote_set
+  s = rr.get_set(-pos.side_to_move)
   if ot in s:
     return None
-  s.add(ot)
+  s.add(ot, pos.move_no - 1)
   return ot
 
 _BEFORE_ROOK_OPENING_S = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBING_SILVER])
 
-def _almost_empty(s: Set[Opening]) -> bool:
+def _almost_empty(s) -> bool:
   return s.issubset(_BEFORE_ROOK_OPENING_S)
 
-def _update_set_of_oppenings_by_rooks(pos: PositionForPatternRecognition, col: int, my_set: Set[Opening], opponent_set: Set[Opening]):
+def _update_set_of_oppenings_by_rooks(rr: RecognizerResult, pos: PositionForPatternRecognition, col: int):
+  s = rr.get_set(pos.side_to_move)
   if col < 5:
-    if Opening.SWINGING_ROOK in opponent_set:
-      my_set.add(Opening.DOUBLE_SWINGING_ROOK)
+    if Opening.SWINGING_ROOK in rr.get_set(-pos.side_to_move):
+      s.add(Opening.DOUBLE_SWINGING_ROOK, pos.move_no)
       return
   if col == 2:
-    if _almost_empty(my_set):
-      my_set.add(Opening.OPPOSING_ROOK)
-    my_set.add(Opening.SWINGING_ROOK)
+    if _almost_empty(s):
+      s.add(Opening.OPPOSING_ROOK, pos.move_no)
+    s.add(Opening.SWINGING_ROOK, pos.move_no)
   elif col == 3:
     if pos.move_no == 1:
-      my_set.add(Opening.ROOK78_STRATEGY)
+      s.add(Opening.ROOK78_STRATEGY, pos.move_no)
     elif pos.move_no == 2:
-      my_set.add(Opening.ROOK32_STRATEGY)
-    elif _almost_empty(my_set):
-      my_set.add(Opening.THIRD_FILE_ROOK)
-    my_set.add(Opening.SWINGING_ROOK)
+      s.add(Opening.ROOK32_STRATEGY, pos.move_no)
+    elif _almost_empty(s):
+      s.add(Opening.THIRD_FILE_ROOK, pos.move_no)
+    s.add(Opening.SWINGING_ROOK, pos.move_no)
   elif col == 4:
-    if _almost_empty(my_set):
-      my_set.add(Opening.FORTH_FILE_ROOK)
-    my_set.add(Opening.SWINGING_ROOK)
+    if _almost_empty(s):
+      s.add(Opening.FORTH_FILE_ROOK, pos.move_no)
+    s.add(Opening.SWINGING_ROOK, pos.move_no)
   elif col == 5:
-    my_set.add(Opening.SWINGING_ROOK)
+    s.add(Opening.SWINGING_ROOK, pos.move_no)
   elif col == 6:
-    if _almost_empty(my_set) and _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER.find(pos) == Opening.RIGHT_HAND_FORTH_FILE_ROOK:
-      my_set.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK)
+    if _almost_empty(s) and _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER.find(pos) == Opening.RIGHT_HAND_FORTH_FILE_ROOK:
+      s.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK, pos.move_no)
   elif col == 7:
-    if _almost_empty(my_set) and pos.move_no <= 5:
-      my_set.add(Opening.SLEEVE_ROOK)
+    #TODO: use pattern matching for sleeve rook
+    if _almost_empty(s) and pos.move_no <= 5:
+      s.add(Opening.SLEEVE_ROOK, pos.move_no)
 
 def _remove_redundant(s):
   s.discard(Opening.SWINGING_ROOK)
@@ -277,29 +279,26 @@ def _remove_redundant(s):
 
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 
-def game_find_openings(g: Game, max_hands: int = 60) -> Tuple[Set[Opening], Set[Opening]]:
+def game_find_openings(g: Game, max_hands: int = 60) -> RecognizerResult:
+  assert g.start_pos is None
   _RECOGNIZER.reorder()
-  sente_openings = set()
-  gote_openings = set()
+  rr = RecognizerResult()
+  pos = PositionForPatternRecognition()
   try:
     if g.moves[1] == _GOTE_URESINO_FIRST_MOVE:
-      gote_openings.add(Opening.URESINO_STYLE)
+      s = rr.get_set(-1)
+      s.add(Opening.URESINO_STYLE, 2)
   except IndexError:
     pass
-  assert g.start_pos is None
-  pos = PositionForPatternRecognition()
   for m in g.moves[:max_hands]:
     col = pos.first_rook_move_rank(m)
     if not col is None:
-      side = pos.side_to_move
-      my_set, opponent_set = (sente_openings, gote_openings) if side > 0 else (gote_openings, sente_openings)
-      _update_set_of_oppenings_by_rooks(pos, col, my_set, opponent_set)
+      _update_set_of_oppenings_by_rooks(rr, pos, col)
     pos.do_move(m)
-    _position_update_set_of_openings(pos, sente_openings, gote_openings)
-
-  _remove_redundant(sente_openings)
-  _remove_redundant(gote_openings)
-  return (sente_openings, gote_openings)
+    _position_update_set_of_openings(rr, pos)
+  _remove_redundant(rr.get_set(1))
+  _remove_redundant(rr.get_set(-1))
+  return rr
 
 """
 class Opening:
