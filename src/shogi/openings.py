@@ -42,9 +42,9 @@ _OPENINGS_D = SFENMap({
   'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER37_SUPER_RAPID,
   'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
   'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1S3R1/LN1GKGSNL w - 2': Opening.URESINO_STYLE,
-  'lnsgk1snl/1r4gb1/p1ppppppp/9/1p5P1/9/PPPPPPP1P/1BG3SR1/LNS1KG1NL w - 8': Opening.DOUBLE_WING_ATTACK,
-  'ln1gk1snl/1rs3gb1/p1ppppppp/9/1p5P1/9/PPPPPPP1P/1BG3SR1/LNS1KG1NL b - 9': Opening.DOUBLE_WING_ATTACK,
-  'lnsgk1snl/1r4gb1/p1ppppppp/9/7P1/1p7/PPPPPPP1P/1BG3SR1/LNS1KG1NL b - 9': Opening.DOUBLE_WING_ATTACK,
+  #'lnsgk1snl/1r4gb1/p1ppppppp/9/1p5P1/9/PPPPPPP1P/1BG3SR1/LNS1KG1NL w - 8': Opening.DOUBLE_WING_ATTACK,
+  #'ln1gk1snl/1rs3gb1/p1ppppppp/9/1p5P1/9/PPPPPPP1P/1BG3SR1/LNS1KG1NL b - 9': Opening.DOUBLE_WING_ATTACK,
+  #'lnsgk1snl/1r4gb1/p1ppppppp/9/7P1/1p7/PPPPPPP1P/1BG3SR1/LNS1KG1NL b - 9': Opening.DOUBLE_WING_ATTACK,
   'lnsgk1snl/6gb1/p1pppp2p/6R2/9/1rP6/P2PPPP1P/1BG6/LNS1KGSNL w 3P2p 16': Opening.SIDE_PAWN_PICKER,
   'lnsgk1snl/6g2/p1ppppb1p/6R2/9/1rP6/P2PPPP1P/1BG6/LNS1KGSNL b 3P2p 17': Opening.BISHOP33_STRATEGY,
   'ln1gk1snl/3s2g2/p1ppppb1p/6R2/9/1rP3P2/P2PPP2P/1BG1K4/LNS2GSNL w 3P2p 20': Opening.AONO_STYLE,
@@ -62,7 +62,7 @@ _OPENINGS_POS_AND_MOVE_D = SFENMap({
   'lnsgk1snl/6g2/p1pppp2p/6R2/5b3/1rP6/P2PPPP1P/1SG4S1/LN2KG1NL b B4Pp 21 B*4e' : Opening.BISHOP45_STRATEGY, #[wars/0066]
   'lnsgk1snl/6gb1/p1pppp2p/6pR1/9/P1r6/3PPPP1P/1BG6/LNS1KGSNL b 2P3p 17 8f7f': Opening.SIDE_PAWN_PICKER, #[wars/0084]
   'lnsgk1snl/6gb1/p1pppp2p/6pR1/9/P1r6/2BPPPP1P/2G6/LNS1KGSNL w 2P3p 18 8h7g': Opening.BISHOP33_STRATEGY, #[wars/0084]
-  'lnsgk1snl/1r4gb1/p1ppppppp/7P1/1p7/9/PPPPPPP1P/1BG4R1/LNS1KGSNL w - 8 2e2d': Opening.DOUBLE_WING_ATTACK, #[wars/0088]
+  #'lnsgk1snl/1r4gb1/p1ppppppp/7P1/1p7/9/PPPPPPP1P/1BG4R1/LNS1KGSNL w - 8 2e2d': Opening.DOUBLE_WING_ATTACK, #[wars/0088]
   'ln1gk1snl/1rs3gb1/p1pppppp1/8p/1p7/9/PPPPPPPSP/1BG4R1/LNS1KG1NL w P 16 3h2g': Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER, #[wars/0088]
   'lnsgkgsnl/4r4/pppp1pb1p/6pR1/9/2P1P4/PP1P1PP1P/1S2G4/LN1GK1SNL b B2Pp 17 B*3c': Opening.SUPER_RAPID_ATTACK,
   'lnsgkgs+Rl/4r4/pppp1pb1p/6p2/9/2P1P4/PP1P1PP1P/1S2G4/LN1GK1SNL w BN2Pp 18 2d2a+': Opening.SUPER_RAPID_ATTACK,
@@ -105,7 +105,7 @@ _RECOGNIZER = Recognizer([
     ('B', 1), ('b', 1), ('P', '36'), ('N', '29,37'), ('G', '48,58'), ('K', '68'),
      ], Opening.BISHOP_EXCHANGE_RECLINING_SILVER),
   ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '26,28'),
-    ('B', 0), ('b', 0), ('P', '36'), ('N', '37'), ('P', '76'), ('G', '78'), ('G', '48,49'),
+    ('B', 0), ('b', 0), ('P', '36'), ('N', '37'), ('P', '76'), ('G', '78'), ('G', '49'),
      ], Opening.RECLINING_SILVER),
   ([('B', '79'), ('K', '59'), ('S', '78'), ('P', '56'), ('R', '28'), ('!r', '82'),
     ('P', '25,26'), ('P', '96,97'), ('P', '16,17'),
@@ -203,6 +203,14 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('356') + adjacent_pawns(7, 2, 6), Opening.TATEISHI_STYLE),
   ([('K', '59,68,78,88'), ('R', '68,78'), ('HORSE', '22'), ('to', '22'), ('from', '88'), ('B', 1)]
    + last_row_pieces('5'), Opening.BISHOP_EXCHANGE_SWINGING_ROOK),
+  ([('P', '24'), ('to', '24'), ('B', '88'), ('G', '78'), ('R', '28'),
+    ('p', '85'), ('r', '82'), ('s', '31'), ('s', '71,72'), ('g', '61'), ('k', '51'), ('g', '32')
+    ] +
+    last_row_pieces('6') + adjacent_pawns(7, 1, 10, [2]), Opening.DOUBLE_WING_ATTACK),
+  ([('P', '25'), ('S', '38'), ('to', '38'), ('B', '88'), ('G', '78'), ('R', '28'),
+    ('p', '85'), ('r', '82'), ('s', '31'), ('s', '71,72'), ('g', '61'), ('k', '51'), ('g', '32'),
+    ] +
+    last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2]), Opening.DOUBLE_WING_ATTACK),
 ])
 
 del _LEFT_KING
