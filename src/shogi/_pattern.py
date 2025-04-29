@@ -424,6 +424,9 @@ class Recognizer:
       s = p.king_possible_cells(d)
       if isinstance(value, str):
         d[value] = s
+      else:
+        if len(s) == 81:
+          logging.warning('Pattern %s: king position is not defined', value.name)
       for j in s:
         self._by_king[j].append(i)
       p.remove_king_pattern()

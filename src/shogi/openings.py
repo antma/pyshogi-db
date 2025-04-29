@@ -85,6 +85,12 @@ _OPENINGS_POS_AND_MOVE_D = SFENMap({
 #'lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13' : Opening.BISHOP_EXCHANGE,
 #'lnsgk2nl/1r4g2/p1ppppspp/6p2/1p5P1/2P6/PPSPPPP1P/5S1R1/LN1GKG1NL b Bb 15': Opening.BISHOP_EXCHANGE, #[wars/0017]
 
+def _king_pos(f, t):
+  return ('K', ','.join(f'{i}7,{i}8,{i}9' for i in range(f, t)))
+
+_LEFT_KING = _king_pos(5, 10)
+_RIGHT_KING = _king_pos(1, 6)
+
 _RECOGNIZER = Recognizer([
   ([('K', '48'), ('G', '58'), ('S', '47'), ('N', '37'), ('L', '19'), ('R', '29') ,
     ('P', '46'), ('P', '36'), ('P', '56,57'), ('P', '25,26'), ('P', '16,17')], Opening.RIGHT_HAND_KING),
@@ -136,9 +142,9 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('') + adjacent_pawns(7, 1, 10, [7]), Opening.QUICK_ISHIDA),
   ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34')] +
    last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDAS_ISHIDA_STYLE),
-  ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99')], Opening.ISHIDA_STYLE),
+  ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99'), _RIGHT_KING ], Opening.ISHIDA_STYLE),
   ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'),
-    ('P', '37'), ('p', '35'), ('N', '29'), ('L', '19')], Opening.CLIMBING_GOLD),
+    ('P', '37'), ('p', '35'), ('N', '29'), ('L', '19'), _LEFT_KING], Opening.CLIMBING_GOLD),
   ([('HORSE', '22'), ('to', '22'), ('from', '88'), ('side', -1), ('R', '28'), ('G', '69,78'), ('P', '76')] +
    adjacent_pawns(7, 3, 7, []) + last_row_pieces('6'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
   ([('R', '68'), ('to', '68'), ('from', '28'), ('B', 1), ('b', 1), ('S', '77')] +
@@ -199,10 +205,16 @@ _RECOGNIZER = Recognizer([
    + last_row_pieces('5'), Opening.BISHOP_EXCHANGE_SWINGING_ROOK),
 ])
 
+del _LEFT_KING
+del _RIGHT_KING
+_SWAPPED_LEFT_KING = ('k', ','.join(f'{i}1,{i}2,{i}3' for i in range(1, 6)))
+
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
   #recognize before move, so pawn had inverted color and mirrored cell position
-  ([('p', '64')], Opening.RIGHT_HAND_FORTH_FILE_ROOK),
+  ([('p', '64'), _SWAPPED_LEFT_KING ], Opening.RIGHT_HAND_FORTH_FILE_ROOK),
 ])
+
+del _SWAPPED_LEFT_KING
 
 def position_find_opening(pos: PositionForPatternRecognition) -> Optional[Opening]:
   assert isinstance(pos, PositionForPatternRecognition)
