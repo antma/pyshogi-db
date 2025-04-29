@@ -40,8 +40,8 @@ def _mirror_columns_in_pattern(pat):
 _LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '66,67'), ('L', '99'), ('N', '89'), ('P', '95,96,97')]
 _YAGURA_PATTERN = [('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'),
     ('P', '66'), ('P', '87'), ('P', '97')] #('P', '76'),
-_HIGH_MINO_CASTLE_BASE = [('G', '47'), ('to', '47'), ('K', '28'), ('S', '38'), ('G', '49'),  ('L', '19'),
-    ('P', '46'),  ('P', '15,16,17')]
+_HIGH_MINO_CASTLE_BASE = [('G', '47'), ('K', '28'), ('S', '38'), ('G', '49'),  ('L', '19'),
+   ('P', '46'),  ('P', '15,16,17')]
 _CASTLE_TOWER_MINO_BASE = [('K', '87'), ('S', '78'), ('G', '69'), ('N', '89'), ('L', '99'), ('P', '76'), ('P', '86'), ('P', '95,96,97')]
 
 '''HALF_MINO_CASTLE should be after MINO_CASTLE since it's pattern is subset'''
@@ -62,9 +62,9 @@ _RECOGNIZER = Recognizer( [
   ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '36'), ('P', '27'), ('P', '16,17')], Castle.DIAMOND_MINO),
   (_HIGH_MINO_CASTLE_BASE, 'HIGH_MINO'),
-  ([('base-pattern', 'HIGH_MINO'), ('P', '37'), ('P', '27'), ('N', '29')], Castle.HIGH_MINO_CASTLE),
-  ([('base-pattern', 'HIGH_MINO'), ('P', '36'), ('P', '27'), ('N', '37')], Castle.HIGH_MINO_CASTLE),
-  ([('base-pattern', 'HIGH_MINO'), ('P', '36'), ('P', '26'), ('N', '29')], Castle.HIGH_MINO_CASTLE),
+  ([('base-pattern', 'HIGH_MINO'), ('P', '37'), ('P', '27'), ('N', '29')], Castle.HIGH_MINO_CASTLE),  #high mino
+  ([('base-pattern', 'HIGH_MINO'), ('P', '36'), ('P', '56'), ('N', '29')], Castle.HIGH_MINO_CASTLE),  #advanced pawns
+  ([('base-pattern', 'HIGH_MINO'), ('P', '36'), ('N', '37'), ('P', '56,57')], Castle.HIGH_MINO_CASTLE), #advanced knight
   ([('K', '28'), ('S', '38'), ('S', '47'), ('G', '49'), (' ', '48'), ('!G', '58'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.SILVER_MINO),
   ([('K', '28'), ('S', '38'), ('G', '49'), ('L', '19'),
