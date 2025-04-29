@@ -12,6 +12,7 @@ from . import tks_pos
 
 class USIGameWindow:
   def __init__(self, parent, images: pieces.ShogiPiecesImages, usi_game: usi.USIGame, sleep_ms: int = 50):
+    self._parent = parent
     self.frame = tk.Frame(parent)
     self._sleep_ms = sleep_ms
     self.usi_game = usi_game
@@ -23,6 +24,9 @@ class USIGameWindow:
       g = self.usi_game.game
       self.draw_position(g.pos)
       self.set_last_move(g.last_move())
+      wr = self.usi_game.win_rate
+      if not wr is None:
+        self._parent.title('{:.01f}%'.format(100.0 * wr))
     self.usi_game.step()
     self.frame.after(self._sleep_ms, self.step)
   def draw_position(self, pos: Position):

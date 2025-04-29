@@ -385,6 +385,7 @@ class USIGame:
     self._resign_score = -resign_score
     self._start_thinking_time = None
     self._last_info = None
+    self.win_rate = None
   def is_idle(self):
     return self.state == self.STATE.IDLE
   def is_complete(self):
@@ -439,6 +440,9 @@ class USIGame:
     if isinstance(self._last_info, str) and (not self._resign_score is None):
       im = InfoMessage(self._last_info)
       score = im.score_i16()
+      self.win_rate = im.win_rate()
+      if (not self.win_rate is None) and self.game.pos.side_to_move < 0:
+        self.win_rate = 1.0 - self.win_rate
       if score < self._resign_score:
         logging.info('RESIGN[%s]: engine score %d is below resign score %d', e.params.engine_short_name, score, self._resign_score)
         best_move = 'resign'
