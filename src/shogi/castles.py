@@ -57,8 +57,8 @@ _RECOGNIZER = Recognizer( [
   (_LEFT_HAND_SILVER_CROWN_PATTERN, Castle.SILVER_CROWN),
   ([('K', '98'), ('S', '87'), ('G', '78'), ('to', '78'), ('N', '89'), ('L', '99'),
   ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '49,58,67,68')], Castle.EDGE_KING_SILVER_CROWN),
-  ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '66,67'), ('P', '96,97')] +
-   adjacent_pawns(6, 7, 9), Castle.SILVER_CROWN_ANAGUMA),
+  ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '96,97')] +
+   adjacent_pawns(6, 7, 9), Castle.SILVER_CROWN_ANAGUMA), #('P', '66,67'), 
   ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '36'), ('P', '27'), ('P', '16,17')], Castle.DIAMOND_MINO),
   (_HIGH_MINO_CASTLE_BASE, 'HIGH_MINO'),
