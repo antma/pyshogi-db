@@ -471,6 +471,7 @@ _TEST_DATA_CASTLES = [
   (166, [Castle.MILLENIUM_CASTLE, Castle.BOAT_CASTLE], [Castle.MINO_CASTLE]),
   (167, [], []),
   (168, [], []),
+  (169, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -655,6 +656,7 @@ _TEST_DATA_OPENINGS = [
   (166, [], [Opening.THIRD_FILE_ROOK, Opening.ISHIDA_STYLE]),
   (167, [Opening.MURATA_SYSTEM], []),
   (168, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
+  (169, [], [Opening.URESINO_STYLE, Opening.MURATA_SYSTEM]),
 ]
 
 class TestClassifier(unittest.TestCase):
