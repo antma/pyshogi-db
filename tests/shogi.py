@@ -474,6 +474,8 @@ _TEST_DATA_CASTLES = [
   (169, [], []),
   (170, [Castle.HALF_MINO_CASTLE], [Castle.BONANZA_CASTLE]),
   (171, [Castle.BOAT_CASTLE], []),
+  (172, [], []),
+  (173, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -661,6 +663,8 @@ _TEST_DATA_OPENINGS = [
   (169, [], [Opening.URESINO_STYLE, Opening.MURATA_SYSTEM]),
   (170, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.SILVER37_SUPER_RAPID]),
   (171, [], [Opening.PACMAN]),
+  (172, [Opening.QUICK_ISHIDA], [Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE]),
+  (173, [Opening.SILVER37_STRATEGY], [Opening.SILVER37_STRATEGY]),
 ]
 
 class TestClassifier(unittest.TestCase):
