@@ -25,7 +25,7 @@ Opening = IntEnum('Opening',
    'RECLINING_SILVER',
    'BISHOP_EXCHANGE', 'ONE_TURN_LOSS_BISHOP_EXCHANGE', 'BISHOP_EXCHANGE_RECLINING_SILVER', 'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'SIDE_PAWN_PICKER', 'PAWN23_STRATEGY', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY',
-   'CLIMBING_GOLD',
+   'CLIMBING_GOLD', 'CLIMBING_SILVER',
    'SAGINOMIYA_JOSEKI', 'IJIMAS_BACK_BISHOP_STRATEGY',
    'MARUYAMA_VACCINE', 'SILVER37_SUPER_RAPID', 'SUPER_RAPID_ATTACK', 'KATO_STYLE_SLEEVE_ROOK',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'MURATA_SYSTEM', 'SPEARING_THE_BIRD',
@@ -215,6 +215,8 @@ _RECOGNIZER = Recognizer([
     last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2]), Opening.DOUBLE_WING_ATTACK),
   ([('K', '68'), ('B', '88'), ('R', '28'), ('S', '37'), ('to', '37'), ('from', '48'), ('P', '36'), ('P', '25'), ('P', '76')] +
    last_row_pieces('35') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.SILVER37_SUPER_RAPID),
+  ([('K', '78'), ('B', '88'), ('G', '68,69'), ('G', '58'), ('R', '28'), ('S', '57'), ('S', '26'), ('from', '37'), ('to', '26'), ('P', '25'), ('P', '87'), ('P', '67')] +
+   last_row_pieces('34567') + adjacent_pawns(6, 3, 8, [6]), Opening.CLIMBING_SILVER),
 ])
 
 del _LEFT_KING
