@@ -39,7 +39,7 @@ Opening = IntEnum('Opening',
 
 _OPENINGS_D = SFENMap({
   'lnsgkgsnl/1r5b1/pppppp1pp/6p2/2P6/9/PP1PPPPPP/1B5R1/LNSGKGSNL w - 4' : Opening.QUICK_ISHIDA,
-  'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER37_SUPER_RAPID,
+  #'ln1g1gsnl/1r3k1b1/p1sppp1pp/2p3p2/1p2P4/2P6/PPBP1PPPP/3SRK3/LN1G1GSNL b - 15': Opening.SILVER37_SUPER_RAPID,
   'lnsgkgsnl/4r2+B1/pppp1p1pp/4p1p2/7P1/2P6/PP1PPPP1P/7R1/LNSGKGSNL w B 8': Opening.MARUYAMA_VACCINE,
   'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B1S3R1/LN1GKGSNL w - 2': Opening.URESINO_STYLE,
   #'lnsgk1snl/1r4gb1/p1ppppppp/9/1p5P1/9/PPPPPPP1P/1BG3SR1/LNS1KG1NL w - 8': Opening.DOUBLE_WING_ATTACK,
@@ -211,6 +211,8 @@ _RECOGNIZER = Recognizer([
     ('p', '85'), ('r', '82'), ('s', '31'), ('s', '71,72'), ('g', '61'), ('k', '51'), ('g', '32'),
     ] +
     last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2]), Opening.DOUBLE_WING_ATTACK),
+  ([('K', '68'), ('B', '88'), ('R', '28'), ('S', '37'), ('to', '37'), ('from', '48'), ('P', '36'), ('P', '25'), ('P', '76')] +
+   last_row_pieces('35') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.SILVER37_SUPER_RAPID),
 ])
 
 del _LEFT_KING
