@@ -41,7 +41,7 @@ _LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', 
 _YAGURA_PATTERN = [('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'),
     ('P', '66'), ('P', '87'), ('P', '97')] #('P', '76'),
 _HIGH_MINO_CASTLE_BASE = [('G', '47'), ('K', '28'), ('S', '38'), ('G', '49'),  ('L', '19'),
-   ('P', '46'),  ('P', '15,16,17')]
+   ('P', '15,16,17')] #('P', '46'),
 _CASTLE_TOWER_MINO_BASE = [('K', '87'), ('S', '78'), ('G', '69'), ('N', '89'), ('L', '99'), ('P', '76'), ('P', '86'), ('P', '95,96,97')]
 
 '''HALF_MINO_CASTLE should be after MINO_CASTLE since it's pattern is subset'''
@@ -58,7 +58,7 @@ _RECOGNIZER = Recognizer( [
   ([('K', '98'), ('S', '87'), ('G', '78'), ('to', '78'), ('N', '89'), ('L', '99'),
   ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '49,58,67,68')], Castle.EDGE_KING_SILVER_CROWN),
   ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '96,97')] +
-   adjacent_pawns(6, 7, 9), Castle.SILVER_CROWN_ANAGUMA), #('P', '66,67'), 
+   adjacent_pawns(6, 7, 9), Castle.SILVER_CROWN_ANAGUMA), #('P', '66,67'),
   ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
     ('P', '46'), ('P', '36'), ('P', '27'), ('P', '16,17')], Castle.DIAMOND_MINO),
   (_HIGH_MINO_CASTLE_BASE, 'HIGH_MINO'),
