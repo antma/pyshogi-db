@@ -64,7 +64,7 @@ _OPENINGS_POS_AND_MOVE_D = SFENMap({
   'lnsgk1snl/6gb1/p1pppp2p/6pR1/9/P1r6/3PPPP1P/1BG6/LNS1KGSNL b 2P3p 17 8f7f': Opening.SIDE_PAWN_PICKER, #[wars/0084]
   'lnsgk1snl/6gb1/p1pppp2p/6pR1/9/P1r6/2BPPPP1P/2G6/LNS1KGSNL w 2P3p 18 8h7g': Opening.BISHOP33_STRATEGY, #[wars/0084]
   #'lnsgk1snl/1r4gb1/p1ppppppp/7P1/1p7/9/PPPPPPP1P/1BG4R1/LNS1KGSNL w - 8 2e2d': Opening.DOUBLE_WING_ATTACK, #[wars/0088]
-  'ln1gk1snl/1rs3gb1/p1pppppp1/8p/1p7/9/PPPPPPPSP/1BG4R1/LNS1KG1NL w P 16 3h2g': Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER, #[wars/0088]
+  #'ln1gk1snl/1rs3gb1/p1pppppp1/8p/1p7/9/PPPPPPPSP/1BG4R1/LNS1KG1NL w P 16 3h2g': Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER, #[wars/0088]
   'lnsgkgsnl/4r4/pppp1pb1p/6pR1/9/2P1P4/PP1P1PP1P/1S2G4/LN1GK1SNL b B2Pp 17 B*3c': Opening.SUPER_RAPID_ATTACK,
   'lnsgkgs+Rl/4r4/pppp1pb1p/6p2/9/2P1P4/PP1P1PP1P/1S2G4/LN1GK1SNL w BN2Pp 18 2d2a+': Opening.SUPER_RAPID_ATTACK,
   'lnsgkgsnl/1r5b1/pppppp1p1/6p1p/2P6/8P/PP1PPPPP1/1B5R1/LNSGKGSNL w - 6 7f7e': Opening.QUICK_ISHIDA, #[wars/0111]
@@ -217,6 +217,9 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('35') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.SILVER37_SUPER_RAPID),
   ([('K', '78'), ('B', '88'), ('G', '68,69'), ('G', '58'), ('R', '28'), ('S', '57'), ('S', '26'), ('from', '37'), ('to', '26'), ('P', '25'), ('P', '87'), ('P', '67')] +
    last_row_pieces('34567') + adjacent_pawns(6, 3, 8, [6]), Opening.CLIMBING_SILVER),
+  ([('B', '88'), ('G', '78'), ('S', '27'), ('to', '27'), ('from', '38'), ('R', '28'), (' ', '26'), (' ', '25'), (' ', '24'),
+    ('P', 1), ('p', '85'), ('r', '82')] +
+   last_row_pieces('367') + adjacent_pawns(7, 3, 9, [7]), Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER),
 ])
 
 del _LEFT_KING

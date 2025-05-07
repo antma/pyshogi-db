@@ -480,6 +480,8 @@ _TEST_DATA_CASTLES = [
   (175, [Castle.DIAMOND_MINO, Castle.MINO_CASTLE, Castle.HIGH_MINO_CASTLE], [Castle.BOAT_CASTLE, Castle.MILLENIUM_CASTLE]),
   (176, [Castle.HALF_MINO_CASTLE, Castle.KIMURA_MINO], [Castle.BOAT_CASTLE, Castle.LEFT_HAND_MINO]),
   (177, [], []),
+  (178, [Castle.BOAT_CASTLE], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
+  (179, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -673,6 +675,8 @@ _TEST_DATA_OPENINGS = [
   (175, [Opening.FORTH_FILE_ROOK], []),
   (176, [Opening.GOKIGEN_CENTRAL_ROOK], []),
   (177, [Opening.SILVER37_STRATEGY], []),
+  (178, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.FORTH_FILE_ROOK]),
+  (179, [Opening.MURATA_SYSTEM], [Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER]),
 ]
 
 class TestClassifier(unittest.TestCase):
