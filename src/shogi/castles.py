@@ -59,8 +59,8 @@ _RECOGNIZER = Recognizer( [
   ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '49,58,67,68')], Castle.EDGE_KING_SILVER_CROWN),
   ([('K', '99'), ('S', '87'), ('G', '78'), ('L', '98'), ('N', '89'), ('P', '96,97')] +
    adjacent_pawns(6, 7, 9), Castle.SILVER_CROWN_ANAGUMA), #('P', '66,67'),
-  ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29'), ('L', '19'),
-    ('P', '46'), ('P', '36'), ('P', '27'), ('P', '16,17')], Castle.DIAMOND_MINO),
+  ([('S', '47'), ('G', '58'), ('G', '49'), ('S', '38'), ('K', '28'), ('N', '29,37'), ('L', '19'),
+    ('P', '46'), ('P', '36'), ('P', '26,27')], Castle.DIAMOND_MINO), #('P', '16,17')
   (_HIGH_MINO_CASTLE_BASE, 'HIGH_MINO'),
   ([('base-pattern', 'HIGH_MINO'), ('P', '37'), ('P', '27'), ('N', '29')], Castle.HIGH_MINO_CASTLE),  #high mino
   ([('base-pattern', 'HIGH_MINO'), ('P', '36'), ('P', '56'), ('N', '29')], Castle.HIGH_MINO_CASTLE),  #advanced pawns
