@@ -487,3 +487,14 @@ def game_win_rates(game: Game, max_pv_size: int) -> Mapping[int, Tuple[float, Li
           d[move_no] = (wr, best_moves)
           break
   return d
+
+class EnginesPool:
+  def __init__(self, d, t, hash_size, threads):
+    '''
+    t: in seconds
+    d: dict, key: engine_id, value: (engine_args, engine_extra_options, engine_suffix)
+    '''
+    self._d = { key: (USIEngineSearchParameters(value[0], t * 1000, hash_size, threads, value[1]), value[2]) for key, value in d.items() }
+  def get_engine(self, engine_id: str):
+    p = self._d[engine_id]
+    return USIEngine(p[0], p[1])
