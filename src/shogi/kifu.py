@@ -386,7 +386,7 @@ def _game_write_tags(g: Game, f):
         f.write(position.Position(p).kifu_str())
       else:
         if isinstance(p, datetime.date):
-          p = p.isoformat().replace('-', '/').replace('T', ' ')
+          p = p.isoformat().replace('-', '/').replace('T', ' ').removesuffix(' 00:00:00')
         if not isinstance(p, str):
           p = str(p)
         if key == 'sente':
