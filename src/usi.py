@@ -335,6 +335,7 @@ class USIEngine:
       return (im, bestmove)
     return (None, bestmove)
   def analyse_game(self, game: Game, db_cache: EngineEvalCacheDB, db_cache_stored_limit: int = 3):
+    game.append_comment_before_move(1, self.params.engine_name)
     self.new_game()
     usi_moves = []
     pos = Position(game.start_pos)

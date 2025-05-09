@@ -224,7 +224,7 @@ _RECOGNIZER = Recognizer([
 
 del _LEFT_KING
 del _RIGHT_KING
-_SWAPPED_LEFT_KING = ('k', ','.join(f'{i}1,{i}2,{i}3' for i in range(1, 6)))
+_SWAPPED_LEFT_KING = ('k', ','.join(f'{i}1,{i}2' for i in range(3, 6)))
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
   #recognize before move, so pawn had inverted color and mirrored cell position
