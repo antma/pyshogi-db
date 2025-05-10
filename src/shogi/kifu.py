@@ -396,9 +396,16 @@ def _game_write_tags(g: Game, f):
         f.write(_HEADER_EN_D[key] + '：' + str(p) + '\n')
   f.write(_HEADER_MOVES_SEPARATOR + '\n')
 
+def _game_write_move_comments(g: Game, f, move_no: int):
+  p = g.comments.get(move_no)
+  if p:
+    for s in p:
+      f.write('*' + s + '\n')
+
 def _game_write_moves(g: Game, f):
   prev = None
   move_no = g.start_move_no
+  _game_write_move_comments(g, f, move_no)
   for m in g.moves:
     t = str(move_no) + ' ' + m.kifu_str(prev)
     t1 = m.time_str()
@@ -409,10 +416,7 @@ def _game_write_moves(g: Game, f):
       t += ' (' + t1 + ')'
     f.write(t + '\n')
     move_no += 1
-    p = g.comments.get(move_no)
-    if p:
-      for s in p:
-        f.write('*' + s + '\n')
+    _game_write_move_comments(g, f, move_no)
     prev = m
   #game result
   if not g.game_result is None:
