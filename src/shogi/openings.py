@@ -142,7 +142,7 @@ _RECOGNIZER = Recognizer([
     ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '46'), ('N', '89'), ('L', '99'), ('N', '29,37'), ('L', '19'), ('B', '77,88')], Opening.SILVER_HORNED_SNOW_ROOF),
   ([('P', '75'), ('R', '78'), ('to', '78'), ('from', '28'), ('B', '88'), ('p', '34')] +
    last_row_pieces('') + adjacent_pawns(7, 1, 10, [7]), Opening.QUICK_ISHIDA),
-  ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34')] +
+  ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34'), ('p', '84,85')] +
    last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDAS_ISHIDA_STYLE),
   ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99'), _RIGHT_KING ], Opening.ISHIDA_STYLE),
   ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'),
@@ -265,7 +265,7 @@ def _almost_empty(s) -> bool:
 def _update_set_of_oppenings_by_rooks(rr: RecognizerResult, pos: PositionForPatternRecognition, col: int):
   s = rr.get_set(pos.side_to_move)
   if col < 5:
-    if Opening.SWINGING_ROOK in rr.get_set(-pos.side_to_move):
+    if (pos.move_no <= 20) and (Opening.SWINGING_ROOK in rr.get_set(-pos.side_to_move)):
       s.add(Opening.DOUBLE_SWINGING_ROOK, pos.move_no)
       return
   if col == 2:
