@@ -157,7 +157,7 @@ _RECOGNIZER = Recognizer([
   last_row_pieces('5') + adjacent_pawns(7, 2, 9, [7]), Opening.FORTH_THIRD_FILE_ROOK_STRATEGY),
   ([ ('R', '88'), ('from', '28'), ('to', '88'), ('S', '77'), ('P', '76')] +
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.DIRECT_OPPOSING_ROOK),
-  ([('P', '56'), ('to', '56'), ('G', '78'), ('S', '68'), ('S', '48'), ('B', '88'), ('R', '28'), ('P', '25,26'), ('r', '82')] +
+  ([('P', '56'), ('to', '56'), ('G', '78'), ('S', '68'), ('S', '48'), ('B', '88'), ('R', '28'), ('P', '25,26,27'), ('r', '82')] +
     adjacent_pawns(7, 3, 9, [5]) + last_row_pieces('367'), Opening.MURATA_SYSTEM), #('p', 0)
   ([('R', '58'), ('to', '58'), ('from', '28'), ('B', '77,88'), ('S', '67,68'), ('P', '76,77'), ('P', '66,67')] + last_row_pieces('7')
    + adjacent_pawns(7, 2, 9, [6, 7]), Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK),
