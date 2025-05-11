@@ -492,6 +492,7 @@ _TEST_DATA_CASTLES = [
   (187, [], [Castle.PEERLESS_GOLDS]),
   (188, [], []),
   (189, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], []),
+  (190, [Castle.SWINGING_ROOK_ANAGUMA], [Castle.BONANZA_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -697,6 +698,7 @@ _TEST_DATA_OPENINGS = [
   (187, [Opening.OPPOSING_ROOK], [Opening.THIRD_FILE_ROOK]),
   (188, [], [Opening.PAWN23_STRATEGY]),
   (189, [Opening.QUICK_ISHIDA], []),
+  (190, [Opening.AMAHIKO_OPPOSING_ROOK], []),
 ]
 
 class TestClassifier(unittest.TestCase):
