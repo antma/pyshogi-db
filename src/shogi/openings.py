@@ -17,7 +17,8 @@ Opening = IntEnum('Opening',
    'LEGHORN_SPECIAL', 'BISHOP_EXCHANGE_SWINGING_ROOK',
    'PACMAN',
     #static
-   'SLEEVE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK',
+   'SLEEVE_ROOK',
+   'RIGHT_HAND_FORTH_FILE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO',
    'CRAB_SILVERS',
    'RIGHT_HAND_KING',
    'DOUBLE_WING_ATTACK', 'DOUBLE_WING_ATTACK_CLIMBING_SILVER',
@@ -220,6 +221,9 @@ _RECOGNIZER = Recognizer([
   ([('B', '88'), ('G', '78'), ('S', '27'), ('to', '27'), ('from', '38'), ('R', '28'), (' ', '26'), (' ', '25'), (' ', '24'),
     ('P', 1), ('p', '85'), ('r', '82')] +
    last_row_pieces('367') + adjacent_pawns(7, 3, 9, [7]), Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER),
+  ([('K', '79'), ('R', '48'), ('to', '48'), ('S', '78'), ('G', '58'), ('B', '66,88'), ('S', '56'), ('N', '29,37'), ('P', '36,37')] +
+   adjacent_pawns(6, 2, 5, [3]) + adjacent_pawns(7, 5, 9, [7]) + last_row_pieces('23457'),
+   Opening.RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO),
 ])
 
 del _LEFT_KING
