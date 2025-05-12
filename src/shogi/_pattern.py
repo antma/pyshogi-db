@@ -12,7 +12,7 @@ from . import position
 from .move import Move
 
 _Operation = IntEnum('_Operation', ['EQ', 'IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW', 'PAWNS_IN', 'PAWNS_MASK'])
-_BISHOP_S = set([piece.BISHOP, piece.HORSE])
+_END_OF_THE_ROOK_S = set([piece.PAWN, piece.BISHOP, piece.HORSE])
 _END_OF_THE_OPENING_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER, piece.LANCE, piece.PROMOTED + piece.LANCE, piece.ROOK, piece.DRAGON])
 
 def adjacent_pawns(row: int, start_col: int, end_col: int, excl: Optional[List[int]] = None):
@@ -125,7 +125,7 @@ class PositionForPatternRecognition(position.Position):
   def count_piece_moves(self, p: int) -> int:
     return self._count_moves_d.get(p, 0)
   def first_rook_move_rank(self, m: Move) -> Optional[int]:
-    if self._was_drops or (not self._taken.isdisjoint(_BISHOP_S)):
+    if self._was_drops or (not self._taken.isdisjoint(_END_OF_THE_ROOK_S)):
       return None
     side = self.side_to_move
     assert side * m.to_piece > 0

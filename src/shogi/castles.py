@@ -25,6 +25,7 @@ Castle = IntEnum('Castle',
    'DIAMOND_MINO', 'GOLD_MINO',
    'PEERLESS_GOLDS', 'SWINGING_ROOK_ANAGUMA', 'SILVER_MINO',
    'INVINCIBLE_CASTLE',
+   'RIGHT_HAND_YAGURA',
   ])
 
 def _mirror_columns(s):
@@ -131,6 +132,8 @@ _RECOGNIZER = Recognizer( [
     last_row_pieces('123789'), Castle.INVINCIBLE_CASTLE),
   ([('K', '58'), ('S', '48'), ('G', '38'), ('G', '78')]
    + last_row_pieces('1234567') + adjacent_pawns(7, 4, 7), Castle.CENTRAL_HOUSE),
+  ([('K', '28'), ('S', '37'), ('G', '38'), ('P', '27'), ('P', '36'), ('P', '15,16,17'), ('L', '19'), ('N', '29')],
+   Castle.RIGHT_HAND_YAGURA),
 ])
 
 del _LEFT_HAND_SILVER_CROWN_PATTERN

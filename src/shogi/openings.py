@@ -16,6 +16,7 @@ Opening = IntEnum('Opening',
    'SWINGING_ROOK_MILLENIUM',
    'LEGHORN_SPECIAL', 'BISHOP_EXCHANGE_SWINGING_ROOK',
    'PACMAN',
+   'TAKADA_STYLE_LEFT_HAND_KING',
     #static
    'SLEEVE_ROOK',
    'RIGHT_HAND_FORTH_FILE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO',
@@ -34,7 +35,6 @@ Opening = IntEnum('Opening',
    'SILVER_HORNED_SNOW_ROOF',
    'SILVER37_STRATEGY', 'WAKI_SYSTEM', 'MORISHITA_SYSTEM', 'YONENAGA_STYLE_RAPID_ENGAGING_YAGURA',
    'WRONG_DIAGONAL_BISHOP',
-
    #internal usage
     'NONE', 'SWINGING_ROOK'
 ])
@@ -224,6 +224,10 @@ _RECOGNIZER = Recognizer([
   ([('K', '79'), ('R', '48'), ('to', '48'), ('S', '78'), ('G', '58'), ('B', '66,88'), ('S', '56'), ('N', '29,37'), ('P', '36,37')] +
    adjacent_pawns(6, 2, 5, [3]) + adjacent_pawns(7, 5, 9, [7]) + last_row_pieces('23457'),
    Opening.RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO),
+  ([('K', '68,78'), ('to', '68,78'), ('R', '89'), ('G', '58'), ('G', '38'), ('N', '77'), ('S', '67'), ('S', '57'), ('P', '56'), ('P', '65'), ('P', '76')] +
+   adjacent_pawns(7, 2, 9, [5,6,7]) + last_row_pieces('345678'), 'TAKADA'),
+  ([('base-pattern', 'TAKADA'), ('B', '66')], Opening.TAKADA_STYLE_LEFT_HAND_KING),
+  ([('base-pattern', 'TAKADA'), ('B', 1)], Opening.TAKADA_STYLE_LEFT_HAND_KING),
 ])
 
 del _LEFT_KING
