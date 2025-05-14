@@ -501,6 +501,7 @@ _TEST_DATA_CASTLES = [
   (196, [], []),
   (197, [Castle.ELMO_CASTLE], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
   (198, [], []),
+  (199, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -715,6 +716,7 @@ _TEST_DATA_OPENINGS = [
   (196, [], []),
   (197, [Opening.CLIMBING_GOLD], [Opening.THIRD_FILE_ROOK]),
   (198, [Opening.THIRD_FILE_ROOK], [Opening.URESINO_STYLE]),
+  (199, [Opening.RAPID_ADVANCING_SILVER], [Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE, Opening.BISHOP_EXCHANGE]),
 ]
 
 class TestClassifier(unittest.TestCase):

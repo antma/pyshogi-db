@@ -26,6 +26,7 @@ Opening = IntEnum('Opening',
    'UFO_SILVER',
    'RECLINING_SILVER',
    'BISHOP_EXCHANGE', 'ONE_TURN_LOSS_BISHOP_EXCHANGE', 'BISHOP_EXCHANGE_RECLINING_SILVER', 'BISHOP_EXCHANGE_CLIMBING_SILVER',
+   'RAPID_ADVANCING_SILVER',
    'SIDE_PAWN_PICKER', 'PAWN23_STRATEGY', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY',
    'CLIMBING_GOLD', 'CLIMBING_SILVER',
    'SAGINOMIYA_JOSEKI', 'IJIMAS_BACK_BISHOP_STRATEGY',
@@ -149,7 +150,7 @@ _RECOGNIZER = Recognizer([
   ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'),
     ('N', '29'), ('L', '19'), ('p', '34,35'), _LEFT_KING], Opening.CLIMBING_GOLD), #('P', '37'),
   ([('HORSE', '22'), ('to', '22'), ('from', '88'), ('side', -1), ('R', '28'), ('G', '69,78'), ('P', '76')] +
-   adjacent_pawns(7, 3, 7, []) + last_row_pieces('6'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
+   adjacent_pawns(7, 3, 7, []) + last_row_pieces('36'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
   ([('R', '68'), ('to', '68'), ('from', '28'), ('B', 1), ('b', 1), ('S', '77')] +
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.LEGHORN_SPECIAL),
   ([('S', '36'), ('to', '36'), ('from', '27'), ('R', '28'), ('G', '78'), (' ', '25'), (' ', '24'), ('g', '32')] +
@@ -228,6 +229,8 @@ _RECOGNIZER = Recognizer([
    adjacent_pawns(7, 2, 9, [5,6,7]) + last_row_pieces('345678'), 'TAKADA'),
   ([('base-pattern', 'TAKADA'), ('B', '66')], Opening.TAKADA_STYLE_LEFT_HAND_KING),
   ([('base-pattern', 'TAKADA'), ('B', 1)], Opening.TAKADA_STYLE_LEFT_HAND_KING),
+  ([('R', '28'), ('S', '77'), ('S', '46'), ('to', '46'), ('from', '37'), ('P', '25'), ('P', '36'), ('P', '76')] +
+    last_row_pieces('37') + adjacent_pawns(7, 4, 9, [7]), Opening.RAPID_ADVANCING_SILVER),
 ])
 
 del _LEFT_KING
