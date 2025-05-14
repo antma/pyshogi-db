@@ -108,7 +108,7 @@ _RECOGNIZER = Recognizer([
     ('B', 1), ('b', 1), ('P', '36'), ('N', '29,37'), ('G', '48,58'), ('K', '68'),
      ], Opening.BISHOP_EXCHANGE_RECLINING_SILVER),
   ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '26,28'),
-    ('B', 0), ('b', 0), ('P', '36'), ('N', '37'), ('P', '76'), ('G', '78'), ('G', '49'),
+    ('B', 0), ('b', 0), ('P', '36'), ('N', '37'), ('P', '76'), ('G', '78'), ('G', '49'), _LEFT_KING,
      ], Opening.RECLINING_SILVER),
   ([('B', '79'), ('K', '59'), ('S', '78'), ('P', '56'), ('R', '28'), ('!r', '82'),
     ('P', '25,26'), ('P', '96,97'), ('P', '16,17'),
@@ -123,7 +123,7 @@ _RECOGNIZER = Recognizer([
    ('max-gold-moves', 2),
    ], Opening.BISHOP_EXCHANGE),
   ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
-    ('B', 1), ('b', 1)], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
+    ('B', 1), ('b', 1), _LEFT_KING], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '49,58,67'),
    ('P', '87'), ('P', '76'), ('P', '66,67'), ('P', '56'), ('S', '48,57'), ('R', '28'), ('!p', '43'), ('r', '22,32,42')] +
    last_row_pieces('2345'), Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
@@ -236,7 +236,7 @@ _SWAPPED_LEFT_KING = ('k', ','.join(f'{i}1,{i}2' for i in range(3, 6)))
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
   #recognize before move, so pawn had inverted color and mirrored cell position
-  ([('p', '64'), _SWAPPED_LEFT_KING ], Opening.RIGHT_HAND_FORTH_FILE_ROOK),
+  ([('p', '64'), _SWAPPED_LEFT_KING, _king_pos(1, 10)], Opening.RIGHT_HAND_FORTH_FILE_ROOK),
 ])
 
 del _SWAPPED_LEFT_KING
