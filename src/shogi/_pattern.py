@@ -42,10 +42,29 @@ class PositionForPatternRecognition(position.Position):
     self._patterns_d = {}
     self._sente_unmovable_pieces = 511
     self._gote_unmovable_pieces = 511
-    self._sente_pawns = 511 << 54
-    self._gote_rev_pawns = self._sente_pawns
-    self._sente_king = 76
-    self._gote_rev_king = 76
+    if sfen is None:
+      self._sente_pawns = 511 << 54
+      self._gote_rev_pawns = self._sente_pawns
+      self._sente_king = 76
+      self._gote_rev_king = 76
+    else:
+      self._sente_pawns = 0
+      self._gote_rev_pawns = 0
+      self._sente_king = None
+      self._gote_rev_king = None
+      for i, p in enumerate(self.board):
+        if p == piece.PAWN:
+          self._sente_pawns |= 1 << i
+        elif p == -piece.PAWN:
+          self._gote_rev_pawns |= 1 << cell.swap_side(i)
+        elif p == piece.KING:
+          assert self._sente_king is None
+          self._sente_king = i
+        elif p == -piece.KING:
+          assert self._gote_rev_king is None
+          self._gote_rev_king = cell.swap_side(i)
+      assert not self._sente_king is None
+      assert not self._gote_rev_king is None
   def get_king_normalized_pos(self, side: int) -> int:
     return self._sente_king if side > 0 else self._gote_rev_king
   def pawns_in(self, side: int, mask: int) -> bool:
