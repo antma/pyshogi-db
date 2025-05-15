@@ -229,8 +229,8 @@ _RECOGNIZER = Recognizer([
    adjacent_pawns(7, 2, 9, [5,6,7]) + last_row_pieces('345678'), 'TAKADA'),
   ([('base-pattern', 'TAKADA'), ('B', '66')], Opening.TAKADA_STYLE_LEFT_HAND_KING),
   ([('base-pattern', 'TAKADA'), ('B', 1)], Opening.TAKADA_STYLE_LEFT_HAND_KING),
-  ([('R', '28'), ('S', '77'), ('S', '46'), ('to', '46'), ('from', '37'), ('P', '25'), ('P', '36'), ('P', '76'), ('G', '69,78')] +
-    last_row_pieces('367') + adjacent_pawns(7, 4, 9, [7]), Opening.RAPID_ADVANCING_SILVER),
+  ([('K', '59,68'), ('R', '28'), ('S', '77'), ('S', '46'), ('to', '46'), ('from', '37'), ('P', '25'), ('P', '36'), ('P', '76'), ('G', '69,78')] +
+    last_row_pieces('3567') + adjacent_pawns(7, 4, 9, [7]), Opening.RAPID_ADVANCING_SILVER),
 ])
 
 del _LEFT_KING
