@@ -2,7 +2,7 @@
 
 from typing import Optional
 from . import position
-from .move import Move
+from .move import Move, kifu_line
 
 class PositionWithHistory(position.Position):
   def __init__(self, sfen: Optional[str] = None):
@@ -17,12 +17,7 @@ class PositionWithHistory(position.Position):
       m, u = self._history.pop()
       self.undo_move(m, u)
   def kifu_line(self):
-    a = []
-    prev = None
-    for m, _ in self._history:
-      a.append(m.kifu_str(prev))
-      prev = m
-    return ' '.join(("☗'" if self.start_side_to_move * pow(-1, i & 1) > 0 else "☖'") + t for i, t in enumerate(a))
+    return kifu_line([m for m, _ in self._history], self.start_side_to_move)
   def last_move(self) -> Optional[Move]:
     if self._history:
       return self._history[-1][0]

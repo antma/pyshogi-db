@@ -117,3 +117,11 @@ class Move:
 class UndoMove:
   def __init__(self, taken_piece: int):
     self.taken_piece = taken_piece
+
+def kifu_line(moves, start_side_to_move):
+  a = []
+  prev = None
+  for m in moves:
+    a.append(m.kifu_str(prev))
+    prev = m
+  return ' '.join(("☗'" if start_side_to_move * pow(-1, i & 1) > 0 else "☖'") + t for i, t in enumerate(a))

@@ -6,7 +6,7 @@ import os
 from typing import Mapping, Optional
 
 import log
-from .move import Move, IllegalMove
+from .move import Move, IllegalMove, kifu_line
 from .piece import side_to_str
 from .position import Position
 from .result import GameResult, side_to_move_points
@@ -213,6 +213,8 @@ class Game:
         m.drop_times()
   def usi_moves(self):
     return ' '.join(m.usi_str() for m in self.moves)
+  def kifu_line(self):
+    return kifu_line(self.moves, self.start_side_to_move)
 
 class GameCollection:
   def __init__(self, path: str, suffix: str):
