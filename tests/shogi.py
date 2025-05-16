@@ -507,6 +507,7 @@ _TEST_DATA_CASTLES = [
   (202, [], []),
   (203, [], []),
   (204, [], []),
+  (205, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -727,6 +728,7 @@ _TEST_DATA_OPENINGS = [
   (202, [Opening.QUICK_ISHIDA, Opening.MASUDAS_ISHIDA_STYLE], [Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE]),
   (203, [], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
   (204, [Opening.SILVER37_STRATEGY], [Opening.SILVER37_STRATEGY]),
+  (205, [], []),
 ]
 
 class TestClassifier(unittest.TestCase):
