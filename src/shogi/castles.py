@@ -19,7 +19,7 @@ Castle = IntEnum('Castle',
    'ELMO_CASTLE', 'BONANZA_CASTLE',
    'EDGE_KING_SILVER_CROWN',
     #double static rook
-   'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE', 'CENTRAL_HOUSE',
+   'SNOW_ROOF_CASTLE', 'STRAWBERRY_CASTLE', 'CENTRAL_HOUSE', 'NAKAHARAS_KING',
     #swinging rook
    'CASTLE_TOWER_MINO', 'TOPKNOT_MINO', 'HALF_MINO_CASTLE', 'HIGH_MINO_CASTLE', 'MINO_CASTLE', 'SILVER_CROWN', 'KIMURA_MINO',
    'DIAMOND_MINO', 'GOLD_MINO',
@@ -134,6 +134,7 @@ _RECOGNIZER = Recognizer( [
    + last_row_pieces('1234567') + adjacent_pawns(7, 4, 7), Castle.CENTRAL_HOUSE),
   ([('K', '28'), ('S', '37'), ('G', '38'), ('P', '27'), ('P', '36'), ('P', '15,16,17'), ('L', '19'), ('N', '29')],
    Castle.RIGHT_HAND_YAGURA),
+  ([('K', '69'), ('G', '59'), ('S', '88'), ('G', '78'), ('S', '48'), ('P', '67'), ('P', '47'), ('N', '77,89')], Castle.NAKAHARAS_KING),
 ])
 
 del _LEFT_HAND_SILVER_CROWN_PATTERN

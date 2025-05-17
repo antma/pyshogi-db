@@ -508,6 +508,9 @@ _TEST_DATA_CASTLES = [
   (203, [], []),
   (204, [], []),
   (205, [], []),
+  (206, [], []),
+  (207, [Castle.LEFT_HAND_MINO], []),
+  (208, [], [Castle.NAKAHARAS_KING]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -729,6 +732,9 @@ _TEST_DATA_OPENINGS = [
   (203, [], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
   (204, [Opening.SILVER37_STRATEGY], [Opening.SILVER37_STRATEGY]),
   (205, [], []),
+  (206, [Opening.DOUBLE_WING_ATTACK], []),
+  (207, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], []),
+  (208, [Opening.SIDE_PAWN_PICKER], [Opening.BISHOP33_STRATEGY, Opening.ROOK85_STRATEGY]),
 ]
 
 class TestClassifier(unittest.TestCase):

@@ -27,7 +27,7 @@ Opening = IntEnum('Opening',
    'RECLINING_SILVER',
    'BISHOP_EXCHANGE', 'ONE_TURN_LOSS_BISHOP_EXCHANGE', 'BISHOP_EXCHANGE_RECLINING_SILVER', 'BISHOP_EXCHANGE_CLIMBING_SILVER',
    'RAPID_ADVANCING_SILVER',
-   'SIDE_PAWN_PICKER', 'PAWN23_STRATEGY', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY',
+   'SIDE_PAWN_PICKER', 'PAWN23_STRATEGY', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY', 'ROOK85_STRATEGY',
    'CLIMBING_GOLD', 'CLIMBING_SILVER',
    'SAGINOMIYA_JOSEKI', 'IJIMAS_BACK_BISHOP_STRATEGY',
    'MARUYAMA_VACCINE', 'SILVER37_SUPER_RAPID', 'SUPER_RAPID_ATTACK', 'KATO_STYLE_SLEEVE_ROOK',
@@ -231,6 +231,7 @@ _RECOGNIZER = Recognizer([
   ([('base-pattern', 'TAKADA'), ('B', 1)], Opening.TAKADA_STYLE_LEFT_HAND_KING),
   ([('K', '59,68,78'), ('R', '28'), ('S', '77'), ('S', '46'), ('to', '46'), ('from', '37'), ('P', '25'), ('P', '36'), ('P', '76'), ('G', '69,78'), ('G', '49,58'), ('B', 1)] +
     last_row_pieces('34567') + adjacent_pawns(7, 4, 9, [7]), Opening.RAPID_ADVANCING_SILVER),
+  ([('S', '88'), ('G', '78'), ('B', '77'), ('R', '25'), ('from', '24'), ('to', '25'), ('P', 2)] + last_row_pieces('67') + adjacent_pawns(7, 3, 7), Opening.ROOK85_STRATEGY),
 ])
 
 del _LEFT_KING
