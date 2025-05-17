@@ -240,7 +240,7 @@ _SWAPPED_LEFT_KING = ('k', ','.join(f'{i}1,{i}2' for i in range(3, 6)))
 
 _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER = Recognizer([
   #recognize before move, so pawn had inverted color and mirrored cell position
-  ([('p', '64'), _SWAPPED_LEFT_KING, _king_pos(1, 10)], Opening.RIGHT_HAND_FORTH_FILE_ROOK),
+  ([('p', '64'), ('P', '66'), _SWAPPED_LEFT_KING, _king_pos(1, 10)], Opening.RIGHT_HAND_FORTH_FILE_ROOK),
 ])
 
 del _SWAPPED_LEFT_KING
