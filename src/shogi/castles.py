@@ -38,7 +38,7 @@ def _mirror_columns(s):
 def _mirror_columns_in_pattern(pat):
   return [(piece, _mirror_columns(s)) for piece, s in pat]
 
-_LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '66,67'), ('L', '99'), ('N', '89'), ('P', '95,96,97')]
+_LEFT_HAND_SILVER_CROWN_PATTERN = [('K', '88'), ('S', '87'), ('G', '78'), ('P', '86'), ('P', '76'), ('P', '66,67'), ('L', '99'), ('N', '89'), ('P', '95,96,97'), ('to', '78')]
 _YAGURA_PATTERN = [('G', '67'), ('G', '78'), ('S', '77'), ('K', '88'), ('N', '89'), ('L', '99'),
     ('P', '66'), ('P', '87'), ('P', '97')] #('P', '76'),
 _HIGH_MINO_CASTLE_BASE = [('G', '47'), ('K', '28'), ('S', '38'), ('G', '49'),  ('L', '19'),
