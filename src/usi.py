@@ -157,7 +157,12 @@ class InfoMessage:
   def score_i16(self) -> int:
     p = self._d.get('score.cp')
     if not p is None:
-      assert abs(p) < _MATE_SCORE_I16
+      if p >= _MATE_SCORE_I16:
+        logging.warning('Score value %d was truncated to %d', p, _MATE_SCORE_I16 - 1)
+        return _MATE_SCORE_I16 - 1
+      if p <= -_MATE_SCORE_I16:
+        logging.warning('Score value %d was truncated to %d', p, -(_MATE_SCORE_I16 - 1))
+        return -(_MATE_SCORE_I16 - 1)
       return p
     p = self._d['score.mate']
     assert abs(p) < 100
@@ -354,7 +359,9 @@ class USIEngine:
       else:
         im = InfoMessage('info ' + s)
       game.append_comment_before_move(pos.move_no, im.kifu_str())
-      e = round(100.0 * im.win_rate() * pos.side_to_move)
+      e = round(100.0 * im.win_rate())
+      if pos.side_to_move < 0:
+        e = 100 - e
       logging.info('%d. %s (%d%%)', pos.move_no - 1, usi_moves[-1], e)
 
 class USIGame:
