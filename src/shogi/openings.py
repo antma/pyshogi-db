@@ -273,6 +273,7 @@ def _position_update_set_of_openings(rr: RecognizerResult, pos: PositionForPatte
   return ot
 
 _BEFORE_ROOK_OPENING_S = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBING_SILVER])
+_BEFORE_FORTH_FILE_ROOK_S = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBING_SILVER, Opening.QUICK_ISHIDA])
 
 def _almost_empty(s) -> bool:
   return s.issubset(_BEFORE_ROOK_OPENING_S)
@@ -296,7 +297,7 @@ def _update_set_of_oppenings_by_rooks(rr: RecognizerResult, pos: PositionForPatt
       s.add(Opening.THIRD_FILE_ROOK, pos.move_no)
     s.add(Opening.SWINGING_ROOK, pos.move_no)
   elif col == 4:
-    if _almost_empty(s):
+    if s.issubset(_BEFORE_FORTH_FILE_ROOK_S):
       s.add(Opening.FORTH_FILE_ROOK, pos.move_no)
     s.add(Opening.SWINGING_ROOK, pos.move_no)
   elif col == 5:
