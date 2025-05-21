@@ -34,7 +34,7 @@ Opening = IntEnum('Opening',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'MURATA_SYSTEM', 'SPEARING_THE_BIRD',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SILVER_HORNED_SNOW_ROOF',
-   'SILVER37_STRATEGY', 'WAKI_SYSTEM', 'MORISHITA_SYSTEM', 'YONENAGA_STYLE_RAPID_ENGAGING_YAGURA', 'NAKAHARA_STYLE_RAPID_ENGAGING_YAGURA',
+   'SILVER37_STRATEGY', 'WAKI_SYSTEM', 'MORISHITA_SYSTEM', 'YONENAGA_STYLE_RAPID_ENGAGING_YAGURA', 'NAKAHARA_STYLE_RAPID_ENGAGING_YAGURA', 'YAGURA_CENTRAL_ROOK',
    'WRONG_DIAGONAL_BISHOP', 'DEMON_KILLER',
    #internal usage
     'NONE', 'SWINGING_ROOK'
@@ -238,6 +238,9 @@ _RECOGNIZER = Recognizer([
   ([('K', '69'), ('G', '47'), ('to', '47'), ('from', '58'), ('B', '88'), ('R', '28'), ('N', '29,37'),
     ('P', '25'), ('P', '36'), ('P', '55'), ('P', '67'), ('P', '76'), ('P', '87')] +
    last_row_pieces('234567'), Opening.NAKAHARA_STYLE_RAPID_ENGAGING_YAGURA),
+  ([('K', '69'), ('R', '58'), ('to', '58'), ('from', '28'), ('G', '78'), ('B', '88'), ('S', '68,77'), ('S', '47'), ('N', '37'),
+    ('P', '67'), ('P', '87')] +
+   last_row_pieces('23567') + adjacent_pawns(6, 2, 8, [6]), Opening.YAGURA_CENTRAL_ROOK),
 ])
 
 del _LEFT_KING
