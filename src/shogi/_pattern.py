@@ -423,6 +423,8 @@ class RecognizerSet:
       del self._d[value]
   def as_set(self):
     return self._s
+  def len(self):
+    return len(self._s)
 
 class RecognizerResult:
   def __init__(self):

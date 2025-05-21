@@ -16,7 +16,7 @@ Opening = IntEnum('Opening',
    'SWINGING_ROOK_MILLENIUM',
    'LEGHORN_SPECIAL', 'BISHOP_EXCHANGE_SWINGING_ROOK',
    'PACMAN',
-   'TAKADA_STYLE_LEFT_HAND_KING',
+   'TAKADA_STYLE_LEFT_HAND_KING', 'KIM_KIM_GOLD',
     #static
    'SLEEVE_ROOK',
    'RIGHT_HAND_FORTH_FILE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO',
@@ -233,6 +233,8 @@ _RECOGNIZER = Recognizer([
   ([('K', '59,68,78'), ('R', '28'), ('S', '77'), ('S', '46'), ('to', '46'), ('from', '37'), ('P', '25'), ('P', '36'), ('P', '76'), ('G', '69,78'), ('G', '49,58'), ('B', 1)] +
     last_row_pieces('34567') + adjacent_pawns(7, 4, 9, [7]), Opening.RAPID_ADVANCING_SILVER),
   ([('S', '88'), ('G', '78'), ('B', '77'), ('R', '25'), ('from', '24'), ('to', '25'), ('P', 2)] + last_row_pieces('67') + adjacent_pawns(7, 3, 7), Opening.ROOK85_STRATEGY),
+  ([('G', '66'), ('from', '77'), ('to', '66'), ('B', '88'), ('R', '28'), ('P', '76')] +
+  last_row_pieces('6') + adjacent_pawns(7, 2, 9, [7]), Opening.KIM_KIM_GOLD),
 ])
 
 del _LEFT_KING
