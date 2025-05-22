@@ -17,6 +17,7 @@ Opening = IntEnum('Opening',
    'LEGHORN_SPECIAL', 'BISHOP_EXCHANGE_SWINGING_ROOK',
    'PACMAN',
    'TAKADA_STYLE_LEFT_HAND_KING', 'KIM_KIM_GOLD',
+   'FIRST_FILE_ROOK', 'FIRST_FILE_ROOK_ANAGUMA',
     #static
    'SLEEVE_ROOK',
    'RIGHT_HAND_FORTH_FILE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO',
@@ -241,6 +242,10 @@ _RECOGNIZER = Recognizer([
   ([('K', '69'), ('R', '58'), ('to', '58'), ('from', '28'), ('G', '78'), ('B', '88'), ('S', '68,77'), ('S', '47'), ('N', '37'),
     ('P', '67'), ('P', '87')] +
    last_row_pieces('23567') + adjacent_pawns(6, 2, 8, [6]), Opening.YAGURA_CENTRAL_ROOK),
+  ([('K', '19'), ('to', '19'), ('from', '28'), ('L', '18'), ('R', '16'), ('P', '15')]
+   + last_row_pieces('134567') + adjacent_pawns(7, 2, 9), Opening.FIRST_FILE_ROOK_ANAGUMA),
+  ([('R', '16'), ('to', '16'), ('from', '18'), ('P', '15'), ('S', '78,79'), ('G', '69,78')] +
+   last_row_pieces('67') + adjacent_pawns(7, 2, 9), Opening.FIRST_FILE_ROOK),
 ])
 
 del _LEFT_KING
