@@ -336,6 +336,8 @@ def _remove_redundant(s):
     s.discard(Opening.FORTH_FILE_ROOK)
   if Opening.QUICK_ISHIDA in s:
     s.discard(Opening.THIRD_FILE_ROOK)
+  if not Opening.BISHOP_EXCHANGE in s:
+    s.discard(Opening.BISHOP_EXCHANGE_RECLINING_SILVER)
 
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 
