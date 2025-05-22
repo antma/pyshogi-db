@@ -9,7 +9,7 @@ from ._pattern import Recognizer, RecognizerResult, SFENMap, PositionForPatternR
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'DOUBLE_SWINGING_ROOK',
    'FORTH_THIRD_FILE_ROOK_STRATEGY', 'ROOK32_STRATEGY', 'ROOK78_STRATEGY',
-   'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE',
+   'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE', 'TOMAHAWK',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK', 'DIRECT_OPPOSING_ROOK',
    'HIDE_CHAN_STYLE_CENTRAL_ROOK', 'PRIMITIVE_CENTRAL_ROOK',
    'FUJII_SYSTEM', 'TATEISHI_STYLE',
@@ -246,6 +246,8 @@ _RECOGNIZER = Recognizer([
    + last_row_pieces('134567') + adjacent_pawns(7, 2, 9), Opening.FIRST_FILE_ROOK_ANAGUMA),
   ([('R', '16'), ('to', '16'), ('from', '18'), ('P', '15'), ('S', '78,79'), ('G', '69,78')] +
    last_row_pieces('67') + adjacent_pawns(7, 2, 9), Opening.FIRST_FILE_ROOK),
+  ([('K', '48'), ('N', '17'), ('to', '17'), ('R', '78'), ('P', '15'), ('B', '77,88'), ('S', '45,56,67'), ('P', '66'), ('P', '76')] +
+   last_row_pieces('257') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.TOMAHAWK),
 ])
 
 del _LEFT_KING
