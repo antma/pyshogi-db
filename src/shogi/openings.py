@@ -155,8 +155,8 @@ _RECOGNIZER = Recognizer([
    adjacent_pawns(7, 3, 7, []) + last_row_pieces('36'), Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE),
   ([('R', '68'), ('to', '68'), ('from', '28'), ('B', 1), ('b', 1), ('S', '77')] +
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [7]), Opening.LEGHORN_SPECIAL),
-  ([('S', '36'), ('to', '36'), ('from', '27'), ('R', '28'), ('G', '78'), (' ', '25'), (' ', '24'), ('g', '32')] +
-   last_row_pieces('36') + adjacent_pawns(7, 3, 7, []), Opening.UFO_SILVER),
+  ([('K', '59,69'), ('S', '36'), ('to', '36'), ('from', '27'), ('R', '28'), ('G', '78'), (' ', '25'), (' ', '24'), ('g', '32')] +
+   last_row_pieces('356') + adjacent_pawns(7, 3, 7, []), Opening.UFO_SILVER),
   ([ ('R', '78'), ('from', '68'), ('to', '78'), ('P', '75,76'), ('K', '38'), ('B', '88')] +
   last_row_pieces('5') + adjacent_pawns(7, 2, 9, [7]), Opening.FORTH_THIRD_FILE_ROOK_STRATEGY),
   ([ ('R', '88'), ('from', '28'), ('to', '88'), ('S', '77'), ('P', '76')] +
@@ -221,9 +221,9 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('35') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.SILVER37_SUPER_RAPID),
   ([('K', '78'), ('B', '88'), ('G', '68,69'), ('G', '58'), ('R', '28'), ('S', '57'), ('S', '26'), ('from', '37'), ('to', '26'), ('P', '25'), ('P', '87'), ('P', '67')] +
    last_row_pieces('34567') + adjacent_pawns(6, 3, 8, [6]), Opening.CLIMBING_SILVER),
-  ([('B', '88'), ('G', '78'), ('S', '27'), ('to', '27'), ('from', '38'), ('R', '28'), (' ', '26'), (' ', '25'), (' ', '24'),
-    ('P', 1), ('p', '85'), ('r', '82')] +
-   last_row_pieces('367') + adjacent_pawns(7, 3, 9, [7]), Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER),
+  ([('K', '59,69'), ('B', '88'), ('G', '78'), ('S', '27'), ('to', '27'), ('from', '38'), ('R', '28'),
+    (' ', '26'), (' ', '25'), (' ', '24'), ('P', 1)] + #('p', '85'), ('r', '82')
+   last_row_pieces('3567') + adjacent_pawns(7, 3, 9, [7]), Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER),
   ([('K', '79'), ('R', '48'), ('to', '48'), ('S', '78'), ('G', '58'), ('B', '66,88'), ('S', '56'), ('N', '29,37'), ('P', '36,37')] +
    adjacent_pawns(6, 2, 5, [3]) + adjacent_pawns(7, 5, 9, [7]) + last_row_pieces('23457'),
    Opening.RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO),
@@ -242,9 +242,9 @@ _RECOGNIZER = Recognizer([
   ([('K', '69'), ('R', '58'), ('to', '58'), ('from', '28'), ('G', '78'), ('B', '88'), ('S', '68,77'), ('S', '47'), ('N', '37'),
     ('P', '67'), ('P', '87')] +
    last_row_pieces('23567') + adjacent_pawns(6, 2, 8, [6]), Opening.YAGURA_CENTRAL_ROOK),
-  ([('K', '19'), ('to', '19'), ('from', '28'), ('L', '18'), ('R', '16'), ('P', '15')]
+  ([('K', '19'), ('to', '19'), ('from', '28'), ('L', '18'), ('R', '16'), ('P', '15'), ('p', 0)]
    + last_row_pieces('134567') + adjacent_pawns(7, 2, 9), Opening.FIRST_FILE_ROOK_ANAGUMA),
-  ([('R', '16'), ('to', '16'), ('from', '18'), ('P', '15'), ('S', '78,79'), ('G', '69,78')] +
+  ([('R', '16'), ('to', '16'), ('from', '18'), ('P', '15'), ('S', '78,79'), ('G', '69,78'), ('p', 0)] +
    last_row_pieces('67') + adjacent_pawns(7, 2, 9), Opening.FIRST_FILE_ROOK),
   ([('K', '48'), ('N', '17'), ('to', '17'), ('R', '78'), ('P', '15'), ('B', '77,88'), ('S', '45,56,67'), ('P', '66'), ('P', '76')] +
    last_row_pieces('257') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.TOMAHAWK),
