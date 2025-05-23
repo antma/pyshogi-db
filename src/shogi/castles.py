@@ -88,7 +88,7 @@ _RECOGNIZER = Recognizer( [
   ([('K', '38'), ('G', '48'), ('G', '58'), ('S', '28,39'), ('N', '29,37'), ('L', '19'),
     ('P', '26,27'), ('P', '36,37'), ('P', '47'), ('P', '15,16,17')], Castle.PEERLESS_GOLDS),
   ([('K', '19'), ('S', '28'), ('G', '39,49'), ('L', '18'), ('N', '29'),
-    ('P', '27'), ('P', '16,17')], Castle.SWINGING_ROOK_ANAGUMA),
+    ('P', '27'), ], Castle.SWINGING_ROOK_ANAGUMA), #('P', '16,17')
   ([('K', '99'), ('S', '88'), ('L', '98'), ('N', '89'), ('P', '86,87'), ('P', '96,97')], 'STATIC_ROOK_ANAGUMA'),
   ([('base-pattern', 'STATIC_ROOK_ANAGUMA'), ('G', '69,78,87'), ('to', '88')], Castle.STATIC_ROOK_ANAGUMA),
   ([('base-pattern', 'STATIC_ROOK_ANAGUMA'), ('G', '79'), ('G', '78')], Castle.STATIC_ROOK_ANAGUMA),

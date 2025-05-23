@@ -527,6 +527,8 @@ _TEST_DATA_CASTLES = [
   (222, [], []),
   (223, [], []),
   (224, [], []),
+  (225, [], []),
+  (226, [Castle.SWINGING_ROOK_ANAGUMA], [Castle.SNOW_ROOF_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -767,6 +769,8 @@ _TEST_DATA_OPENINGS = [
   (222, [Opening.YONENAGA_STYLE_RAPID_ENGAGING_YAGURA], [Opening.YAGURA_CENTRAL_ROOK]),
   (223, [], [Opening.UFO_SILVER, Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER]),
   (224, [], []),
+  (225, [Opening.FIRST_FILE_ROOK], [Opening.OPPOSING_ROOK]),
+  (226, [Opening.FIRST_FILE_ROOK, Opening.FIRST_FILE_ROOK_ANAGUMA], []),
 ]
 
 class TestClassifier(unittest.TestCase):
