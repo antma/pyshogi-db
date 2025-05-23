@@ -31,7 +31,7 @@ Opening = IntEnum('Opening',
    'SIDE_PAWN_PICKER', 'PAWN23_STRATEGY', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY', 'ROOK85_STRATEGY',
    'CLIMBING_GOLD', 'CLIMBING_SILVER',
    'SAGINOMIYA_JOSEKI', 'IJIMAS_BACK_BISHOP_STRATEGY',
-   'MARUYAMA_VACCINE', 'SILVER37_SUPER_RAPID', 'SUPER_RAPID_ATTACK', 'KATO_STYLE_SLEEVE_ROOK',
+   'MARUYAMA_VACCINE', 'SILVER37_SUPER_RAPID', 'SUPER_RAPID_ATTACK', 'KATO_STYLE_SLEEVE_ROOK', 'ONE_STRAIGHT_WAY_ANAGUMA',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'MURATA_SYSTEM', 'SPEARING_THE_BIRD',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
    'SILVER_HORNED_SNOW_ROOF',
@@ -249,6 +249,8 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('67') + adjacent_pawns(7, 2, 9), Opening.FIRST_FILE_ROOK),
   ([('K', '48'), ('N', '17'), ('to', '17'), ('R', '78'), ('P', '15'), ('B', '77,88'), ('S', '45,56,67'), ('P', '66'), ('P', '76')] +
    last_row_pieces('257') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.TOMAHAWK),
+  ([('K', '99'), ('L', '98'), ('G', '78'), ('S', '68'), ('to', '68'), ('from', '59'), ('B', '77'), ('G', '67'), ('R', '28'), ('P', '25')] +
+   last_row_pieces('34569') + adjacent_pawns(7, 3, 8, [6, 7]) + adjacent_pawns(6, 6, 8), Opening.ONE_STRAIGHT_WAY_ANAGUMA),
 ])
 
 del _LEFT_KING
