@@ -10,6 +10,7 @@ from .move import Move, IllegalMove, kifu_line
 from .piece import side_to_str
 from .position import Position
 from .result import GameResult, side_to_move_points
+from ._misc import sfen_moveno
 
 def player_with_rating_from_dict(d: dict, side:int) -> Optional[str]:
   name = side_to_str(side)
@@ -215,6 +216,16 @@ class Game:
     return ' '.join(m.usi_str() for m in self.moves)
   def kifu_line(self):
     return kifu_line(self.moves, self.start_side_to_move)
+  def find_position_by_sfen(self, sfen: str) -> bool:
+    n = sfen_moveno(sfen) - 1
+    if len(self.moves) < n:
+      return False
+    assert self.start_pos is None
+    pos = Position()
+    for m in self.moves[:n]:
+      pos.do_move(m)
+    assert pos.move_no == n + 1
+    return pos.sfen() == sfen
 
 class GameCollection:
   def __init__(self, path: str, suffix: str):

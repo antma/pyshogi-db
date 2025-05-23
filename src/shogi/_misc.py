@@ -12,3 +12,7 @@ def lang() -> str:
   if isinstance(l, str) and l.startswith('ru'):
     return 'ru'
   return 'en'
+
+def sfen_moveno(s: str) -> int:
+  a = s.split()
+  return int(a[3])

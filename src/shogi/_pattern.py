@@ -10,6 +10,7 @@ from . import cell
 from . import piece
 from . import position
 from .move import Move
+from ._misc import sfen_moveno
 
 _Operation = IntEnum('_Operation', ['EQ', 'IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW', 'PAWNS_IN', 'PAWNS_MASK'])
 _END_OF_THE_ROOK_S = set([piece.PAWN, piece.BISHOP, piece.HORSE])
@@ -483,16 +484,12 @@ class Recognizer:
       return st.add(ct, pos.move_no - 1)
     return False
 
-def _sfen_moveno(s: str) -> int:
-  a = s.split()
-  return int(a[3])
-
 class SFENMap:
   def __init__(self, d):
     a = []
     max_moves = 0
     for key, value in d.items():
-      n = _sfen_moveno(key)
+      n = sfen_moveno(key)
       a.append((key, n, value))
       if max_moves < n:
         max_moves = n
