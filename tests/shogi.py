@@ -244,6 +244,9 @@ class TestShogiPosition(unittest.TestCase):
       pos = Position(fen)
       m = pos.parse_usi_move(usi_move)
       self.assertEqual(pos.western_move_str(m), expected)
+  def test_kikuminsho(self):
+    s = Position.packed_to_sfen('5111_5201_3311_2311_1311_1401_3501_6612_1612_6712_8801_7812_7912_4901_0001_0001_0001_0001_6211_8411_9501_2511_9802_0011_0011_0011_8311_3712_1701_4801_9111_4201_5811_8911_1112_2602_6401_6511_4511')
+    self.assertEqual(s, 'g3p3+r/3lPG3/1s4ppp/1l1B4P/L2b1kPl1/3+p3+R+p/3+p2+s1S/+NP+p1gS3/1g+p2P3 b 4P3n 1')
 
 class TestKifu(unittest.TestCase):
   def test_time_control(self):

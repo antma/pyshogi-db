@@ -508,6 +508,53 @@ class Position:
     self.sente_pieces = sente_pieces
     self.gote_pieces = gote_pieces
     return self.sfen()
+  @classmethod
+  def packed_to_sfen(cls, s: str):
+    '''convert formate used in tsumeshogi DB to sfen'''
+    board = [piece.FREE] * 81
+    sente_pieces = [0] * piece.ROOK
+    gote_pieces = [0] * piece.ROOK
+    a = s.split('_')
+    assert len(a) in range(39, 41)
+    it = iter(a)
+    for i, c in enumerate([18, 4, 4, 4, 4, 2, 2, 2]):
+      for j in range(c):
+        t = next(it, None)
+        if t is None:
+          break
+        assert t[2] in ['0', '1']
+        assert t[3] in ['1', '2']
+        gote = t[2] == '1'
+        promoted = t[3] == '2'
+        if t.startswith('00'):
+          assert not promoted
+          if gote:
+            gote_pieces[i] += 1
+          else:
+            sente_pieces[i] += 1
+        else:
+          col, row = int(t[0]), int(t[1])
+          assert col in range(1, 10)
+          assert row in range(1, 10)
+          p = i + 1
+          if p == piece.BISHOP:
+            p = piece.ROOK
+          elif p == piece.ROOK:
+            p = piece.BISHOP
+          if promoted:
+            p = piece.promote(p)
+          if gote:
+            p *= -1
+          k = 9 * (row - 1) + col - 1
+          assert board[k] == piece.FREE
+          board[k] = p
+    self = cls.__new__(cls)
+    self.board = board
+    self.side_to_move = 1
+    self.move_no = 1
+    self.sente_pieces = sente_pieces
+    self.gote_pieces = gote_pieces
+    return self.sfen()
   def _generate_piece_moves(self, p: int, r: int, c: int, direction: Tuple[int, int, bool]) -> Iterator[int]:
     dr, dc, sliding = direction
     if p < 0:
