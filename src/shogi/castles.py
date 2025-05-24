@@ -54,7 +54,7 @@ _RECOGNIZER = Recognizer( [
      ('P', '76'), ('P', '87'), ('P', '96,97'), ('L', '98'), ('N', '89')], Castle.MATSUO_STYLE_ANAGUMA),
   ( [('K', '28'), ('S', '27'), ('G', '38'), ('L', '19'), ('P', '26')], 'SILVER_CROWN'), #('P', '16,17')
   ( [('base-pattern', 'SILVER_CROWN'), ('N', '29'), ('P', '46,47'), ('P', '37')], Castle.SILVER_CROWN),
-  ( [('base-pattern', 'SILVER_CROWN'), ('N', '37'), ('P', '46'), ('P', '36'), ('P', '16,17')], Castle.SILVER_CROWN),
+  ( [('base-pattern', 'SILVER_CROWN'), ('N', '37'), ('P', '36'), ('P', '16,17')], Castle.SILVER_CROWN), #('P', '46'),
   (_LEFT_HAND_SILVER_CROWN_PATTERN, Castle.SILVER_CROWN),
   ([('K', '98'), ('S', '87'), ('G', '78'), ('to', '78'), ('N', '89'), ('L', '99'),
   ('P', '96,97'), ('P', '86'), ('P', '76'), ('G', '49,58,67,68')], Castle.EDGE_KING_SILVER_CROWN),
