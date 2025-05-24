@@ -108,8 +108,8 @@ _RECOGNIZER = Recognizer([
   ([('R', '58'), ('to', '58'), ('P', '55,56'), ('P', '76'), ('B', '77,88')] +
     last_row_pieces('') + adjacent_pawns(7, 2, 9, [5, 7]), Opening.GOKIGEN_CENTRAL_ROOK),
   #([('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85')], Opening.RECLINING_SILVER),
-  ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '25,26,27,28,29'), ('r','81,82,83,84,85'),
-    ('B', 1), ('b', 1), ('P', '36'), ('N', '29,37'), ('G', '48,58'), ('K', '68'),
+  ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '66,67'), ('P', '57'), ('R', '25,26,27,28,29'),
+    ('B', 1), ('b', 1), ('P', '36'), ('N', '29,37'), ('G', '48,58'), ('K', '68,88'), ('p', 0),  #('r','81,82,83,84,85'),
      ], Opening.BISHOP_EXCHANGE_RECLINING_SILVER),
   ([('to', '56'), ('S', '56'), ('P', '46'), ('P', '67'), ('P', '57'), ('R', '26,28'),
     ('B', 0), ('b', 0), ('P', '36'), ('N', '37'), ('P', '76'), ('G', '78'), ('G', '49'), _LEFT_KING,
@@ -339,8 +339,6 @@ def _remove_redundant(s):
     s.discard(Opening.FORTH_FILE_ROOK)
   if Opening.QUICK_ISHIDA in s:
     s.discard(Opening.THIRD_FILE_ROOK)
-  if not Opening.BISHOP_EXCHANGE in s:
-    s.discard(Opening.BISHOP_EXCHANGE_RECLINING_SILVER)
 
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 
