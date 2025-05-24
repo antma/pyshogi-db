@@ -816,6 +816,15 @@ class TestClassifier(unittest.TestCase):
       s = rr.get_set(side)
       self.assertIn(c, s.as_set(), fn)
       self.assertEqual(g.pos.move_no - 1, s.get_move_no(c))
+      for move_no, comment in g.comments.items():
+        logging.debug('%s %s', move_no, comment)
+        self.assertIsInstance(move_no, int)
+        self.assertEqual(g.pos.move_no % 2, move_no % 2)
+        self.assertIsInstance(comment, list)
+        self.assertEqual(len(comment), 1)
+        o = Castle[comment[0]]
+        self.assertIn(o, s.as_set(), fn)
+        self.assertEqual(move_no - 1, s.get_move_no(o))
   def test_partial_openings(self):
     for fn in glob.glob(os.path.join(MODULE_DIR, 'openings', '*.kif')):
       g = self._kifu_game_load(fn)
