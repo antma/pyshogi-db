@@ -518,7 +518,7 @@ class Position:
     assert len(a) in range(39, 41)
     it = iter(a)
     for i, c in enumerate([18, 4, 4, 4, 4, 2, 2, 2]):
-      for j in range(c):
+      for _ in range(c):
         t = next(it, None)
         if t is None:
           break

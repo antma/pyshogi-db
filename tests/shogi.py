@@ -854,9 +854,15 @@ class TestClassifier(unittest.TestCase):
         self.assertEqual(g.pos.move_no % 2, move_no % 2)
         self.assertIsInstance(comment, list)
         self.assertEqual(len(comment), 1)
-        o = Opening[comment[0]]
-        self.assertIn(o, s.as_set(), fn)
-        self.assertEqual(move_no - 1, s.get_move_no(o))
+        co = Opening[comment[0]]
+        self.assertIn(co, s.as_set(), fn)
+        self.assertEqual(move_no - 1, s.get_move_no(co))
+      t = s.as_set().copy()
+      t.discard(o)
+      for op in t:
+        n = s.get_move_no(op)
+        if not ((n+1) in g.comments):
+          logging.warning("%s: KIF file hasn't comment '%s' after move %d", fn, op.name, n)
   def test_castles_and_openings(self):
     self._check_gamelist_issorted(_TEST_DATA_CASTLES)
     self._check_gamelist_issorted(_TEST_DATA_OPENINGS)

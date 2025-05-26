@@ -491,8 +491,7 @@ class SFENMap:
     for key, value in d.items():
       n = sfen_moveno(key)
       a.append((key, n, value))
-      if max_moves < n:
-        max_moves = n
+      max_moves = max(max_moves, n)
     f = [None] * (max_moves + 1)
     for key, n, value in a:
       if f[n] is None:
