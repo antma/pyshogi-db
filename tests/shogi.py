@@ -539,6 +539,9 @@ _TEST_DATA_CASTLES = [
   (231, [], []),
   (232, [Castle.SWINGING_ROOK_ANAGUMA], []),
   (233, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.ELMO_CASTLE]),
+  (234, [Castle.HIGH_MINO_CASTLE], []),
+  (235, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.ELMO_CASTLE]),
+  (236, [Castle.BOAT_CASTLE, Castle.MILLENIUM_CASTLE], [Castle.MINO_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -788,6 +791,9 @@ _TEST_DATA_OPENINGS = [
   (231, [], [Opening.PRIMITIVE_CLIMBING_SILVER]),
   (232, [Opening.FIRST_FILE_ROOK, Opening.FIRST_FILE_ROOK_ANAGUMA], [Opening.THIRD_FILE_ROOK]),
   (233, [Opening.THIRD_FILE_ROOK], []),
+  (234, [Opening.THIRD_FILE_ROOK], []),
+  (235, [Opening.FORTH_FILE_ROOK], []),
+  (236, [], [Opening.THIRD_FILE_ROOK]),
 ]
 
 class TestClassifier(unittest.TestCase):

@@ -132,7 +132,7 @@ _RECOGNIZER = Recognizer( [
     last_row_pieces('123789'), Castle.INVINCIBLE_CASTLE),
   ([('K', '58'), ('S', '48'), ('G', '38'), ('G', '78')]
    + last_row_pieces('1234567') + adjacent_pawns(7, 4, 7), Castle.CENTRAL_HOUSE),
-  ([('K', '28'), ('S', '37'), ('G', '38'), ('P', '27'), ('P', '36'), ('P', '15,16,17'), ('L', '19'), ('N', '29')],
+  ([('K', '28'), ('S', '37'), ('G', '38'), ('P', '27'), ('P', '36'), ('P', '15,16,17'), ('L', '19'), ('N', '29'), ('P', '47')],
    Castle.RIGHT_HAND_YAGURA),
   ([('K', '69'), ('G', '59'), ('S', '88'), ('G', '78'), ('S', '48'), ('P', '67'), ('P', '47'), ('N', '77,89')], Castle.NAKAHARAS_KING),
   ([('K', '58'), ('G', '79'), ('G', '39'), ('S', '68'), ('S', '48')] + adjacent_pawns(7, 4, 7), Castle.DUCK_LEGS_CASTLE),

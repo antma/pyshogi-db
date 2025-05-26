@@ -251,6 +251,9 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('257') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.TOMAHAWK),
   ([('K', '99'), ('L', '98'), ('G', '78'), ('S', '68'), ('to', '68'), ('from', '59'), ('B', '77'), ('G', '67'), ('R', '28'), ('P', '25')] +
    last_row_pieces('34569') + adjacent_pawns(7, 3, 8, [6, 7]) + adjacent_pawns(6, 6, 8), Opening.ONE_STRAIGHT_WAY_ANAGUMA),
+  ([('K', '59,68,78,79'), ('R', '48'), ('to', '48'), ('from', '28'), ('P', '46'), ('P', '26,27'), ('P', '37'),
+    ('B', '88'), ('P', '57'), ('P', '67')] #('S', '47,56'),
+   + last_row_pieces('34567'), Opening.RIGHT_HAND_FORTH_FILE_ROOK),
 ])
 
 del _LEFT_KING
@@ -294,7 +297,7 @@ _BEFORE_FORTH_FILE_ROOK_S = set([Opening.URESINO_STYLE, Opening.PRIMITIVE_CLIMBI
 def _almost_empty(s) -> bool:
   return s.issubset(_BEFORE_ROOK_OPENING_S)
 
-def _update_set_of_oppenings_by_rooks(rr: RecognizerResult, pos: PositionForPatternRecognition, col: int):
+def _update_set_of_openings_by_rooks(rr: RecognizerResult, pos: PositionForPatternRecognition, col: int):
   s = rr.get_set(pos.side_to_move)
   if col < 5:
     if (pos.move_no <= 20) and (Opening.SWINGING_ROOK in rr.get_set(-pos.side_to_move)):
@@ -318,9 +321,9 @@ def _update_set_of_oppenings_by_rooks(rr: RecognizerResult, pos: PositionForPatt
     s.add(Opening.SWINGING_ROOK, pos.move_no)
   elif col == 5:
     s.add(Opening.SWINGING_ROOK, pos.move_no)
-  elif col == 6:
-    if _almost_empty(s) and _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER.find(pos) == Opening.RIGHT_HAND_FORTH_FILE_ROOK:
-      s.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK, pos.move_no)
+  #elif col == 6:
+  #  if _almost_empty(s) and _RIGHT_HAND_FORTH_FILE_ROOK_RECOGNIZER.find(pos) == Opening.RIGHT_HAND_FORTH_FILE_ROOK:
+  #    s.add(Opening.RIGHT_HAND_FORTH_FILE_ROOK, pos.move_no)
   elif col == 7:
     #TODO: use pattern matching for sleeve rook
     if _almost_empty(s) and pos.move_no <= 5:
@@ -356,7 +359,7 @@ def game_find_openings(g: Game, max_hands: int = 60) -> RecognizerResult:
   for m in g.moves[:max_hands]:
     col = pos.first_rook_move_rank(m)
     if not col is None:
-      _update_set_of_oppenings_by_rooks(rr, pos, col)
+      _update_set_of_openings_by_rooks(rr, pos, col)
     pos.do_move(m)
     _position_update_set_of_openings(rr, pos)
   _remove_redundant(rr.get_set(1))
