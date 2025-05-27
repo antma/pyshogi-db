@@ -9,7 +9,7 @@ from ._pattern import Recognizer, RecognizerResult, SFENMap, PositionForPatternR
 Opening = IntEnum('Opening',
   ['OPPOSING_ROOK', 'THIRD_FILE_ROOK', 'FORTH_FILE_ROOK', 'GOKIGEN_CENTRAL_ROOK', 'DOUBLE_SWINGING_ROOK',
    'FORTH_THIRD_FILE_ROOK_STRATEGY', 'ROOK32_STRATEGY', 'ROOK78_STRATEGY',
-   'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDAS_ISHIDA_STYLE', 'TOMAHAWK',
+   'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDA_ISHIDA_STYLE', 'TOMAHAWK',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK', 'DIRECT_OPPOSING_ROOK',
    'HIDE_CHAN_STYLE_CENTRAL_ROOK', 'PRIMITIVE_CENTRAL_ROOK',
    'FUJII_SYSTEM', 'TATEISHI_STYLE',
@@ -30,7 +30,7 @@ Opening = IntEnum('Opening',
    'RAPID_ADVANCING_SILVER',
    'SIDE_PAWN_PICKER', 'PAWN23_STRATEGY', 'BISHOP33_STRATEGY', 'AONO_STYLE', 'YUUKI_STYLE', 'BISHOP45_STRATEGY', 'ROOK85_STRATEGY',
    'CLIMBING_GOLD', 'CLIMBING_SILVER',
-   'SAGINOMIYA_JOSEKI', 'IJIMAS_BACK_BISHOP_STRATEGY',
+   'SAGINOMIYA_JOSEKI', 'IJIMA_BACK_BISHOP_STRATEGY',
    'MARUYAMA_VACCINE', 'SILVER37_SUPER_RAPID', 'SUPER_RAPID_ATTACK', 'KATO_STYLE_SLEEVE_ROOK', 'ONE_STRAIGHT_WAY_ANAGUMA',
    'URESINO_STYLE', 'PRIMITIVE_CLIMBING_SILVER', 'MURATA_SYSTEM', 'SPEARING_THE_BIRD',
    'SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE',
@@ -117,7 +117,7 @@ _RECOGNIZER = Recognizer([
   ([('B', '79'), ('K', '59'), ('S', '78'), ('P', '56'), ('R', '28'), ('!r', '82'),
     ('P', '25,26'), ('P', '96,97'), ('P', '16,17'),
     ('L', '19'), ('L', '99'), ('N', '29'), ('N', '89'), ('S', '39,48'), ('G', '69'), ('G', '58,69')] +
-   adjacent_pawns(7, 3, 9, [5]), Opening.IJIMAS_BACK_BISHOP_STRATEGY),
+   adjacent_pawns(7, 3, 9, [5]), Opening.IJIMA_BACK_BISHOP_STRATEGY),
   ([('G', '77'), ('R', '88'), ('P', '76'), ('P', '26,27'), ('to', '88'),
     ('B', 1), ('b', 1), #bishops exchanged
     ('P', '96,97'), ('P', '16,17')] +
@@ -148,7 +148,7 @@ _RECOGNIZER = Recognizer([
   ([('P', '75'), ('R', '78'), ('to', '78'), ('from', '28'), ('B', '88'), ('p', '34')] +
    last_row_pieces('') + adjacent_pawns(7, 1, 10, [7]), Opening.QUICK_ISHIDA),
   ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34'), ('p', '84,85')] +
-   last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDAS_ISHIDA_STYLE),
+   last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDA_ISHIDA_STYLE),
   ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99'), _RIGHT_KING ], Opening.ISHIDA_STYLE),
   ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'),
     ('N', '29'), ('L', '19'), ('p', '34,35'), _LEFT_KING], Opening.CLIMBING_GOLD), #('P', '37'),

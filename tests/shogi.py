@@ -550,7 +550,7 @@ class TestCastles(unittest.TestCase):
       self.assertEqual(ct, shogi.castles.sfen_find_castle(sfen))
 
 _TEST_OPENINGS_BY_POSITIONS = [
-  ('ln1gkgbnl/1r1s2s2/p1pp1pppp/4p4/1p7/2PP5/PPB1PPPPP/2SR1K3/LN1G1GSNL b - 13', -1, Opening.IJIMAS_BACK_BISHOP_STRATEGY),
+  ('ln1gkgbnl/1r1s2s2/p1pp1pppp/4p4/1p7/2PP5/PPB1PPPPP/2SR1K3/LN1G1GSNL b - 13', -1, Opening.IJIMA_BACK_BISHOP_STRATEGY),
   ('lnsgk1snl/7r1/2ppppgpp/pp4p2/7P1/P1P5P/1P1PPPP2/1S5R1/LN1GKGSNL b Bb 15', -1, Opening.SAKATA_OPPOSING_ROOK),
   #('lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12', -1, Opening.BISHOP_EXCHANGE),
   #('lnsgk2nl/1r4g2/p1ppppspp/1p4p2/7P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL b Bb 13', -1, Opening.BISHOP_EXCHANGE),
@@ -582,7 +582,7 @@ _TEST_DATA_OPENINGS = [
   (22, [Opening.RECLINING_SILVER], [Opening.RECLINING_SILVER]),
   (23, [Opening.DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
   (24, [Opening.SIDE_PAWN_PICKER, Opening.AONO_STYLE], [Opening.BISHOP33_STRATEGY]),
-  (25, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.IJIMAS_BACK_BISHOP_STRATEGY]),
+  (25, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.IJIMA_BACK_BISHOP_STRATEGY]),
   (26, [], [Opening.SAKATA_OPPOSING_ROOK]),
   (27, [], [Opening.BISHOP_EXCHANGE_CLIMBING_SILVER]),
   (28, [], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
@@ -615,7 +615,7 @@ _TEST_DATA_OPENINGS = [
   (55, [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE], [Opening.OPPOSING_ROOK]),
   (56, [Opening.SILVER_HORNED_SNOW_ROOF], []),
   (57, [Opening.GOKIGEN_CENTRAL_ROOK], []),
-  (58, [], [Opening.QUICK_ISHIDA, Opening.MASUDAS_ISHIDA_STYLE]),
+  (58, [], [Opening.QUICK_ISHIDA, Opening.MASUDA_ISHIDA_STYLE]),
   (59, [Opening.FORTH_FILE_ROOK, Opening.FUJII_SYSTEM], []),
   (60, [], []),
   (61, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
@@ -672,14 +672,14 @@ _TEST_DATA_OPENINGS = [
   (112, [], []),
   (113, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.FORTH_FILE_ROOK]),
   (114, [], [Opening.DIRECT_OPPOSING_ROOK]),
-  (115, [Opening.FORTH_FILE_ROOK], [Opening.IJIMAS_BACK_BISHOP_STRATEGY]),
+  (115, [Opening.FORTH_FILE_ROOK], [Opening.IJIMA_BACK_BISHOP_STRATEGY]),
   (116, [], [Opening.MURATA_SYSTEM]),
   (117, [], [Opening.FORTH_FILE_ROOK]),
   (118, [Opening.FORTH_FILE_ROOK], []),
   (119, [Opening.FORTH_FILE_ROOK], [Opening.SPEARING_THE_BIRD]),
   (120, [], [Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK]),
   (121, [Opening.FORTH_FILE_ROOK], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
-  (122, [Opening.FORTH_FILE_ROOK], [Opening.IJIMAS_BACK_BISHOP_STRATEGY]),
+  (122, [Opening.FORTH_FILE_ROOK], [Opening.IJIMA_BACK_BISHOP_STRATEGY]),
   (123, [Opening.URESINO_STYLE, Opening.MURATA_SYSTEM], []),
   (124, [Opening.DOUBLE_SWINGING_ROOK], [Opening.ROOK32_STRATEGY]),
   (125, [], []),
@@ -759,7 +759,7 @@ _TEST_DATA_OPENINGS = [
   (199, [Opening.RAPID_ADVANCING_SILVER], [Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE, Opening.BISHOP_EXCHANGE]),
   (200, [], [Opening.FORTH_FILE_ROOK]),
   (201, [Opening.THIRD_FILE_ROOK], []),
-  (202, [Opening.QUICK_ISHIDA, Opening.MASUDAS_ISHIDA_STYLE], [Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE]),
+  (202, [Opening.QUICK_ISHIDA, Opening.MASUDA_ISHIDA_STYLE], [Opening.ONE_TURN_LOSS_BISHOP_EXCHANGE]),
   (203, [], [Opening.RIGHT_HAND_FORTH_FILE_ROOK]),
   (204, [Opening.SILVER37_STRATEGY], [Opening.SILVER37_STRATEGY]),
   (205, [], []),
@@ -847,9 +847,15 @@ class TestClassifier(unittest.TestCase):
     shogi.castles.log_stats(castles_stats, 'test_partial_castles')
   def test_partial_openings(self):
     openings_stats = shogi.openings.stats()
+    end_sfens = set()
     for fn in glob.glob(os.path.join(MODULE_DIR, 'openings', '*.kif')):
-      g = self._kifu_game_load(fn)
       s = os.path.basename(fn)
+      g = self._kifu_game_load(fn)
+      end_pos = g.pos.sfen()
+      if end_pos in end_sfens:
+        logging.warning("KIF file '%s' end position is not unique", s)
+      else:
+        end_sfens.add(end_pos)
       i = s.index('-')
       o = Opening[s[:i]]
       rr = shogi.openings.game_find_openings(g)
