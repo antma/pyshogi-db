@@ -169,8 +169,6 @@ def _latin_to_piece(s: str) -> int:
   assert p > 0
   return p
 
-#_PIECE_PATTERNS_D = {}
-
 class _PiecePattern:
   def _op_pawns_mask(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return pos.pawns_mask(side, self._arg)
@@ -313,14 +311,6 @@ class _PiecePattern:
       assert isinstance(self._arg, int)
       return self._arg
     return None
-  '''
-  def find_global(self):
-    p = _PIECE_PATTERNS_D.get(self._repr)
-    if not p is None:
-      return p
-    _PIECE_PATTERNS_D[self._repr] = self
-    return self
-  '''
   def king_possible_cells(self, d):
     if self._op == _Operation.BASE_PATTERN:
       return d[self._arg]
@@ -335,14 +325,6 @@ class _PiecePattern:
   def is_king_pattern(self) -> bool:
     return (self._piece == piece.KING) and (self._op in (_Operation.EQ, _Operation.IN))
 
-
-def _piece_pattern(t):
-  p = _PIECE_PATTERNS_D.get(t)
-  if not p is None:
-    return p
-  p = _PiecePattern(t[0], t[1])
-  _PIECE_PATTERNS_D[t] = p
-  return p
 
 def _unique_data(data, value):
   s = set()
@@ -370,7 +352,6 @@ class _PPAllocator:
     for p in self._pp_d.values():
       c = p.calls - 1
       calls += c
-      #hits += c - p.hits
       hits += p.hits
     return (calls, hits)
 
