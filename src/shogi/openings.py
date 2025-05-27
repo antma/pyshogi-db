@@ -127,7 +127,7 @@ _RECOGNIZER = Recognizer([
    ('max-gold-moves', 2),
    ], Opening.BISHOP_EXCHANGE),
   ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
-    ('B', 1), ('b', 1), _LEFT_KING], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER),
+    ('B', 1), ('K', '59,68')], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER), #('b', 1),
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '49,58,67'),
    ('P', '87'), ('P', '76'), ('P', '66,67'), ('P', '56'), ('S', '48,57'), ('R', '28'), ('!p', '43'), ('r', '22,32,42')] +
    last_row_pieces('2345'), Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE),
