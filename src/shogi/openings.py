@@ -366,6 +366,12 @@ def game_find_openings(g: Game, max_hands: int = 60) -> RecognizerResult:
   _remove_redundant(rr.get_set(-1))
   return rr
 
+def stats():
+  return _RECOGNIZER.stats()
+
+def log_stats(old_stats, func_name):
+  _RECOGNIZER.log_stats(old_stats, func_name)
+
 """
 class Opening:
   def __init__(self, usi_moves: str, jp_name: str, en_name: str, url: str):

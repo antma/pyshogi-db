@@ -824,6 +824,7 @@ class TestClassifier(unittest.TestCase):
     else:
       logging.warning("%s: openings aren't set", msg);
   def test_partial_castles(self):
+    castles_stats = shogi.castles.stats()
     for fn in glob.glob(os.path.join(MODULE_DIR, 'castles', '*.kif')):
       g = self._kifu_game_load(fn)
       s = os.path.basename(fn)
@@ -843,7 +844,9 @@ class TestClassifier(unittest.TestCase):
         o = Castle[comment[0]]
         self.assertIn(o, s.as_set(), fn)
         self.assertEqual(move_no - 1, s.get_move_no(o))
+    shogi.castles.log_stats(castles_stats, 'test_partial_castles')
   def test_partial_openings(self):
+    openings_stats = shogi.openings.stats()
     for fn in glob.glob(os.path.join(MODULE_DIR, 'openings', '*.kif')):
       g = self._kifu_game_load(fn)
       s = os.path.basename(fn)
@@ -869,7 +872,10 @@ class TestClassifier(unittest.TestCase):
         n = s.get_move_no(op)
         if not ((n+1) in g.comments):
           logging.warning("%s: KIF file hasn't comment '%s' after move %d", fn, op.name, n)
+    shogi.openings.log_stats(openings_stats, 'test_partial_openings')
   def test_castles_and_openings(self):
+    castles_stats = shogi.castles.stats()
+    openings_stats = shogi.openings.stats()
     self._check_gamelist_issorted(_TEST_DATA_CASTLES)
     self._check_gamelist_issorted(_TEST_DATA_OPENINGS)
     it = iter(_TEST_DATA_CASTLES)
@@ -893,7 +899,8 @@ class TestClassifier(unittest.TestCase):
       else:
         self._check_game(j[0], None, (j[1], j[2]))
         it = itertools.chain([i], it)
-    shogi.castles.piece_patterns_stats()
+    shogi.castles.log_stats(castles_stats, 'test_castles_and_openings[castles]')
+    shogi.openings.log_stats(openings_stats, 'test_castles_and_openings[openings]')
 
 if __name__ == '__main__':
   unittest.main()

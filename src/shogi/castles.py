@@ -4,7 +4,7 @@ import logging
 from typing import Optional
 from enum import IntEnum
 from .game import Game
-from ._pattern import Recognizer, RecognizerResult, PositionForPatternRecognition, adjacent_pawns, piece_patterns_stats, last_row_pieces
+from ._pattern import Recognizer, RecognizerResult, PositionForPatternRecognition, adjacent_pawns, last_row_pieces
 
 Castle = IntEnum('Castle',
   [ #static rook
@@ -165,3 +165,9 @@ def game_find_castles(g: Game, max_hands: int = 60) -> RecognizerResult:
       break
     _position_update_set_of_castles(rr, pos)
   return rr
+
+def stats():
+  return _RECOGNIZER.stats()
+
+def log_stats(old_stats, func_name):
+  _RECOGNIZER.log_stats(old_stats, func_name)

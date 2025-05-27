@@ -169,7 +169,7 @@ def _latin_to_piece(s: str) -> int:
   assert p > 0
   return p
 
-_PIECE_PATTERNS_D = {}
+#_PIECE_PATTERNS_D = {}
 
 class _PiecePattern:
   def _op_pawns_mask(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -313,12 +313,14 @@ class _PiecePattern:
       assert isinstance(self._arg, int)
       return self._arg
     return None
+  '''
   def find_global(self):
     p = _PIECE_PATTERNS_D.get(self._repr)
     if not p is None:
       return p
     _PIECE_PATTERNS_D[self._repr] = self
     return self
+  '''
   def king_possible_cells(self, d):
     if self._op == _Operation.BASE_PATTERN:
       return d[self._arg]
@@ -333,13 +335,6 @@ class _PiecePattern:
   def is_king_pattern(self) -> bool:
     return (self._piece == piece.KING) and (self._op in (_Operation.EQ, _Operation.IN))
 
-def piece_patterns_stats():
-  calls, hits = 0, 0
-  for p in _PIECE_PATTERNS_D.values():
-    c = p.calls - 1
-    calls += c
-    hits += c - p.hits
-  logging.info('%d hits, %d calls (%.2f%%)', hits, calls, (hits * 100.0) / calls)
 
 def _piece_pattern(t):
   p = _PIECE_PATTERNS_D.get(t)
@@ -358,20 +353,42 @@ def _unique_data(data, value):
     s.add(t)
   return True
 
+class _PPAllocator:
+  def __init__(self):
+    self._pp_d = {}
+  def find(self, p):
+    assert isinstance(p, _PiecePattern)
+    q = self._pp_d.get(p._repr)
+    if not q is None:
+      return q
+    self._pp_d[p._repr] = p
+    return p
+  def piece_pattern(self, t):
+    return self.find(_PiecePattern(t[0], t[1]))
+  def stats(self):
+    calls, hits = 0, 0
+    for p in self._pp_d.values():
+      c = p.calls - 1
+      calls += c
+      #hits += c - p.hits
+      hits += p.hits
+    return (calls, hits)
+
 class _PositionPattern:
-  def __init__(self, data: list, value):
+  def __init__(self, data: list, value, allocator: _PPAllocator):
+    assert isinstance(allocator, _PPAllocator)
     assert _unique_data(data, value), data
     t = []
     pm = 0
     for p in map(lambda t: _PiecePattern(t[0], t[1]), data):
       x = p.get_pawn_mask()
       if x is None:
-        t.append(p.find_global())
+        t.append(allocator.find(p))
       else:
         assert (pm & x) == 0
         pm |= x
     if pm > 0:
-      t.append(_piece_pattern(('adj-pawns', pm)))
+      t.append(allocator.piece_pattern(('adj-pawns', pm)))
     self._patterns = t
   def king_possible_cells(self, d):
     r = None
@@ -438,7 +455,8 @@ class RecognizerResult:
 
 class Recognizer:
   def __init__(self, p):
-    self._position_patterns = [(_PositionPattern(data, value), value) for data, value in p]
+    self._allocator = _PPAllocator()
+    self._position_patterns = [(_PositionPattern(data, value, self._allocator), value) for data, value in p]
     self._by_king = [ [] for _ in range(81)]
     d = {}
     for i, t in enumerate(self._position_patterns):
@@ -483,6 +501,14 @@ class Recognizer:
       st = rr.get_set(-pos.side_to_move)
       return st.add(ct, pos.move_no - 1)
     return False
+  def stats(self):
+    return self._allocator.stats()
+  def log_stats(self, old_stats, func_name):
+    calls, hits = self._allocator.stats()
+    calls -= old_stats[0]
+    hits -= old_stats[1]
+    hits = calls - hits
+    logging.info('%s: %d hits, %d calls (%.2f%%)', func_name, hits, calls, (hits * 100.0) / calls)
 
 class SFENMap:
   def __init__(self, d):
