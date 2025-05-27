@@ -212,7 +212,7 @@ class _PiecePattern:
       c = cell.swap_side(c)
     return c in self._arg
   def __init__(self, piece_latin_letter: str, cell_pattern: Union[str,int]):
-    self._repr = (piece_latin_letter, cell_pattern)
+    self.repr = (piece_latin_letter, cell_pattern)
     self._piece = None
     self._arg = None
     self.hits = 0
@@ -271,7 +271,7 @@ class _PiecePattern:
     else:
       self._arg = list(map(cell.digital_parse, cell_pattern.split(',')))
       l = len(self._arg)
-      logging.debug('%s: %s, l = %d', self._repr, self._arg, l)
+      logging.debug('%s: %s, l = %d', self.repr, self._arg, l)
       if (l == 1) and (self._op == _Operation.IN):
         self._arg = self._arg[0]
         self._op = _Operation.EQ
@@ -281,7 +281,7 @@ class _PiecePattern:
         assert all(u < v for u, v in zip(t, t[1:])), cell_pattern
     logging.debug('op = %s, arg = %s', self._op.name, self._arg)
     if (self._op == _Operation.IN) and (self._piece == piece.PAWN):
-      assert isinstance(self._arg, list), self._repr
+      assert isinstance(self._arg, list), self.repr
       self._arg = sum(1 << i for i in self._arg)
       self._op = _Operation.PAWNS_IN
       self._match = _PiecePattern._op_pawns_in
@@ -289,7 +289,7 @@ class _PiecePattern:
       assert isinstance(self._arg, list)
       self._arg = set(self._arg)
   def __str__(self):
-    return f'PiecePattern({self._repr})'
+    return f'PiecePattern({self.repr})'
   def __lt__(self, other):
     return self.hits * other.calls < other.hits * self.calls
   def match(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -340,10 +340,10 @@ class _PPAllocator:
     self._pp_d = {}
   def find(self, p):
     assert isinstance(p, _PiecePattern)
-    q = self._pp_d.get(p._repr)
+    q = self._pp_d.get(p.repr)
     if not q is None:
       return q
-    self._pp_d[p._repr] = p
+    self._pp_d[p.repr] = p
     return p
   def piece_pattern(self, t):
     return self.find(_PiecePattern(t[0], t[1]))
