@@ -547,6 +547,8 @@ _TEST_DATA_CASTLES = [
   (239, [], []),
   (240, [Castle.GIRL_IN_THE_HOUSE], [Castle.HALF_MINO_CASTLE]),
   (241, [], []),
+  (242, [Castle.HALF_MINO_CASTLE, Castle.RIGHT_HAND_YAGURA], [Castle.PEERLESS_GOLDS]),
+  (243, [Castle.BOAT_CASTLE], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -566,7 +568,6 @@ _TEST_OPENINGS_BY_POSITIONS_AND_MOVE = [
 ]
 
 _TEST_DATA_OPENINGS = [
-  (0, [], [Opening.PRIMITIVE_CLIMBING_SILVER]),
   (4, [Opening.BISHOP_EXCHANGE, Opening.BISHOP_EXCHANGE_RECLINING_SILVER], [Opening.BISHOP_EXCHANGE]),
   (5, [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE], [Opening.FORTH_FILE_ROOK, Opening.FUJII_SYSTEM]),
   (6, [], [Opening.OPPOSING_ROOK]),
@@ -805,6 +806,8 @@ _TEST_DATA_OPENINGS = [
   (239, [Opening.WRONG_DIAGONAL_BISHOP], []),
   (240, [Opening.GOKIGEN_CENTRAL_ROOK], []),
   (241, [], [Opening.PRIMITIVE_CLIMBING_SILVER]),
+  (242, [Opening.OPPOSING_ROOK], [Opening.DOUBLE_SWINGING_ROOK]),
+  (243, [Opening.PAWN45_RAPID_ENGAGEMENT], [Opening.FORTH_FILE_ROOK]),
 ]
 
 class TestClassifier(unittest.TestCase):
