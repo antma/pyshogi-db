@@ -36,6 +36,7 @@ class PositionForPatternRecognition(position.Position):
   def __init__(self, sfen: str = None):
     super().__init__(sfen)
     self._taken = set()
+    self._promotions = 0
     self.last_move = None
     self._count_moves_d = {}
     self._was_drops = False
@@ -117,6 +118,8 @@ class PositionForPatternRecognition(position.Position):
         self._gote_rev_pawns += 1 << cell.swap_side(m.to_cell)
       elif m.to_piece == -piece.KING:
         self._gote_rev_king = cell.swap_side(m.to_cell)
+    if piece.is_promoted(m.to_piece):
+      self._promotions += 1
     u = super().do_move(m)
     if not u is None:
       tp = abs(u.taken_piece)
