@@ -12,7 +12,7 @@ from . import position
 from .move import Move
 from ._misc import sfen_moveno
 
-_Operation = IntEnum('_Operation', ['EQ', 'IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW', 'PAWNS_IN', 'PAWNS_MASK'])
+_Operation = IntEnum('_Operation', ['EQ', 'IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW', 'PAWNS_IN', 'PAWNS_MASK', 'NO_MOVE'])
 _END_OF_THE_ROOK_S = set([piece.PAWN, piece.BISHOP, piece.HORSE])
 _END_OF_THE_OPENING_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER, piece.LANCE, piece.PROMOTED + piece.LANCE, piece.ROOK, piece.DRAGON])
 
@@ -36,6 +36,7 @@ class PositionForPatternRecognition(position.Position):
   def __init__(self, sfen: str = None):
     super().__init__(sfen)
     self._taken = set()
+    self._moves_destination_s = set()
     self._promotions = 0
     self.last_move = None
     self._count_moves_d = {}
@@ -67,6 +68,8 @@ class PositionForPatternRecognition(position.Position):
           self._gote_rev_king = cell.swap_side(i)
       assert not self._sente_king is None
       assert not self._gote_rev_king is None
+  def was_destination_move(self, to_piece: int, to_cell: int) -> bool:
+    return (to_piece, to_cell) in self._moves_destination_s
   def get_king_normalized_pos(self, side: int) -> int:
     return self._sente_king if side > 0 else self._gote_rev_king
   def pawns_in(self, side: int, mask: int) -> bool:
@@ -94,6 +97,7 @@ class PositionForPatternRecognition(position.Position):
     return self._patterns_d[key]
   def do_move(self, m: Move):
     self._cached_sfen = None
+    self._moves_destination_s.add((m.to_piece, m.to_cell))
     if self.side_to_move > 0:
       if not m.from_cell is None:
         if m.from_cell >= 72:
@@ -184,6 +188,11 @@ class _PiecePattern:
   def _op_eq(self, pos: PositionForPatternRecognition, side: int) -> bool:
     c = self._arg
     return pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece
+  def _op_no_move(self, pos: PositionForPatternRecognition, side: int) -> bool:
+    c = self._arg
+    if side < 0:
+      c = cell.swap_side(c)
+    return not pos.was_destination_move(side * self._piece, c)
   def _op_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return any(pos.board[c if side > 0 else cell.swap_side(c)] == side * self._piece for c in self._arg)
   def _op_not_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -191,8 +200,10 @@ class _PiecePattern:
   def _op_pieces_eq(self, pos: PositionForPatternRecognition, side: int) -> bool:
     p = pos.sente_pieces if side * self._piece > 0 else pos.gote_pieces
     return p[abs(self._piece) - 1] == self._arg
+  '''
   def _op_max_moves(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return pos.count_piece_moves(self._piece * side) <= self._arg
+  '''
   def _op_side(self, pos: PositionForPatternRecognition, side: int) -> bool:
     return side == self._arg
   def _op_from_in(self, pos: PositionForPatternRecognition, side: int) -> bool:
@@ -244,6 +255,16 @@ class _PiecePattern:
       assert isinstance(cell_pattern, int)
       self._arg = cell_pattern
       return
+    if piece_latin_letter == 'no-move':
+      self._match = _PiecePattern._op_no_move
+      self._op = _Operation.NO_MOVE
+      assert isinstance(cell_pattern, str)
+      p, c = cell_pattern.split('-')
+      self._piece = _latin_to_piece(p)
+      self._arg = cell.digital_parse(c)
+      assert not self._arg is None
+      return
+    '''
     if piece_latin_letter == 'max-gold-moves':
       self._op = _Operation.MAX_MOVES
       self._match = _PiecePattern._op_max_moves
@@ -251,6 +272,7 @@ class _PiecePattern:
       assert isinstance(cell_pattern, int)
       self._arg = cell_pattern
       return
+    '''
     self._op = _Operation.IN
     self._match = _PiecePattern._op_in
     if piece_latin_letter.startswith('!'):

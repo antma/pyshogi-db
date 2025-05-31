@@ -123,9 +123,11 @@ _RECOGNIZER = Recognizer([
     ('P', '96,97'), ('P', '16,17')] +
     last_row_pieces('6') + adjacent_pawns(7, 3, 9, [7]), Opening.SAKATA_OPPOSING_ROOK),
   ([('S', '77'), ('R', '28'), ('B', 1), ('b', 1), ('P', '76'), ('P', '67'), #('r', '82'),
-   ('K', '59'), ('L', '99'), ('L', '19'), ('N', '29'), ('N', '89'), ('from', '68,88'), ('to', '77'), ('G', '78'),
-   ('max-gold-moves', 2),
-   ], Opening.BISHOP_EXCHANGE),
+   ('from', '68,88'), ('to', '77'), ('G', '78'),
+   ('no-move', 'G-77'),
+   #('max-gold-moves', 2),
+   ] +
+   last_row_pieces('367'), Opening.BISHOP_EXCHANGE),
   ([('S', '26'), ('from', '27'), ('to', '26'), ('P', '25'), ('R', '28'), ('P', '37'),
     ('B', 1), ('K', '59,68')], Opening.BISHOP_EXCHANGE_CLIMBING_SILVER), #('b', 1),
   ([('B', '77'), ('from', '88'), ('to', '77'), ('K', '78'), ('G', '49,58,67'),
