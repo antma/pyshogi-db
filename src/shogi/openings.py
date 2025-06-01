@@ -11,7 +11,7 @@ Opening = IntEnum('Opening',
    'FORTH_THIRD_FILE_ROOK_STRATEGY', 'ROOK32_STRATEGY', 'ROOK78_STRATEGY',
    'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDA_ISHIDA_STYLE', 'TOMAHAWK',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK', 'DIRECT_OPPOSING_ROOK',
-   'HIDE_CHAN_STYLE_CENTRAL_ROOK', 'PRIMITIVE_CENTRAL_ROOK',
+   'HIDE_CHAN_STYLE_CENTRAL_ROOK', 'PRIMITIVE_CENTRAL_ROOK', 'SILVER_HORNED_CENTRAL_ROOK',
    'FUJII_SYSTEM', 'TATEISHI_STYLE',
    'SWINGING_ROOK_MILLENIUM',
    'LEGHORN_SPECIAL', 'BISHOP_EXCHANGE_SWINGING_ROOK',
@@ -261,6 +261,9 @@ _RECOGNIZER = Recognizer([
    + last_row_pieces('23457'), Opening.PAWN45_RAPID_ENGAGEMENT),
   ([('K', '78'), ('P', '75'), ('to', '75'), ('B', '88'), ('G', '58'), ('R', '28'), ('P', '56'), ('P', '25,26'), ('P', '87')] +
    last_row_pieces('23457'), Opening.KING_HEAD_VANGUARD_PAWN),
+  ([('R', '59'), ('to', '59'), ('from', '58'), ('K', '28,38,39,49,88'), ('G', '78'), ('G', '38,48,49'), ('B', '77'), ('S', '67'), ('S', '47'),
+    ('N', '29,37'), ('P', '36,37'), ('P', '45,46'), ('P', '55,56,57'), ('P', '26,27'), ('P', '87')]
+   + last_row_pieces('234567') + adjacent_pawns(6, 4, 8, [4,5]), Opening.SILVER_HORNED_CENTRAL_ROOK),
 ])
 
 del _LEFT_KING

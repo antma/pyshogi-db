@@ -555,6 +555,7 @@ _TEST_DATA_CASTLES = [
   (247, [], []),
   (248, [], [Castle.SILVER_CROWN_ANAGUMA, Castle.BOAT_CASTLE, Castle.STATIC_ROOK_ANAGUMA]),
   (249, [Castle.HALF_MINO_CASTLE], []),
+  (250, [Castle.HALF_MINO_CASTLE, Castle.KIMURA_MINO], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -820,6 +821,7 @@ _TEST_DATA_OPENINGS = [
   (247, [Opening.BISHOP_EXCHANGE], []),
   (248, [Opening.OPPOSING_ROOK], [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE]),
   (249, [Opening.QUICK_ISHIDA], [Opening.KIM_KIM_GOLD, Opening.DOUBLE_SWINGING_ROOK]),
+  (250, [Opening.SILVER_HORNED_CENTRAL_ROOK], []),
 ]
 
 class TestClassifier(unittest.TestCase):
