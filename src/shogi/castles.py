@@ -163,10 +163,11 @@ def game_find_castles(g: Game, max_hands: int = 60) -> RecognizerResult:
   pos = PositionForPatternRecognition()
   for m in g.moves[:max_hands]:
     pos.do_move(m)
-    if not pos.is_opening():
+    if not pos.is_opening(0):
       logging.debug('Out of opening: %s', pos.sfen())
       break
-    _position_update_set_of_castles(rr, pos)
+    if pos.is_opening(m.to_piece):
+      _position_update_set_of_castles(rr, pos)
   return rr
 
 def stats():

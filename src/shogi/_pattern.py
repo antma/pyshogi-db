@@ -15,6 +15,7 @@ from ._misc import sfen_moveno
 _Operation = IntEnum('_Operation', ['EQ', 'IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW', 'PAWNS_IN', 'PAWNS_MASK', 'NO_MOVE'])
 _END_OF_THE_ROOK_S = set([piece.PAWN, piece.BISHOP, piece.HORSE])
 _END_OF_THE_OPENING_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER, piece.LANCE, piece.PROMOTED + piece.LANCE, piece.ROOK, piece.DRAGON])
+_GOTE_END_OF_THE_OPENING_S = set(-p for p in _END_OF_THE_OPENING_S)
 
 def adjacent_pawns(row: int, start_col: int, end_col: int, excl: Optional[List[int]] = None):
   s = set() if excl is None else set(excl)
@@ -36,6 +37,8 @@ class PositionForPatternRecognition(position.Position):
   def __init__(self, sfen: str = None):
     super().__init__(sfen)
     self._taken = set()
+    self._sente_opening = True
+    self._gote_opening = True
     self._moves_destination_s = set()
     self._promotions = 0
     self.last_move = None
@@ -134,6 +137,14 @@ class PositionForPatternRecognition(position.Position):
           self._gote_rev_pawns -= 1 << cell.swap_side(m.to_cell)
       else:
         self._taken.add(tp)
+        if m.to_piece > 0:
+          assert u.taken_piece < 0
+          if u.taken_piece in _GOTE_END_OF_THE_OPENING_S:
+            self._sente_opening = False
+        else:
+          assert u.taken_piece > 0
+          if u.taken_piece in _END_OF_THE_OPENING_S:
+            self._gote_opening = False
     self.last_move = m
     p = m.from_piece
     if not p is None:
@@ -147,8 +158,11 @@ class PositionForPatternRecognition(position.Position):
     if self._cached_sfen is None:
       self._cached_sfen = super().sfen()
     return self._cached_sfen
-  def is_opening(self) -> bool:
-    return self._taken.isdisjoint(_END_OF_THE_OPENING_S)
+  def is_opening(self, side: int) -> bool:
+    if side == 0:
+      return self._sente_opening or self._gote_opening
+    return self._sente_opening if side > 0 else self._gote_opening
+    #return self._taken.isdisjoint(_END_OF_THE_OPENING_S)
   def count_piece_moves(self, p: int) -> int:
     return self._count_moves_d.get(p, 0)
   def first_rook_move_rank(self, m: Move) -> Optional[int]:
