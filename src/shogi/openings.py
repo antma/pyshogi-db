@@ -18,6 +18,7 @@ Opening = IntEnum('Opening',
    'PACMAN', 'BISHOP_PAWN_STRATEGY',
    'TAKADA_STYLE_LEFT_HAND_KING', 'KIM_KIM_GOLD',
    'FIRST_FILE_ROOK', 'FIRST_FILE_ROOK_ANAGUMA',
+   'FEINT_SWINGING_ROOK',
     #static
    'SLEEVE_ROOK',
    'RIGHT_HAND_FORTH_FILE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO',
@@ -264,6 +265,10 @@ _RECOGNIZER = Recognizer([
   ([('R', '59'), ('to', '59'), ('from', '58'), ('K', '28,38,39,49,88'), ('G', '78'), ('G', '38,48,49'), ('B', '77'), ('S', '67'), ('S', '47'),
     ('N', '29,37'), ('P', '36,37'), ('P', '45,46'), ('P', '55,56,57'), ('P', '26,27'), ('P', '87')]
    + last_row_pieces('234567') + adjacent_pawns(6, 4, 8, [4,5]), Opening.SILVER_HORNED_CENTRAL_ROOK),
+  ([('R', '68,78,88'), ('from', '28'), ('P', '26'), ('S', '47'), ('B', '66,77,79,88'), ('P', '75,76'),
+    ('N', '29,37'),
+    ('P', '36,37'), ('P', '46')] +
+   last_row_pieces('237'), Opening.FEINT_SWINGING_ROOK),
 ])
 
 del _LEFT_KING
@@ -352,6 +357,10 @@ def _remove_redundant(s):
     s.discard(Opening.FORTH_FILE_ROOK)
   if Opening.QUICK_ISHIDA in s:
     s.discard(Opening.THIRD_FILE_ROOK)
+  if Opening.FEINT_SWINGING_ROOK in s:
+    s.discard(Opening.OPPOSING_ROOK)
+    s.discard(Opening.THIRD_FILE_ROOK)
+    s.discard(Opening.FORTH_FILE_ROOK)
 
 _GOTE_URESINO_FIRST_MOVE = kifu.move_parse('４二銀(31)', -1, None)
 
