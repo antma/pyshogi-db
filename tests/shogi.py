@@ -563,6 +563,9 @@ _TEST_DATA_CASTLES = [
   (253, [], [Castle.MINO_CASTLE]),
   (254, [], []),
   (255, [Castle.ELMO_CASTLE], [Castle.HALF_MINO_CASTLE]),
+  (256, [Castle.STATIC_ROOK_ANAGUMA], [Castle.HALF_MINO_CASTLE, Castle.KIMURA_MINO]),
+  (257, [], []),
+  (258, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.ELMO_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -834,6 +837,9 @@ _TEST_DATA_OPENINGS = [
   (253, [Opening.DOUBLE_SWINGING_ROOK, Opening.TAKADA_STYLE_LEFT_HAND_KING], [Opening.FORTH_FILE_ROOK]),
   (254, [], [Opening.MURATA_SYSTEM]),
   (255, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.FORTH_FILE_ROOK]),
+  (256, [], [Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK, Opening.SILVER_HORNED_CENTRAL_ROOK]),
+  (257, [], []),
+  (258, [Opening.THIRD_FILE_ROOK], []),
 ]
 
 class TestClassifier(unittest.TestCase):
