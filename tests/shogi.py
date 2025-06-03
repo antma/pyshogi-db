@@ -247,6 +247,8 @@ class TestShogiPosition(unittest.TestCase):
   def test_kikuminsho(self):
     s = Position.packed_to_sfen('5111_5201_3311_2311_1311_1401_3501_6612_1612_6712_8801_7812_7912_4901_0001_0001_0001_0001_6211_8411_9501_2511_9802_0011_0011_0011_8311_3712_1701_4801_9111_4201_5811_8911_1112_2602_6401_6511_4511')
     self.assertEqual(s, 'g3p3+r/3lPG3/1s4ppp/1l1B4P/L2b1kPl1/3+p3+R+p/3+p2+s1S/+NP+p1gS3/1g+p2P3 b 4P3n 1')
+    s = Position.packed_to_sfen('9411_8411_7411_0011_0011_0011_0011_0011_0011_0011_0011_0011_0011_0011_0011_0011_0011_0011_9111_0011_0011_0011_8111_0011_0011_0011_8311_0001_0011_0011_7211_0001_0001_0011_6101_0011_7101_1711_9211')
+    self.assertEqual(s, 'lnBR5/k1g6/1s7/ppp6/9/9/8b/9/9 b 2GSrg2s3n3l15p 1')
 
 class TestKifu(unittest.TestCase):
   def test_time_control(self):

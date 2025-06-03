@@ -528,10 +528,15 @@ class Position:
         promoted = t[3] == '2'
         if t.startswith('00'):
           assert not promoted
+          j = i
+          if j == 5:
+            j += 1
+          elif j == 6:
+            j -= 1
           if gote:
-            gote_pieces[i] += 1
+            gote_pieces[j] += 1
           else:
-            sente_pieces[i] += 1
+            sente_pieces[j] += 1
         else:
           col, row = int(t[0]), int(t[1])
           assert col in range(1, 10)
