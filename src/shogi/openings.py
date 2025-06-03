@@ -231,9 +231,9 @@ _RECOGNIZER = Recognizer([
   ([('K', '79'), ('R', '48'), ('to', '48'), ('S', '78'), ('G', '58'), ('B', '66,88'), ('S', '56'), ('N', '29,37'), ('P', '36,37')] +
    adjacent_pawns(6, 2, 5, [3]) + adjacent_pawns(7, 5, 9, [7]) + last_row_pieces('23457'),
    Opening.RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO),
-  ([('K', '68,78'), ('to', '68,78'), ('R', '89'), ('G', '58'), ('G', '38'), ('N', '77'), ('S', '67'), ('S', '57'), ('P', '56'), ('P', '65'), ('P', '76')] +
-   adjacent_pawns(7, 2, 9, [5,6,7]) + last_row_pieces('345678'), 'TAKADA'),
-  ([('base-pattern', 'TAKADA'), ('B', '66')], Opening.TAKADA_STYLE_LEFT_HAND_KING),
+  ([('K', '68,78'), ('to', '68,78'), ('R', '89'), ('G', '58,69'), ('G', '38'), ('N', '77'), ('S', '67'), ('S', '39,57'), ('P', '56'), ('P', '65'), ('P', '76')] +
+   adjacent_pawns(7, 2, 5) + last_row_pieces('345678'), 'TAKADA'),
+  ([('base-pattern', 'TAKADA'), ('B', '57,66,79')], Opening.TAKADA_STYLE_LEFT_HAND_KING),
   ([('base-pattern', 'TAKADA'), ('B', 1)], Opening.TAKADA_STYLE_LEFT_HAND_KING),
   ([('K', '59,68,78'), ('R', '28'), ('S', '77'), ('S', '46'), ('to', '46'), ('from', '37'), ('P', '25'), ('P', '36'), ('P', '76'), ('G', '69,78'), ('G', '49,58'), ('B', 1)] +
     last_row_pieces('34567') + adjacent_pawns(7, 4, 9, [7]), Opening.RAPID_ADVANCING_SILVER),
