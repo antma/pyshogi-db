@@ -14,7 +14,8 @@ from ._misc import sfen_moveno
 
 _Operation = IntEnum('_Operation', ['EQ', 'IN', 'NOT_IN', 'PIECES_EQ', 'FROM_IN', 'TO_IN', 'MAX_MOVES', 'SIDE', 'BASE_PATTERN', 'LAST_ROW', 'PAWNS_IN', 'PAWNS_MASK', 'NO_MOVE'])
 _END_OF_THE_ROOK_S = set([piece.PAWN, piece.BISHOP, piece.HORSE])
-_END_OF_THE_OPENING_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER, piece.LANCE, piece.PROMOTED + piece.LANCE, piece.ROOK, piece.DRAGON])
+#_END_OF_THE_OPENING_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER, piece.LANCE, piece.PROMOTED + piece.LANCE, piece.ROOK, piece.DRAGON])
+_END_OF_THE_OPENING_S = set([piece.SILVER, piece.GOLD, piece.PROMOTED + piece.SILVER, piece.LANCE, piece.PROMOTED + piece.LANCE])
 _GOTE_END_OF_THE_OPENING_S = set(-p for p in _END_OF_THE_OPENING_S)
 
 def adjacent_pawns(row: int, start_col: int, end_col: int, excl: Optional[List[int]] = None):
@@ -39,6 +40,7 @@ class PositionForPatternRecognition(position.Position):
     self._taken = set()
     self._sente_opening = True
     self._gote_opening = True
+    self._rooks_exchange = False
     self._moves_destination_s = set()
     self._promotions = 0
     self.last_move = None
@@ -145,6 +147,8 @@ class PositionForPatternRecognition(position.Position):
           assert u.taken_piece > 0
           if u.taken_piece in _END_OF_THE_OPENING_S:
             self._gote_opening = False
+        if (not self._rooks_exchange) and (self.sente_pieces[piece.ROOK-1] > 0) and (self.gote_pieces[piece.ROOK-1] > 0):
+          self._rooks_exchange = True
     self.last_move = m
     p = m.from_piece
     if not p is None:
@@ -159,6 +163,8 @@ class PositionForPatternRecognition(position.Position):
       self._cached_sfen = super().sfen()
     return self._cached_sfen
   def is_opening(self, side: int) -> bool:
+    if self._rooks_exchange:
+      return False
     if side == 0:
       return self._sente_opening or self._gote_opening
     return self._sente_opening if side > 0 else self._gote_opening
