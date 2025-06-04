@@ -160,7 +160,7 @@ def game_find_castles(g: Game, max_hands: int = 60) -> RecognizerResult:
   assert g.start_pos is None
   _RECOGNIZER.reorder()
   rr = RecognizerResult()
-  pos = PositionForPatternRecognition()
+  pos = PositionForPatternRecognition(True)
   for m in g.moves[:max_hands]:
     pos.do_move(m)
     if not pos.is_opening(0):

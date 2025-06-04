@@ -34,13 +34,17 @@ def last_row_pieces(excl: str):
 def _swinging_rook_column(col: int) -> bool:
   return 1 <= col <= 5
 
+
 class PositionForPatternRecognition(position.Position):
-  def __init__(self, sfen: str = None):
+  def __init__(self, castle_detection_mode: bool, sfen: str = None):
     super().__init__(sfen)
+    self._castles_detection_mode = castle_detection_mode
     self._taken = set()
     self._sente_opening = True
     self._gote_opening = True
     self._rooks_exchange = False
+    self._sente_captures_mask = 0
+    self._gote_rev_captures_mask = 0
     self._moves_destination_s = set()
     self._promotions = 0
     self.last_move = None
@@ -77,10 +81,17 @@ class PositionForPatternRecognition(position.Position):
     return (to_piece, to_cell) in self._moves_destination_s
   def get_king_normalized_pos(self, side: int) -> int:
     return self._sente_king if side > 0 else self._gote_rev_king
+  def pawns(self, side: int) -> int:
+    p = self._sente_pawns if side > 0 else self._gote_rev_pawns
+    #counter example wars/0111.kif
+    #if self._castles_detection_mode:
+    #  q = self._sente_captures_mask if side > 0 else self._gote_rev_captures_mask
+    #  p ^= p & q
+    return p
   def pawns_in(self, side: int, mask: int) -> bool:
-    return ((self._sente_pawns if side > 0 else self._gote_rev_pawns) & mask) != 0
+    return (self.pawns(side) & mask) != 0
   def pawns_mask(self, side: int, mask: int) -> bool:
-    return ((self._sente_pawns if side > 0 else self._gote_rev_pawns) & mask) == mask
+    return (self.pawns(side) & mask) == mask
   def _check_pawns(self):
     s = 0
     g = 0
@@ -131,6 +142,17 @@ class PositionForPatternRecognition(position.Position):
       self._promotions += 1
     u = super().do_move(m)
     if not u is None:
+      if m.to_piece > 0:
+        self._sente_captures_mask |= 1 << m.to_cell
+        #counter example HIGH_MINO_CASTLE-H94.kif
+        #_SENTE_CAMP = ((1 << (9*4)) - 1) << (5 * 9)
+        #if (_SENTE_CAMP & self._sente_captures_mask) != 0:
+        #  self._sente_opening = False
+      else:
+        self._gote_rev_captures_mask |= 1 << cell.swap_side(m.to_cell)
+        #_SENTE_CAMP = ((1 << (9*4)) - 1) << (5 * 9)
+        #if (_SENTE_CAMP & self._gote_rev_captures_mask) != 0:
+        #  self._gote_opening = False
       tp = abs(u.taken_piece)
       if tp == piece.PAWN:
         if u.taken_piece > 0:

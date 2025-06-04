@@ -368,7 +368,7 @@ def game_find_openings(g: Game, max_hands: int = 60) -> RecognizerResult:
   assert g.start_pos is None
   _RECOGNIZER.reorder()
   rr = RecognizerResult()
-  pos = PositionForPatternRecognition()
+  pos = PositionForPatternRecognition(False)
   try:
     if g.moves[1] == _GOTE_URESINO_FIRST_MOVE:
       s = rr.get_set(-1)
