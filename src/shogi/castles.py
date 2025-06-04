@@ -95,7 +95,7 @@ _RECOGNIZER = Recognizer( [
   ([('base-pattern', 'STATIC_ROOK_ANAGUMA'), ('G', '69,78,87'), ('to', '88')], Castle.STATIC_ROOK_ANAGUMA),
   ([('base-pattern', 'STATIC_ROOK_ANAGUMA'), ('G', '79'), ('G', '78')], Castle.STATIC_ROOK_ANAGUMA),
   ([('K', '88'), ('S', '78'), ('G', '69'), ('G', '58,67'), ('L', '99'), ('N', '89'),
-    ('P', '87'), ('P', '76,77'), ('P', '66,67'), ('P', '95,96,97')], Castle.LEFT_HAND_MINO),
+    ('P', '87'), ('P', '66,67'), ('P', '95,96,97')], Castle.LEFT_HAND_MINO), #('P', '76,77'),
   ([('K', '68'), ('G', '58'), ('G', '78'), ('B', '88'), ('S', '79'), ('N', '89'), ('L', '99'),
     ('P', '96,97'), ('P', '87'), ('P', '76'), ('P', '67'), ('P', '57')], Castle.STRAWBERRY_CASTLE),
   ([('K', '89'), ('G', '79'), ('S', '88'), ('N', '77'), ('P', '87'), ('P', '76'), ('P', '67'), ('P','96,97'), ('L', '99')], Castle.MILLENIUM_CASTLE),
