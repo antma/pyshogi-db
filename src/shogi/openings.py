@@ -104,7 +104,7 @@ _RECOGNIZER = Recognizer([
     ('P', '46'), ('P', '36'), ('P', '56,57'), ('P', '25,26'), ('P', '76,77')], Opening.RIGHT_HAND_KING), #('P', '16,17'),
   ([('S', '27'), ('to', '27'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '76,77'), ('G', '69,78'), ('S', '68,77,79')] +
     last_row_pieces('367') + adjacent_pawns(7, 1, 10, [2, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
-  ([('S', '37'), ('to', '37'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '36'), ('P', '76,77'), ('G', '78')] +
+  ([('S', '37'), ('to', '37'), ('from', '38'), ('P', '25,26'), ('B', '88'), ('R', '28'), ('P', '36'), ('P', '76,77'), ('G', '69,78')] +
     last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.PRIMITIVE_CLIMBING_SILVER),
   ([('R', '58'), ('to', '58'), ('P', '55,56'), ('P', '76'), ('B', '77,88')] +
     last_row_pieces('') + adjacent_pawns(7, 2, 9, [5, 7]), Opening.GOKIGEN_CENTRAL_ROOK),
