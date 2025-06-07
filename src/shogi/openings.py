@@ -11,7 +11,7 @@ Opening = IntEnum('Opening',
    'FORTH_THIRD_FILE_ROOK_STRATEGY', 'ROOK32_STRATEGY', 'ROOK78_STRATEGY',
    'QUICK_ISHIDA', 'ISHIDA_STYLE', 'MASUDA_ISHIDA_STYLE', 'TOMAHAWK',
    'SAKATA_OPPOSING_ROOK', 'AMAHIKO_OPPOSING_ROOK', 'DIRECT_OPPOSING_ROOK',
-   'HIDE_CHAN_STYLE_CENTRAL_ROOK', 'PRIMITIVE_CENTRAL_ROOK', 'SILVER_HORNED_CENTRAL_ROOK',
+   'HIDE_CHAN_STYLE_CENTRAL_ROOK', 'PRIMITIVE_CENTRAL_ROOK', 'SILVER_HORNED_CENTRAL_ROOK', 'LEFT_ANAGUMA_CENTRAL_ROOK',
    'FUJII_SYSTEM', 'TATEISHI_STYLE',
    'SWINGING_ROOK_MILLENIUM',
    'LEGHORN_SPECIAL', 'BISHOP_EXCHANGE_SWINGING_ROOK',
@@ -148,6 +148,8 @@ _RECOGNIZER = Recognizer([
     last_row_pieces('367'), Opening.FUJII_SYSTEM),
   ([('K', '69'), ('G', '78'), ('G', '58'), ('S', '67'), ('S', '47'), ('to', '47'),
     ('P', '76'), ('P', '66'), ('P', '56,57'), ('P', '46'), ('N', '89'), ('L', '99'), ('N', '29,37'), ('L', '19'), ('B', '77,88')], Opening.SILVER_HORNED_SNOW_ROOF),
+  ([('P', '75'), ('R', '28'), ('to', '75'), ('B', '88'), ('p', '34'), ('p', '83')] +
+   last_row_pieces('7') + adjacent_pawns(7, 2, 9, [6,7]), Opening.QUICK_ISHIDA),
   ([('P', '75'), ('R', '78'), ('to', '78'), ('from', '28'), ('B', '88'), ('p', '34')] +
    last_row_pieces('') + adjacent_pawns(7, 1, 10, [7]), Opening.QUICK_ISHIDA),
   ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34'), ('p', '84,85')] +
@@ -167,7 +169,7 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('7') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.DIRECT_OPPOSING_ROOK),
   ([('P', '56'), ('to', '56'), ('G', '78'), ('S', '68'), ('S', '48'), ('B', '88'), ('R', '28'), ('P', '25,26,27'), ('r', '82')] +
     adjacent_pawns(7, 3, 9, [5]) + last_row_pieces('367'), Opening.MURATA_SYSTEM), #('p', 0)
-  ([('R', '58'), ('to', '58'), ('from', '28'), ('B', '77,88'), ('S', '67,68'), ('P', '76,77'), ('P', '66,67')] + last_row_pieces('7')
+  ([('R', '58'), ('to', '58'), ('from', '28'), ('B', '77,88'), ('S', '67,68'), ('P', '76,77'), ('P', '66,67'), ('r', '82')] + last_row_pieces('7')
    + adjacent_pawns(7, 2, 9, [6, 7]), Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK),
   ([('R', '58'), ('N', '77,89'), ('S', '66'), ('S', '46'), ('P', '23,24,25'), ('P', '56'), ('P', '76')]
    + last_row_pieces('378') + adjacent_pawns(7, 3, 9, [5, 7]), Opening.CRAB_SILVERS),
@@ -269,6 +271,8 @@ _RECOGNIZER = Recognizer([
     ('N', '29,37'),
     ('P', '36,37'), ('P', '46')] +
    last_row_pieces('237'), Opening.FEINT_SWINGING_ROOK),
+  ([('K', '88'), ('L', '98'), ('to', '98'), ('R', '58'), ('P', '55'), ('B', '77')] +
+   last_row_pieces('359'), Opening.LEFT_ANAGUMA_CENTRAL_ROOK),
 ])
 
 del _LEFT_KING
