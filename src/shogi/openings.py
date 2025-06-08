@@ -63,6 +63,8 @@ _OPENINGS_D = SFENMap({
 
 _OPENINGS_POS_AND_MOVE_D = SFENMap({
   'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12 8h7g' : Opening.BISHOP_EXCHANGE, #[wars/0004]
+  'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PP+bPPPP1P/3S3R1/LN1GKGSNL b b 11 2b7g': Opening.BISHOP_EXCHANGE,
+  'lnsgk1snl/1r4g2/p1pppp1pp/6p2/1p5P1/2P6/PPSPPPP1P/7R1/LN1GKGSNL w Bb 12 6h7g': Opening.BISHOP_EXCHANGE,
   'lnsgkgsnl/1r5b1/pppppp1pp/6p2/9/4P4/PPPP1PPPP/1B2R4/LNSGKGSNL w - 4 2h5h': Opening.GOKIGEN_CENTRAL_ROOK, #[wars/0064]
   'lnsgk1snl/6g2/p1pppp2p/6R2/5b3/1rP6/P2PPPP1P/1SG4S1/LN2KG1NL b B4Pp 21 B*4e' : Opening.BISHOP45_STRATEGY, #[wars/0066]
   'lnsgk1snl/6gb1/p1pppp2p/6pR1/9/P1r6/3PPPP1P/1BG6/LNS1KGSNL b 2P3p 17 8f7f': Opening.SIDE_PAWN_PICKER, #[wars/0084]
@@ -271,7 +273,7 @@ _RECOGNIZER = Recognizer([
     ('N', '29,37'),
     ('P', '36,37'), ('P', '46')] +
    last_row_pieces('237'), Opening.FEINT_SWINGING_ROOK),
-  ([('K', '88'), ('L', '98'), ('to', '98'), ('R', '58'), ('P', '55'), ('B', '77')] +
+  ([('K', '88'), ('L', '98'), ('to', '98'), ('R', '56,58'), ('P', '55'), ('B', '77')] +
    last_row_pieces('359'), Opening.LEFT_ANAGUMA_CENTRAL_ROOK),
 ])
 
