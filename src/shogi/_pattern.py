@@ -488,6 +488,8 @@ class RecognizerSet:
     self._d = {}
   def __contains__(self, key):
     return key in self._s
+  def __repr__(self):
+    return f'RecognizerSet({repr(self._d)})'
   def add(self, value, move_no: int):
     if value not in self._s:
       self._s.add(value)

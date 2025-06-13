@@ -587,6 +587,7 @@ _TEST_DATA_CASTLES = [
   (274, [], [Castle.LEFT_HAND_MINO]),
   (275, [Castle.BOAT_CASTLE, Castle.STATIC_ROOK_ANAGUMA], [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE, Castle.DIAMOND_MINO]),
   (276, [], [Castle.STRAWBERRY_CASTLE]),
+  (277, [Castle.STATIC_ROOK_ANAGUMA, Castle.SILVER_CROWN_ANAGUMA, Castle.BIG_FOUR], [Castle.SWINGING_ROOK_ANAGUMA]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -882,6 +883,7 @@ _TEST_DATA_OPENINGS = [
   (274, [Opening.FORTH_FILE_ROOK, Opening.BISHOP_EXCHANGE_SWINGING_ROOK], []),
   (275, [Opening.SWINGING_ROOK_SLOW_GAME_COUNTERMEASURE], [Opening.FORTH_FILE_ROOK]),
   (276, [Opening.MURATA_SYSTEM], []),
+  (277, [Opening.GOKIGEN_CENTRAL_ROOK, Opening.LEFT_ANAGUMA_CENTRAL_ROOK], [Opening.DOUBLE_SWINGING_ROOK]),
 ]
 
 class TestClassifier(unittest.TestCase):
@@ -900,15 +902,15 @@ class TestClassifier(unittest.TestCase):
     if not castles is None:
       sente_castles, gote_castles = castles
       rr = shogi.castles.game_find_castles(g)
-      self.assertEqual(set(sente_castles), rr.get_set(1).as_set(), msg)
-      self.assertEqual(set(gote_castles), rr.get_set(-1).as_set(), msg)
+      self.assertEqual(set(sente_castles), rr.get_set(1).as_set(), f'{msg} {repr(rr.get_set(1))}')
+      self.assertEqual(set(gote_castles), rr.get_set(-1).as_set(), f'{msg} {repr(rr.get_set(-1))}')
     else:
       logging.warning("%s: castles aren't set", msg);
     if not openings is None:
       sente_openings, gote_openings = openings
       rr = shogi.openings.game_find_openings(g)
-      self.assertEqual(set(sente_openings), rr.get_set(1).as_set(), msg)
-      self.assertEqual(set(gote_openings), rr.get_set(-1).as_set(), msg)
+      self.assertEqual(set(sente_openings), rr.get_set(1).as_set(), f'{msg} {repr(rr.get_set(1))}')
+      self.assertEqual(set(gote_openings), rr.get_set(-1).as_set(), f'{msg} {repr(rr.get_set(-1))}')
     else:
       logging.warning("%s: openings aren't set", msg);
   def test_partial_castles(self):
