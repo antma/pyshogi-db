@@ -34,6 +34,9 @@ def last_row_pieces(excl: str):
 def _swinging_rook_column(col: int) -> bool:
   return 1 <= col <= 5
 
+def _has_pieces_in_hand(p):
+  #return any(i > 0 for i in p[1:])
+  return p[piece.ROOK-1] > 0
 
 class PositionForPatternRecognition(position.Position):
   def __init__(self, castle_detection_mode: bool, sfen: str = None):
@@ -184,9 +187,15 @@ class PositionForPatternRecognition(position.Position):
     if self._cached_sfen is None:
       self._cached_sfen = super().sfen()
     return self._cached_sfen
-  def is_opening(self, side: int) -> bool:
+  def _is_opening_rook_exchanged(self, side: int) -> bool:
     if self._rooks_exchange:
       return False
+    if side == 0:
+      return self._sente_opening or self._gote_opening
+    if side > 0:
+      return self._sente_opening and (not _has_pieces_in_hand(self.sente_pieces))
+    return self._gote_opening and (not _has_pieces_in_hand(self.gote_pieces))
+  def is_opening(self, side: int) -> bool:
     if side == 0:
       return self._sente_opening or self._gote_opening
     return self._sente_opening if side > 0 else self._gote_opening
