@@ -24,7 +24,7 @@ Opening = IntEnum('Opening',
    'RIGHT_HAND_FORTH_FILE_ROOK', 'RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO',
    'CRAB_SILVERS',
    'RIGHT_HAND_KING',
-   'DOUBLE_WING_ATTACK', 'DOUBLE_WING_ATTACK_CLIMBING_SILVER',
+   'DOUBLE_WING_ATTACK', 'DOUBLE_WING_ATTACK_CLIMBING_SILVER', 'NAKAHARA_STYLE_DOUBLE_WING_ATTACK',
    'UFO_SILVER',
    'RECLINING_SILVER',
    'BISHOP_EXCHANGE', 'ONE_TURN_LOSS_BISHOP_EXCHANGE', 'BISHOP_EXCHANGE_RECLINING_SILVER', 'BISHOP_EXCHANGE_CLIMBING_SILVER',
@@ -226,6 +226,8 @@ _RECOGNIZER = Recognizer([
     ('p', '85'), ('r', '82'), ('s', '31'), ('s', '71,72'), ('g', '61'), ('k', '51'), ('g', '32'),
     ] +
     last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2]), Opening.DOUBLE_WING_ATTACK),
+  ([('K', '58'), ('B', '88'), ('G', '78'), ('S', '37'), ('P', '76'), ('P', '36'), ('R', '26')] +
+   adjacent_pawns(7, 4, 7) + last_row_pieces('356'), Opening.NAKAHARA_STYLE_DOUBLE_WING_ATTACK),
   ([('K', '68'), ('B', '88'), ('R', '28'), ('S', '37'), ('to', '37'), ('from', '48'), ('P', '36'), ('P', '25'), ('P', '76')] +
    last_row_pieces('35') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.SILVER37_SUPER_RAPID),
   ([('K', '78'), ('B', '88'), ('G', '68,69'), ('G', '58'), ('R', '28'), ('S', '57'), ('S', '26'), ('from', '37'), ('to', '26'), ('P', '25'), ('P', '87'), ('P', '67')] +
