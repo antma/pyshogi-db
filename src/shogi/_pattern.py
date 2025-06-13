@@ -187,6 +187,10 @@ class PositionForPatternRecognition(position.Position):
     if self._cached_sfen is None:
       self._cached_sfen = super().sfen()
     return self._cached_sfen
+  def _rook_in_the_camp(self, side: int) -> bool:
+    ''' unoptimized version for testing prototype'''
+    a, s = (self.board[4*9:], set([piece.ROOK, piece.DRAGON])) if side > 0 else (self.board[:5*9], set([-piece.ROOK, -piece.DRAGON]))
+    return any(i in s for i in a)
   def _is_opening_rook_exchanged(self, side: int) -> bool:
     if self._rooks_exchange:
       return False
@@ -198,7 +202,9 @@ class PositionForPatternRecognition(position.Position):
   def is_opening(self, side: int) -> bool:
     if side == 0:
       return self._sente_opening or self._gote_opening
-    return self._sente_opening if side > 0 else self._gote_opening
+    if not (self._sente_opening if side > 0 else self._gote_opening):
+      return False
+    return self._rook_in_the_camp(side)
     #return self._taken.isdisjoint(_END_OF_THE_OPENING_S)
   def count_piece_moves(self, p: int) -> int:
     return self._count_moves_d.get(p, 0)
