@@ -597,6 +597,11 @@ _TEST_DATA_CASTLES = [
   (284, [], [Castle.SILVER_STANDING_YAGURA, Castle.SNOW_ROOF_CASTLE]),
   (285, [], []),
   (286, [], [Castle.CRAB_CASTLE]),
+  (287, [Castle.HALF_MINO_CASTLE, Castle.MINO_CASTLE], [Castle.BOAT_CASTLE, Castle.LEFT_HAND_MINO]),
+  (288, [Castle.BONANZA_CASTLE, Castle.HALF_YAGURA], [Castle.HALF_MINO_CASTLE]),
+  (289, [], []),
+  (290, [], [Castle.HALF_MINO_CASTLE]),
+  (291, [], [Castle.YAGURA_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -902,6 +907,11 @@ _TEST_DATA_OPENINGS = [
   (284, [], [Opening.URESINO_STYLE]),
   (285, [Opening.SIDE_PAWN_PICKER], [Opening.KNIGHT33_STRATEGY]),
   (286, [Opening.MURATA_SYSTEM], []),
+  (287, [Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK], []),
+  (288, [], [Opening.FORTH_FILE_ROOK]),
+  (289, [], []),
+  (290, [], [Opening.FORTH_FILE_ROOK]),
+  (291, [], [Opening.YAGURA_CLIMBING_SILVER]),
 ]
 
 class TestClassifier(unittest.TestCase):
