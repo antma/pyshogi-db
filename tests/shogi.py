@@ -591,6 +591,7 @@ _TEST_DATA_CASTLES = [
   (278, [], [Castle.HALF_MINO_CASTLE]),
   (279, [Castle.CASTLE_TOWER_MINO], [Castle.HALF_MINO_CASTLE, Castle.TOPKNOT_MINO]),
   (280, [], []),
+  (281, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -890,6 +891,7 @@ _TEST_DATA_OPENINGS = [
   (278, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
   (279, [Opening.RIGHT_HAND_FORTH_FILE_ROOK], [Opening.FORTH_FILE_ROOK]),
   (280, [Opening.DOUBLE_WING_ATTACK, Opening.NAKAHARA_STYLE_DOUBLE_WING_ATTACK], []),
+  (281, [Opening.GOKIGEN_CENTRAL_ROOK], [Opening.ONE_STRAIGHT_WAY_ANAGUMA]),
 ]
 
 class TestClassifier(unittest.TestCase):

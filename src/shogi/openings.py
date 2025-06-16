@@ -259,8 +259,8 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('67') + adjacent_pawns(7, 2, 9), Opening.FIRST_FILE_ROOK),
   ([('K', '48'), ('N', '17'), ('to', '17'), ('R', '78'), ('P', '15'), ('B', '77,88'), ('S', '45,56,67'), ('P', '66'), ('P', '76')] +
    last_row_pieces('257') + adjacent_pawns(7, 2, 9, [6, 7]), Opening.TOMAHAWK),
-  ([('K', '99'), ('L', '98'), ('G', '78'), ('S', '68'), ('to', '68'), ('from', '59'), ('B', '77'), ('G', '67'), ('R', '28'), ('P', '25')] +
-   last_row_pieces('34569') + adjacent_pawns(7, 3, 8, [6, 7]) + adjacent_pawns(6, 6, 8), Opening.ONE_STRAIGHT_WAY_ANAGUMA),
+  ([('K', '99'), ('L', '98'), ('G', '78'), ('S', '68'), ('to', '68'), ('from', '59'), ('B', '77'), ('G', '67'), ('R', '28'), ('P', '25,26'), ('P', '66')] +
+   last_row_pieces('34569') + adjacent_pawns(7, 3, 8, [6, 7]), Opening.ONE_STRAIGHT_WAY_ANAGUMA),
   ([('K', '59,68,78,79'), ('R', '48'), ('to', '48'), ('from', '28'), ('P', '46'), ('P', '26,27'), ('P', '37'),
     ('B', '88'), ('P', '57'), ('P', '67')] #('S', '47,56'),
    + last_row_pieces('34567'), Opening.RIGHT_HAND_FORTH_FILE_ROOK),
