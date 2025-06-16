@@ -85,7 +85,7 @@ _RECOGNIZER = Recognizer( [
   ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29,37'), ('L', '19'), ('G', '58'),
     ('P', '27'), (' ', '59')], Castle.MINO_CASTLE), #('P', '46,47'), ('P', '15,16,17'), ('P', '36,37'),
   ([('K', '28'), ('G', '38'), ('S', '48'), ('N', '29'), ('L', '19'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.GOLD_MINO),
-  ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('!G', '58'), ('!S', '58'), ('!G', '47'), ('!S', '47'),
+  ([('K', '28,39'), ('S', '38'), ('G', '49'), ('N', '29'), ('L', '19'), ('!P', '58'), ('!G', '58'), ('!S', '58'), ('!G', '47'), ('!S', '47'),
     ('P', '46,47'), ('P', '37'), ('P', '27'), ('P', '15,16,17')], Castle.HALF_MINO_CASTLE),
   ([('K', '38'), ('G', '48'), ('G', '58'), ('S', '28,39'), ('N', '29,37'), ('L', '19'),
     ('P', '26,27'), ('P', '36,37'), ('P', '47'), ('P', '15,16,17')], Castle.PEERLESS_GOLDS),
@@ -156,7 +156,7 @@ def sfen_find_castle(sfen: str) -> Optional[Castle]:
   pos = PositionForPatternRecognition(sfen)
   return position_find_castle(pos)
 
-def game_find_castles(g: Game, max_hands: int = 60) -> RecognizerResult:
+def game_find_castles(g: Game, max_hands: int = 62) -> RecognizerResult:
   assert g.start_pos is None
   _RECOGNIZER.reorder()
   rr = RecognizerResult()
