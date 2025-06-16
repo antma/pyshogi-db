@@ -157,7 +157,7 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('') + adjacent_pawns(7, 1, 10, [7]), Opening.QUICK_ISHIDA),
   ([('K', '48'), ('to', '48'), ('R', '78'), ('P', '75'), ('B', '88'), ('r', '82'), ('p', '34'), ('p', '84,85')] +
    last_row_pieces('5') + adjacent_pawns(7, 1, 10, [7]), Opening.MASUDA_ISHIDA_STYLE),
-  ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99'), 
+  ([('R', '76'), ('N', '77'), ('to', '77'), ('P', '66'), ('P', '75'), ('P', '87'), ('B', '88,97'), ('P', '96,97'), ('L', '99'),
     ('r', '82'), _RIGHT_KING ], Opening.ISHIDA_STYLE),
   ([('G', '27'), ('to', '27'), ('from', '38'), ('P', '25,26'), ('R', '28'),
     ('N', '29'), ('L', '19'), ('p', '34,35'), _LEFT_KING], Opening.CLIMBING_GOLD), #('P', '37'),
@@ -279,9 +279,9 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('237'), Opening.FEINT_SWINGING_ROOK),
   ([('K', '88'), ('L', '98'), ('to', '98'), ('R', '56,58'), ('P', '55'), ('B', '77')] +
    last_row_pieces('359'), Opening.LEFT_ANAGUMA_CENTRAL_ROOK),
-  ([('K', '69,79,88'), ('S', '26'), ('to', '26'), ('P', '25'), ('R', '28'), 
-    ('G', '78'), ('S', '68,77'), ('G', '58,67'), ('P', '76'), ('P', '87'), ('B', '68,88')] +
-   last_row_pieces('34567'), Opening.YAGURA_CLIMBING_SILVER),
+  ([('K', '69,79,88'), ('S', '26'), ('to', '26'), ('P', '25'), ('R', '28'),
+    ('G', '78'), ('S', '67,68,77,88'), ('P', '76'), ('P', '87'), ('B', '68,77,79,88'), ('N', '29,37')] +
+   last_row_pieces('234567'), Opening.YAGURA_CLIMBING_SILVER), #('G', '58,67'),
 ])
 
 del _LEFT_KING
