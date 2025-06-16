@@ -596,6 +596,7 @@ _TEST_DATA_CASTLES = [
   (283, [], [Castle.SNOW_ROOF_CASTLE]),
   (284, [], [Castle.SILVER_STANDING_YAGURA, Castle.SNOW_ROOF_CASTLE]),
   (285, [], []),
+  (286, [], [Castle.CRAB_CASTLE]),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -900,6 +901,7 @@ _TEST_DATA_OPENINGS = [
   (283, [], [Opening.SILVER_HORNED_SNOW_ROOF]),
   (284, [], [Opening.URESINO_STYLE]),
   (285, [Opening.SIDE_PAWN_PICKER], [Opening.KNIGHT33_STRATEGY]),
+  (286, [Opening.MURATA_SYSTEM], []),
 ]
 
 class TestClassifier(unittest.TestCase):
