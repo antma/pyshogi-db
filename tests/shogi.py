@@ -595,6 +595,7 @@ _TEST_DATA_CASTLES = [
   (282, [Castle.STATIC_ROOK_ANAGUMA, Castle.SILVER_CROWN_ANAGUMA, Castle.BIG_FOUR], [Castle.SWINGING_ROOK_ANAGUMA]),
   (283, [], [Castle.SNOW_ROOF_CASTLE]),
   (284, [], [Castle.SILVER_STANDING_YAGURA, Castle.SNOW_ROOF_CASTLE]),
+  (285, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -898,6 +899,7 @@ _TEST_DATA_OPENINGS = [
   (282, [], [Opening.HIDE_CHAN_STYLE_CENTRAL_ROOK]),
   (283, [], [Opening.SILVER_HORNED_SNOW_ROOF]),
   (284, [], [Opening.URESINO_STYLE]),
+  (285, [Opening.SIDE_PAWN_PICKER], [Opening.KNIGHT33_STRATEGY]),
 ]
 
 class TestClassifier(unittest.TestCase):
