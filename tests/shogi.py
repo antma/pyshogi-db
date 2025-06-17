@@ -607,6 +607,7 @@ _TEST_DATA_CASTLES = [
   (294, [], []),
   (295, [], []),
   (296, [], [Castle.CRAB_CASTLE, Castle.SNOW_ROOF_CASTLE]),
+  (297, [], []),
 ]
 
 class TestCastles(unittest.TestCase):
@@ -922,6 +923,7 @@ _TEST_DATA_OPENINGS = [
   (294, [Opening.DOUBLE_WING_ATTACK, Opening.NAKAHARA_STYLE_DOUBLE_WING_ATTACK], [Opening.DOUBLE_WING_ATTACK]),
   (295, [Opening.THIRD_FILE_ROOK], [Opening.SLEEVE_ROOK]),
   (296, [], []),
+  (297, [], [Opening.GOKIGEN_CENTRAL_ROOK]),
 ]
 
 class TestClassifier(unittest.TestCase):
