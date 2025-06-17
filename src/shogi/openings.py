@@ -227,7 +227,7 @@ _RECOGNIZER = Recognizer([
     ('p', '85'), ('r', '82'), ('s', '31'), ('s', '71,72'), ('g', '61'), ('k', '51'), ('g', '32'),
     ] +
     last_row_pieces('36') + adjacent_pawns(7, 1, 10, [2]), Opening.DOUBLE_WING_ATTACK),
-  ([('K', '58'), ('B', '88'), ('G', '78'), ('S', '37'), ('P', '76'), ('P', '36'), ('R', '26')] +
+  ([('K', '58'), ('B', '88'), ('G', '78'), ('S', '37'), ('P', '76'), ('P', '36'), ('R', '26'), ('P', '16')] +
    adjacent_pawns(7, 4, 7) + last_row_pieces('356'), Opening.NAKAHARA_STYLE_DOUBLE_WING_ATTACK),
   ([('K', '68'), ('B', '88'), ('R', '28'), ('S', '37'), ('to', '37'), ('from', '48'), ('P', '36'), ('P', '25'), ('P', '76')] +
    last_row_pieces('35') + adjacent_pawns(7, 1, 10, [2, 3, 7]), Opening.SILVER37_SUPER_RAPID),
@@ -235,7 +235,7 @@ _RECOGNIZER = Recognizer([
    last_row_pieces('34567') + adjacent_pawns(6, 3, 8, [6]), Opening.CLIMBING_SILVER),
   ([('K', '59,69'), ('B', '88'), ('G', '78'), ('S', '27'), ('to', '27'), ('from', '38'), ('R', '28'),
     (' ', '26'), (' ', '25'), (' ', '24'), ('P', 1)] + #('p', '85'), ('r', '82')
-   last_row_pieces('3567') + adjacent_pawns(7, 3, 9, [7]), Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER),
+   last_row_pieces('34567') + adjacent_pawns(7, 3, 9, [6,7]), Opening.DOUBLE_WING_ATTACK_CLIMBING_SILVER),
   ([('K', '79'), ('R', '48'), ('to', '48'), ('S', '78'), ('G', '58'), ('B', '66,88'), ('S', '56'), ('N', '29,37'), ('P', '36,37')] +
    adjacent_pawns(6, 2, 5, [3]) + adjacent_pawns(7, 5, 9, [7]) + last_row_pieces('23457'),
    Opening.RIGHT_HAND_FORTH_FILE_ROOK_WITH_LEFT_HAND_MINO),
